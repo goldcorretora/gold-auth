@@ -108,7 +108,7 @@ def require_admin(request: Request) -> Dict[str, Any]:
         raise HTTPException(status_code=403, detail="Acesso restrito a administradores.")
     return user
 
-def set_sso_cookie(response: Response, token: str, request: Request):
+def set_sso_cookie(response: Response, token: str, request: Request, dias_validade: int = 7):
     host = request.headers.get("x-forwarded-host") or request.headers.get("host") or ""
     domain = COOKIE_DOMAIN if ("goldcorretora.com.br" in host and COOKIE_DOMAIN) else None
     is_https = (request.headers.get("x-forwarded-proto", "http") == "https") or COOKIE_SECURE
@@ -116,7 +116,7 @@ def set_sso_cookie(response: Response, token: str, request: Request):
     response.set_cookie(
         key=COOKIE_NAME,
         value=token,
-        max_age=7 * 24 * 3600,
+        max_age=dias_validade * 24 * 3600,
         httponly=True,
         secure=is_https if domain else False,
         samesite="lax",
@@ -291,6 +291,11 @@ async def traefik_forward_auth(request: Request):
 class LoginIn(BaseModel):
     email: str
     senha: str
+    lembrar: bool = True
+
+class ForgotPasswordIn(BaseModel):
+    email: str
+    observacao: Optional[str] = ""
 
 class AuditEventIn(BaseModel):
     app: str = Field(default="painel-vendedor")
@@ -322,8 +327,9 @@ async def api_login(payload: LoginIn, request: Request, response: Response):
         )
         raise HTTPException(status_code=401, detail=erro or "Credenciais inválidas.")
 
-    token = criar_sessao(user["id"], ip=ip, user_agent=ua)
-    set_sso_cookie(response, token, request)
+    dias = 30 if payload.lembrar else 1
+    token = criar_sessao(user["id"], ip=ip, user_agent=ua, dias_validade=dias)
+    set_sso_cookie(response, token, request, dias_validade=dias)
 
     registrar_auditoria(
         acao="LOGIN_SUCESSO",
@@ -331,7 +337,7 @@ async def api_login(payload: LoginIn, request: Request, response: Response):
         app="gold-auth",
         metodo="POST",
         rota="/api/auth/login",
-        detalhes={"user_agent": ua[:120]},
+        detalhes={"user_agent": ua[:120], "permanecer_conectado": payload.lembrar},
         ip=ip
     )
 
@@ -339,6 +345,28 @@ async def api_login(payload: LoginIn, request: Request, response: Response):
         "ok": True,
         "token": token,
         "user": user
+    }
+
+@app.post("/api/auth/forgot-password")
+async def api_forgot_password(payload: ForgotPasswordIn, request: Request):
+    email_limpo = payload.email.strip().lower()
+    if not email_limpo:
+        raise HTTPException(status_code=400, detail="Informe seu e-mail corporativo.")
+    registrar_auditoria(
+        acao="SOLICITACAO_REDEFINICAO_SENHA",
+        usuario={"nome": email_limpo, "email": email_limpo, "cargo": "RECUPERACAO"},
+        app="gold-auth",
+        metodo="POST",
+        rota="/api/auth/forgot-password",
+        detalhes={
+            "alvo_email": email_limpo,
+            "resumo": f"Solicitação de redefinição de senha para {email_limpo}. {payload.observacao or ''}".strip()
+        },
+        ip=get_client_ip(request)
+    )
+    return {
+        "ok": True,
+        "message": "Solicitação registrada! A gestão da Gold Corretora foi notificada no painel para redefinir sua senha."
     }
 
 @app.post("/api/auth/logout")
