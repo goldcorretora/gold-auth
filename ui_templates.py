@@ -572,12 +572,12 @@ def get_login_html(default_redirect: str = "https://vendas.goldcorretora.com.br"
 
         const params = new URLSearchParams(window.location.search);
         const rd = params.get('rd');
-        if (rd) {{
+        if (rd && !rd.includes('auth.goldcorretora.com.br')) {{
           window.location.href = rd;
-        }} else if (data.user && data.user.cargo === 'ADMIN') {{
-          window.location.href = '/admin';
-        }} else {{
+        }} else if ('{default_redirect}' && '{default_redirect}' !== 'https://goldcorretora.com.br') {{
           window.location.href = '{default_redirect}';
+        }} else {{
+          window.location.href = 'https://vendas.goldcorretora.com.br';
         }}
       }} catch (err) {{
         errorText.textContent = err.message || 'Não foi possível conectar ao servidor.';

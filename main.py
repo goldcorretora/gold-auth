@@ -40,7 +40,11 @@ COOKIE_NAME = os.getenv("COOKIE_NAME", "gold_sso_token")
 COOKIE_DOMAIN = os.getenv("COOKIE_DOMAIN", ".goldcorretora.com.br").strip()
 COOKIE_SECURE = os.getenv("COOKIE_SECURE", "true").lower() == "true"
 PUBLIC_AUTH_URL = os.getenv("PUBLIC_AUTH_URL", "https://auth.goldcorretora.com.br").rstrip("/")
-DEFAULT_REDIRECT_URL = os.getenv("DEFAULT_REDIRECT_URL", "https://vendas.goldcorretora.com.br").rstrip("/")
+_raw_default_redir = os.getenv("DEFAULT_REDIRECT_URL", "https://vendas.goldcorretora.com.br").rstrip("/")
+if _raw_default_redir in ("https://goldcorretora.com.br", "http://goldcorretora.com.br", ""):
+    DEFAULT_REDIRECT_URL = "https://vendas.goldcorretora.com.br"
+else:
+    DEFAULT_REDIRECT_URL = _raw_default_redir
 
 # Cache leve em memória para evitar gravar 50 logs por segundo do mesmo usuário navegando em assets estáticos
 _last_access_audit: Dict[str, float] = {}
@@ -161,7 +165,7 @@ async def root_redirect(request: Request, rd: Optional[str] = Query(None)):
     if not user:
         target = f"/login?rd={quote(rd)}" if rd else "/login"
         return RedirectResponse(url=target, status_code=302)
-    if rd:
+    if rd and "auth.goldcorretora.com.br" not in rd:
         return RedirectResponse(url=rd, status_code=302)
     if user.get("cargo") == "ADMIN" or "auditoria.view" in (user.get("permissoes") or []):
         return RedirectResponse(url="/admin", status_code=302)
@@ -169,10 +173,11 @@ async def root_redirect(request: Request, rd: Optional[str] = Query(None)):
 
 @app.get("/login", response_class=HTMLResponse, include_in_schema=False)
 async def login_page(request: Request, rd: Optional[str] = Query(None)):
+    clean_rd = rd if (rd and "auth.goldcorretora.com.br" not in rd) else None
     user = get_current_user(request)
     if user:
-        if rd:
-            return RedirectResponse(url=rd, status_code=302)
+        if clean_rd:
+            return RedirectResponse(url=clean_rd, status_code=302)
         if user.get("cargo") == "ADMIN":
             return RedirectResponse(url="/admin", status_code=302)
         return RedirectResponse(url=DEFAULT_REDIRECT_URL, status_code=302)
@@ -192,7 +197,7 @@ async def admin_page(request: Request):
 # TRAEFIK FORWARDAUTH ENDPOINT (/api/auth/verify)
 # ==========================================================
 @app.api_route("/api/auth/verify", methods=["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"])
-async def traefik_forward_auth(request: Request):
+async def traefik_forward_auth(request: Request, target: Optional[str] = Query(None)):
     """
     Endpoint consultado pelo Traefik no Coolify antes de liberar qualquer requisição para os apps protegidos.
     - Se for requisição OPTIONS (CORS preflight), retorna 200 OK para o navegador prosseguir.
@@ -202,9 +207,22 @@ async def traefik_forward_auth(request: Request):
         * Se for acesso via navegador, redireciona (302) para https://auth.goldcorretora.com.br/login?rd=<URL_ORIGINAL>
     """
     forwarded_method = request.headers.get("x-forwarded-method", request.method).upper()
-    forwarded_proto = request.headers.get("x-forwarded-proto", "https")
-    forwarded_host = request.headers.get("x-forwarded-host") or request.headers.get("host") or ""
-    forwarded_uri = request.headers.get("x-forwarded-uri", "/")
+    forwarded_proto = request.headers.get("x-forwarded-proto", "https").split(",")[0].strip()
+
+    # Quando passa por Cloudflare ou proxy externo, X-Forwarded-Host pode vir como "vendas.goldcorretora.com.br, auth.goldcorretora.com.br"
+    # ou ser sobrescrito se não vier por rede interna. Priorizamos ?target= se informado, depois o primeiro host de X-Forwarded-Host.
+    raw_f_host = request.headers.get("x-forwarded-host") or ""
+    first_f_host = raw_f_host.split(",")[0].strip() if raw_f_host else ""
+    if target:
+        forwarded_host = target.strip().replace("https://", "").replace("http://", "").rstrip("/")
+    elif first_f_host and "auth.goldcorretora.com.br" not in first_f_host:
+        forwarded_host = first_f_host
+    else:
+        # Se o Traefik/Cloudflare sobrescreveu para auth.goldcorretora.com.br, usa o host do DEFAULT_REDIRECT_URL
+        forwarded_host = DEFAULT_REDIRECT_URL.replace("https://", "").replace("http://", "").rstrip("/")
+
+    raw_f_uri = request.headers.get("x-forwarded-uri", "/")
+    forwarded_uri = "/" if raw_f_uri.startswith("/api/auth/verify") else raw_f_uri
 
     # Libera preflight CORS e healthchecks públicos
     if forwarded_method == "OPTIONS" or forwarded_uri.startswith("/healthz") or forwarded_uri.startswith("/api/health"):
