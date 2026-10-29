@@ -40,7 +40,7 @@ COOKIE_NAME = os.getenv("COOKIE_NAME", "gold_sso_token")
 COOKIE_DOMAIN = os.getenv("COOKIE_DOMAIN", ".goldcorretora.com.br").strip()
 COOKIE_SECURE = os.getenv("COOKIE_SECURE", "true").lower() == "true"
 PUBLIC_AUTH_URL = os.getenv("PUBLIC_AUTH_URL", "https://auth.goldcorretora.com.br").rstrip("/")
-DEFAULT_REDIRECT_URL = os.getenv("DEFAULT_REDIRECT_URL", "https://painel.goldcorretora.com.br").rstrip("/")
+DEFAULT_REDIRECT_URL = os.getenv("DEFAULT_REDIRECT_URL", "https://vendas.goldcorretora.com.br").rstrip("/")
 
 # Cache leve em memória para evitar gravar 50 logs por segundo do mesmo usuário navegando em assets estáticos
 _last_access_audit: Dict[str, float] = {}
@@ -132,7 +132,7 @@ def clear_sso_cookie(response: Response, request: Request):
 
 def resolve_app_slug_from_host(host: str) -> str:
     h = (host or "").lower().split(":")[0]
-    if "painel" in h or "vendedor" in h:
+    if "painel" in h or "vendedor" in h or "vendas" in h:
         return "painel-vendedor"
     if "api" in h or "db" in h:
         return "gold-db-api"
