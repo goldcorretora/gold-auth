@@ -121,6 +121,13 @@ SHARED_HEAD = """
   .modal-panel {
     transition: transform 200ms var(--ease-out-strong), opacity 200ms var(--ease-out-strong);
   }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
   @media (prefers-reduced-motion: reduce) {
     .btn-tactile, .modal-panel, * {
       transition-duration: 0.01ms !important;
@@ -369,10 +376,10 @@ def get_login_html(
 
       <!-- Rodapé Mobile com Onda Azul Institucional -->
       <footer class="lg:hidden relative z-10 -mx-5 sm:-mx-8 -mb-5 sm:-mb-8 bg-navy-950 pt-5 pb-3.5 px-4 text-center text-[11px] text-slate-400 font-medium shrink-0 mt-3 sm:mt-4">
-        <!-- Onda Azul Superior do Rodapé (Mobile) -->
-        <div class="absolute -top-4 sm:-top-5 left-0 right-0 w-full h-4 sm:h-5 pointer-events-none z-20">
-          <svg class="w-full h-full fill-[#0A121E]" viewBox="0 0 1000 100" preserveAspectRatio="none">
-            <path d="M 0 100 C 250 100, 350 0, 500 0 C 650 0, 750 100, 1000 100 Z" />
+        <!-- Onda Azul Superior do Rodapé (Mobile) com sobreposição anti-seam (elimina linha residual) -->
+        <div class="absolute -top-4 sm:-top-5 left-0 right-0 w-full h-[calc(1rem+3px)] sm:h-[calc(1.25rem+3px)] pointer-events-none z-20">
+          <svg class="w-full h-full fill-[#0A121E] overflow-visible" viewBox="0 0 1000 100" preserveAspectRatio="none">
+            <path d="M 0 100 C 250 100, 350 0, 500 0 C 650 0, 750 100, 1000 100 L 1000 105 L 0 105 Z" />
           </svg>
         </div>
         <span>© 2026 Gold Corretora de Seguros. Todos os direitos reservados.</span>
@@ -750,100 +757,6 @@ def get_login_html(
         submitSpinner.classList.add('hidden');
       }}
     }});
-  <!-- MODAL: MARCAR FÉRIAS / AUSÊNCIA -->
-  <div id="ferias-modal" class="hidden fixed inset-0 z-50 bg-navy-950/70 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden">
-      <div class="p-5 border-b border-slate-200 flex items-center justify-between bg-amber-50/60">
-        <div class="flex items-center gap-2">
-          <span class="text-xl">🏖️</span>
-          <h3 class="text-base font-extrabold text-navy-900" id="ferias-modal-title">Marcar Férias</h3>
-        </div>
-        <button type="button" onclick="fecharModalFeriasRapido()" class="w-8 h-8 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-white flex items-center justify-center font-bold">✕</button>
-      </div>
-
-      <form id="ferias-form" class="p-5 space-y-4">
-        <input type="hidden" id="ferias-user-id" />
-        <p class="text-xs text-slate-600 leading-relaxed">
-          Enquanto o vendedor estiver de férias, a <strong>Roleta de Leads</strong> pula o perfil dele automaticamente. Na data de retorno, ele volta a receber novas cotações sozinho.
-        </p>
-
-        <div>
-          <label for="ferias-data-retorno" class="block text-xs font-bold text-slate-700 mb-1">Data Prevista de Retorno (opcional):</label>
-          <input id="ferias-data-retorno" type="date" class="w-full h-10 rounded-xl border border-slate-300 px-3 text-sm font-bold text-navy-900 bg-white focus:outline-none focus:border-gold-500" />
-          <span class="text-[11px] text-slate-500 mt-1 block">Deixe em branco para retorno indeterminado.</span>
-        </div>
-
-        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-200">
-          <button type="button" onclick="fecharModalFeriasRapido()" class="btn-tactile px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100">Cancelar</button>
-          <button type="submit" class="btn-tactile px-5 py-2 rounded-xl text-xs font-extrabold bg-amber-500 hover:bg-amber-600 text-white shadow-xs">Salvar Férias</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-    function fmtDataSoDia(dStr) {{
-      if (!dStr) return '';
-      const parts = dStr.split('-');
-      if (parts.length === 3) return `${{parts[2]}}/${{parts[1]}}/${{parts[0]}}`;
-      return dStr;
-    }}
-
-    function alternarCamposFeriasNoModal() {{
-      const checked = document.getElementById('u-ferias').checked;
-      const wrap = document.getElementById('u-ferias-wrap');
-      if (checked) {{
-        wrap.classList.remove('hidden');
-      }} else {{
-        wrap.classList.add('hidden');
-      }}
-    }}
-
-    function abrirModalFeriasRapido(id, nome) {{
-      document.getElementById('ferias-user-id').value = id;
-      document.getElementById('ferias-modal-title').textContent = 'Férias: ' + nome;
-      document.getElementById('ferias-data-retorno').value = '';
-      document.getElementById('ferias-modal').classList.remove('hidden');
-    }}
-
-    function fecharModalFeriasRapido() {{
-      document.getElementById('ferias-modal').classList.add('hidden');
-    }}
-
-    document.getElementById('ferias-form').addEventListener('submit', async (e) => {{
-      e.preventDefault();
-      const id = document.getElementById('ferias-user-id').value;
-      const dataRetorno = document.getElementById('ferias-data-retorno').value || null;
-
-      const res = await fetch(`/api/admin/users/${{id}}`, {{
-        method: 'PATCH',
-        headers: {{ 'Content-Type': 'application/json' }},
-        body: JSON.stringify({{ em_ferias: true, ferias_retorno: dataRetorno }})
-      }});
-      if (!res.ok) {{
-        const d = await res.json().catch(() => ({{}}));
-        alert(d.detail || 'Não foi possível marcar as férias.');
-        return;
-      }}
-      fecharModalFeriasRapido();
-      await carregarUsuarios();
-      await carregarAuditoria();
-    }});
-
-    async function encerrarFeriasRapido(id, nome) {{
-      if (!confirm(`Deseja encerrar as férias de ${{nome}} e reincorporá-lo à roleta de leads imediatamente?`)) return;
-      const res = await fetch(`/api/admin/users/${{id}}`, {{
-        method: 'PATCH',
-        headers: {{ 'Content-Type': 'application/json' }},
-        body: JSON.stringify({{ em_ferias: false, ferias_retorno: null }})
-      }});
-      if (!res.ok) {{
-        const d = await res.json().catch(() => ({{}}));
-        alert(d.detail || 'Não foi possível encerrar as férias.');
-        return;
-      }}
-      await carregarUsuarios();
-      await carregarAuditoria();
-    }}
   </script>
 </body>
 </html>"""
@@ -1027,7 +940,7 @@ def get_admin_html(
       </div>
 
       <!-- Segmented Control de Navegação -->
-      <nav aria-label="Seções do painel" class="bg-white p-1 rounded-2xl border border-slate-200 shadow-xs flex flex-wrap items-center self-start lg:self-auto gap-1">
+      <nav aria-label="Seções do painel" class="bg-white p-1 rounded-2xl border border-slate-200 shadow-xs flex items-center self-start lg:self-auto gap-1 overflow-x-auto scrollbar-none max-w-full flex-nowrap sm:flex-wrap">
         <button
           type="button"
           data-tab="auditoria"
@@ -1064,7 +977,7 @@ def get_admin_html(
     </div>
 
     <!-- KPIs Rápidos -->
-    <section aria-label="Resumo operacional" class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+    <section aria-label="Resumo operacional" class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
       <div class="bg-white rounded-2xl border border-slate-200 p-4 flex items-center justify-between">
         <div>
           <span class="text-xs font-bold text-slate-600 block">Usuários Ativos</span>
@@ -1114,60 +1027,135 @@ def get_admin_html(
     <!-- ABA 1: AUDITORIA ("QUEM ESTÁ FAZENDO O QUÊ") -->
     <!-- ========================================== -->
     <section id="tab-auditoria" class="space-y-4">
-      <div class="bg-white rounded-2xl border border-slate-200 p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div class="bg-white rounded-2xl border border-slate-200 p-3.5 sm:p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-3 shadow-2xs">
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 flex-1">
-          <input
-            id="audit-search"
-            type="search"
-            placeholder="Filtrar por vendedor, lead, rota ou ação..."
-            oninput="debounceAudit()"
-            class="h-10 rounded-xl border border-slate-300 px-3.5 text-xs sm:text-sm font-medium text-navy-900 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 flex-1 max-w-md"
-          />
-          <select
-            id="audit-app-filter"
-            onchange="carregarAuditoria()"
-            class="h-10 rounded-xl border border-slate-300 px-3 text-xs sm:text-sm font-bold text-navy-900 bg-white focus:outline-none focus:border-gold-500"
-          >
-            <option value="TODOS">Todos os Aplicativos</option>
-            <option value="painel-vendedor">Painel de Vendas</option>
-            <option value="gold-db-api">API de Leads & Carteira</option>
-            <option value="gold-auth">Portal de Acesso (Logins / Senhas)</option>
-            <option value="cotador-web">Simulador / Cotador</option>
-          </select>
-          <select
-            id="audit-user-filter"
-            onchange="carregarAuditoria()"
-            class="h-10 rounded-xl border border-slate-300 px-3 text-xs sm:text-sm font-bold text-navy-900 bg-white focus:outline-none focus:border-gold-500"
-          >
-            <option value="TODOS">Todos os Usuários</option>
-          </select>
+          <!-- Campo de Busca -->
+          <div class="relative flex-1 max-w-md">
+            <input
+              id="audit-search"
+              type="search"
+              placeholder="Filtrar por vendedor, lead, rota..."
+              oninput="debounceAudit()"
+              class="w-full h-10 rounded-xl border border-slate-300/80 bg-slate-50/50 hover:bg-white focus:bg-white px-3.5 pl-9 text-xs sm:text-sm font-medium text-navy-900 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition"
+            />
+            <svg class="w-4 h-4 text-slate-400 absolute left-3 top-3 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+
+          <!-- Custom Dropdown: Aplicativos -->
+          <div class="relative inline-block w-full sm:w-auto" id="wrap-app-dropdown">
+            <input type="hidden" id="audit-app-filter" value="TODOS" />
+            <button
+              type="button"
+              id="btn-app-dropdown"
+              onclick="toggleDropdown('menu-app-dropdown', 'arrow-app-dropdown')"
+              class="h-10 w-full sm:w-56 px-3 rounded-xl border border-slate-300/80 bg-white hover:bg-slate-50 text-xs sm:text-sm font-bold text-navy-900 flex items-center justify-between gap-2 shadow-2xs transition focus:outline-none focus:ring-2 focus:ring-gold-500/25 active:scale-98"
+            >
+              <div class="flex items-center gap-2 truncate">
+                <span class="w-2 h-2 rounded-full bg-gold-500 shrink-0"></span>
+                <span id="label-app-dropdown" class="truncate">Todos os Aplicativos</span>
+              </div>
+              <svg id="arrow-app-dropdown" class="w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div
+              id="menu-app-dropdown"
+              class="hidden absolute left-0 sm:left-auto sm:right-0 top-full mt-1.5 w-64 rounded-2xl bg-white/98 border border-slate-200 shadow-2xl p-1.5 z-50 animate-in fade-in zoom-in-95 backdrop-blur-md space-y-0.5"
+            >
+              <div class="px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 border-b border-slate-100">
+                Filtrar por Módulo
+              </div>
+              <button type="button" onclick="selectAppFilter('TODOS', 'Todos os Aplicativos')" class="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between hover:bg-slate-100 transition opt-app bg-gold-50 text-navy-950 font-bold" data-val="TODOS">
+                <span>Todos os Aplicativos</span>
+                <span class="check-icon text-gold-600 font-bold">✓</span>
+              </button>
+              <button type="button" onclick="selectAppFilter('painel-vendedor', 'Painel de Vendas')" class="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between hover:bg-slate-100 transition opt-app text-slate-700" data-val="painel-vendedor">
+                <span>Painel de Vendas</span>
+                <span class="check-icon text-gold-600 font-bold hidden">✓</span>
+              </button>
+              <button type="button" onclick="selectAppFilter('gold-db-api', 'API de Leads & Carteira')" class="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between hover:bg-slate-100 transition opt-app text-slate-700" data-val="gold-db-api">
+                <span>API de Leads & Carteira</span>
+                <span class="check-icon text-gold-600 font-bold hidden">✓</span>
+              </button>
+              <button type="button" onclick="selectAppFilter('gold-auth', 'Portal de Acesso (Logins)')" class="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between hover:bg-slate-100 transition opt-app text-slate-700" data-val="gold-auth">
+                <span>Portal de Acesso (Logins)</span>
+                <span class="check-icon text-gold-600 font-bold hidden">✓</span>
+              </button>
+              <button type="button" onclick="selectAppFilter('cotador-web', 'Simulador / Cotador')" class="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between hover:bg-slate-100 transition opt-app text-slate-700" data-val="cotador-web">
+                <span>Simulador / Cotador</span>
+                <span class="check-icon text-gold-600 font-bold hidden">✓</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Custom Dropdown: Usuários -->
+          <div class="relative inline-block w-full sm:w-auto" id="wrap-user-dropdown">
+            <input type="hidden" id="audit-user-filter" value="TODOS" />
+            <button
+              type="button"
+              id="btn-user-dropdown"
+              onclick="toggleDropdown('menu-user-dropdown', 'arrow-user-dropdown')"
+              class="h-10 w-full sm:w-56 px-3 rounded-xl border border-slate-300/80 bg-white hover:bg-slate-50 text-xs sm:text-sm font-bold text-navy-900 flex items-center justify-between gap-2 shadow-2xs transition focus:outline-none focus:ring-2 focus:ring-gold-500/25 active:scale-98"
+            >
+              <div class="flex items-center gap-2 truncate">
+                <span class="w-2 h-2 rounded-full bg-slate-400 shrink-0"></span>
+                <span id="label-user-dropdown" class="truncate">Todos os Usuários</span>
+              </div>
+              <svg id="arrow-user-dropdown" class="w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div
+              id="menu-user-dropdown"
+              class="hidden absolute left-0 sm:left-auto sm:right-0 top-full mt-1.5 w-72 max-h-64 overflow-y-auto rounded-2xl bg-white/98 border border-slate-200 shadow-2xl p-1.5 z-50 animate-in fade-in zoom-in-95 backdrop-blur-md space-y-0.5"
+            >
+              <div class="px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 border-b border-slate-100">
+                Filtrar por Usuário
+              </div>
+              <button type="button" onclick="selectUserFilterByEmail('TODOS')" class="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between hover:bg-slate-100 transition opt-user bg-gold-50 text-navy-950 font-bold" data-val="TODOS">
+                <span>Todos os Usuários</span>
+                <span class="check-icon text-gold-600 font-bold">✓</span>
+              </button>
+              <!-- Preenchido via carregarUsuarios() -->
+            </div>
+          </div>
         </div>
 
-        <div class="flex items-center gap-2 text-xs text-slate-600 font-medium">
-          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        <div class="flex items-center gap-2 text-xs text-slate-500 font-medium self-end sm:self-center">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
           <span>Atualização automática a cada 10s</span>
         </div>
       </div>
 
-      <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+      <!-- DESKTOP: Tabela Corporativa (>= md) -->
+      <div class="hidden md:block bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse">
             <thead>
-              <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-extrabold text-slate-600 uppercase">
-                <th class="py-3 px-4">Horário</th>
-                <th class="py-3 px-4">Usuário / Cargo</th>
-                <th class="py-3 px-4">Aplicativo</th>
-                <th class="py-3 px-4">Ação Executada</th>
-                <th class="py-3 px-4">Detalhes do Que Fez</th>
-                <th class="py-3 px-4">IP</th>
+              <tr class="bg-slate-50/80 border-b border-slate-200 text-[11px] font-extrabold text-slate-600 uppercase tracking-wider">
+                <th class="py-3 px-4 w-36">Horário</th>
+                <th class="py-3 px-4 w-52">Usuário / Cargo</th>
+                <th class="py-3 px-4 w-36">Aplicativo</th>
+                <th class="py-3 px-4 w-44">Ação Executada</th>
+                <th class="py-3 px-4">Detalhes do Evento</th>
+                <th class="py-3 px-4 w-28 text-right">IP</th>
               </tr>
             </thead>
-            <tbody id="audit-tbody" class="divide-y divide-slate-200 text-xs sm:text-sm">
+            <tbody id="audit-tbody" class="divide-y divide-slate-100 text-xs sm:text-sm">
               <tr>
-                <td colspan="6" class="py-10 text-center text-slate-500 font-medium">Carregando registros de atividade...</td>
+                <td colspan="6" class="py-12 text-center text-slate-500 font-medium">Carregando registros de atividade...</td>
               </tr>
             </tbody>
           </table>
+        </div>
+      </div>
+
+      <!-- MOBILE & TABLET: Cards Adaptativos (< md) -->
+      <div id="audit-cards-mobile" class="md:hidden space-y-3">
+        <div class="py-10 text-center text-slate-500 font-medium bg-white rounded-2xl border border-slate-200 p-6">
+          Carregando registros de atividade...
         </div>
       </div>
     </section>
@@ -1190,11 +1178,12 @@ def get_admin_html(
         </button>
       </div>
 
-      <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+      <!-- Desktop Table (>= md) -->
+      <div class="hidden md:block bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse">
             <thead>
-              <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-extrabold text-slate-600 uppercase">
+              <tr class="bg-slate-50/80 border-b border-slate-200 text-[11px] font-extrabold text-slate-600 uppercase tracking-wider">
                 <th class="py-3 px-4">Nome & E-mail</th>
                 <th class="py-3 px-4">Cargo</th>
                 <th class="py-3 px-4">Aplicativos Liberados</th>
@@ -1203,12 +1192,19 @@ def get_admin_html(
                 <th class="py-3 px-4 text-right">Ações Administrativas</th>
               </tr>
             </thead>
-            <tbody id="users-tbody" class="divide-y divide-slate-200 text-xs sm:text-sm">
+            <tbody id="users-tbody" class="divide-y divide-slate-100 text-xs sm:text-sm">
               <tr>
-                <td colspan="6" class="py-10 text-center text-slate-500">Carregando equipe...</td>
+                <td colspan="6" class="py-10 text-center text-slate-500 font-medium">Carregando equipe...</td>
               </tr>
             </tbody>
           </table>
+        </div>
+      </div>
+
+      <!-- Mobile Cards (< md) -->
+      <div id="users-cards-mobile" class="md:hidden space-y-3">
+        <div class="py-10 text-center text-slate-500 font-medium bg-white rounded-2xl border border-slate-200 p-6">
+          Carregando equipe...
         </div>
       </div>
     </section>
@@ -1538,6 +1534,37 @@ def get_admin_html(
     </div>
   </div>
 
+  <!-- MODAL: MARCAR FÉRIAS / AUSÊNCIA -->
+  <div id="ferias-modal" class="hidden fixed inset-0 z-50 bg-navy-950/70 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden">
+      <div class="p-5 border-b border-slate-200 flex items-center justify-between bg-amber-50/60">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🏖️</span>
+          <h3 class="text-base font-extrabold text-navy-900" id="ferias-modal-title">Marcar Férias</h3>
+        </div>
+        <button type="button" onclick="fecharModalFeriasRapido()" class="w-8 h-8 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-white flex items-center justify-center font-bold">✕</button>
+      </div>
+
+      <form id="ferias-form" class="p-5 space-y-4">
+        <input type="hidden" id="ferias-user-id" />
+        <p class="text-xs text-slate-600 leading-relaxed">
+          Enquanto o vendedor estiver de férias, a <strong>Roleta de Leads</strong> pula o perfil dele automaticamente. Na data de retorno, ele volta a receber novas cotações sozinho.
+        </p>
+
+        <div>
+          <label for="ferias-data-retorno" class="block text-xs font-bold text-slate-700 mb-1">Data Prevista de Retorno (opcional):</label>
+          <input id="ferias-data-retorno" type="date" class="w-full h-10 rounded-xl border border-slate-300 px-3 text-sm font-bold text-navy-900 bg-white focus:outline-none focus:border-gold-500" />
+          <span class="text-[11px] text-slate-500 mt-1 block">Deixe em branco para retorno indeterminado.</span>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-200">
+          <button type="button" onclick="fecharModalFeriasRapido()" class="btn-tactile px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100">Cancelar</button>
+          <button type="submit" class="btn-tactile px-5 py-2 rounded-xl text-xs font-extrabold bg-amber-500 hover:bg-amber-600 text-white shadow-xs">Salvar Férias</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
     let stateMe = null;
     let stateUsers = [];
@@ -1766,6 +1793,93 @@ def get_admin_html(
       `).join('');
     }}
 
+    // Custom Dropdowns Controller
+    function toggleDropdown(menuId, arrowId) {{
+      const menu = document.getElementById(menuId);
+      const arrow = document.getElementById(arrowId);
+      if (!menu) return;
+      const wasHidden = menu.classList.contains('hidden');
+      fecharTodosDropdowns();
+      if (wasHidden) {{
+        menu.classList.remove('hidden');
+        if (arrow) arrow.classList.add('rotate-180');
+      }}
+    }}
+
+    function fecharTodosDropdowns() {{
+      const appMenu = document.getElementById('menu-app-dropdown');
+      const userMenu = document.getElementById('menu-user-dropdown');
+      const appArrow = document.getElementById('arrow-app-dropdown');
+      const userArrow = document.getElementById('arrow-user-dropdown');
+      if (appMenu) appMenu.classList.add('hidden');
+      if (userMenu) userMenu.classList.add('hidden');
+      if (appArrow) appArrow.classList.remove('rotate-180');
+      if (userArrow) userArrow.classList.remove('rotate-180');
+    }}
+
+    function selectAppFilter(val, label) {{
+      const hiddenInput = document.getElementById('audit-app-filter');
+      if (hiddenInput) hiddenInput.value = val;
+      const lbl = document.getElementById('label-app-dropdown');
+      if (lbl) lbl.textContent = label;
+      document.querySelectorAll('#menu-app-dropdown .opt-app').forEach(btn => {{
+        const isCurrent = btn.getAttribute('data-val') === val;
+        btn.className = 'w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between hover:bg-slate-100 transition opt-app ' + (isCurrent ? 'bg-gold-50 text-navy-950 font-bold' : 'text-slate-700');
+        const icon = btn.querySelector('.check-icon');
+        if (icon) icon.classList.toggle('hidden', !isCurrent);
+      }});
+      fecharTodosDropdowns();
+      carregarAuditoria();
+    }}
+
+    function selectUserFilterByEmail(email) {{
+      const hiddenInput = document.getElementById('audit-user-filter');
+      if (hiddenInput) hiddenInput.value = email;
+      const lbl = document.getElementById('label-user-dropdown');
+      if (lbl) {{
+        if (email === 'TODOS') {{
+          lbl.textContent = 'Todos os Usuários';
+        }} else {{
+          const found = stateUsers.find(u => u.email === email);
+          lbl.textContent = found ? found.nome : email;
+        }}
+      }}
+      document.querySelectorAll('#menu-user-dropdown .opt-user').forEach(btn => {{
+        const isCurrent = btn.getAttribute('data-val') === email;
+        btn.className = 'w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between hover:bg-slate-100 transition opt-user ' + (isCurrent ? 'bg-gold-50 text-navy-950 font-bold' : 'text-slate-700');
+        const icon = btn.querySelector('.check-icon');
+        if (icon) icon.classList.toggle('hidden', !isCurrent);
+      }});
+      fecharTodosDropdowns();
+      carregarAuditoria();
+    }}
+
+    // Robust ID-based action delegates to avoid quote escaping bugs
+    function editarUsuarioPorId(id) {{
+      const u = stateUsers.find(x => x.id === id);
+      if (u) editarUsuario(u);
+    }}
+
+    function handleFeriasRapido(id) {{
+      const u = stateUsers.find(x => x.id === id);
+      if (!u) return;
+      if (u.em_ferias) {{
+        encerrarFeriasRapido(u.id, u.nome);
+      }} else {{
+        abrirModalFeriasRapido(u.id, u.nome);
+      }}
+    }}
+
+    function revogarSessoesPorId(id) {{
+      const u = stateUsers.find(x => x.id === id);
+      if (u) revogarSessoesUsuario(u.id, u.nome);
+    }}
+
+    function excluirUsuarioConfirmadoPorId(id) {{
+      const u = stateUsers.find(x => x.id === id);
+      if (u) excluirUsuarioConfirmado(u.id, u.nome);
+    }}
+
     async function carregarUsuarios() {{
       const res = await fetch('/api/admin/users');
       if (!res.ok) return;
@@ -1773,221 +1887,288 @@ def get_admin_html(
 
       const ativos = stateUsers.filter(u => u.ativo).length;
       const sessoes = stateUsers.reduce((acc, u) => acc + (u.sessoes_ativas || 0), 0);
-      document.getElementById('kpi-active-users').textContent = `${{ativos}} / ${{stateUsers.length}}`;
-      document.getElementById('kpi-active-sessions').textContent = sessoes;
+      const kpiUsers = document.getElementById('kpi-active-users');
+      const kpiSessions = document.getElementById('kpi-active-sessions');
+      if (kpiUsers) kpiUsers.textContent = `${{ativos}} / ${{stateUsers.length}}`;
+      if (kpiSessions) kpiSessions.textContent = sessoes;
 
-      const uFilter = document.getElementById('audit-user-filter');
-      const currentVal = uFilter.value;
-      uFilter.innerHTML = '<option value="TODOS">Todos os Usuários</option>' +
-        stateUsers.map(u => `<option value="${{u.email}}">${{u.nome}} (${{u.email}})</option>`).join('');
-      uFilter.value = currentVal || 'TODOS';
+      // Popula Custom Dropdown de Usuários na Auditoria
+      const uMenu = document.getElementById('menu-user-dropdown');
+      if (uMenu) {{
+        const curUser = (document.getElementById('audit-user-filter') || {{}}).value || 'TODOS';
+        let userHtml = `
+          <div class="px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 border-b border-slate-100">
+            Filtrar por Usuário
+          </div>
+          <button type="button" onclick="selectUserFilterByEmail('TODOS')" class="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between hover:bg-slate-100 transition opt-user ${{curUser === 'TODOS' ? 'bg-gold-50 text-navy-950 font-bold' : 'text-slate-700'}}" data-val="TODOS">
+            <span>Todos os Usuários</span>
+            <span class="check-icon text-gold-600 font-bold ${{curUser === 'TODOS' ? '' : 'hidden'}}">✓</span>
+          </button>
+        `;
+        stateUsers.forEach(u => {{
+          const isSel = curUser === u.email;
+          userHtml += `
+            <button type="button" onclick="selectUserFilterByEmail('${{u.email}}')" class="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between hover:bg-slate-100 transition opt-user ${{isSel ? 'bg-gold-50 text-navy-950 font-bold' : 'text-slate-700'}}" data-val="${{u.email}}">
+              <div class="truncate pr-2">
+                <span class="block font-bold text-navy-950 truncate">${{u.nome}}</span>
+                <span class="block text-[11px] text-slate-500 font-mono truncate">${{u.email}}</span>
+              </div>
+              <span class="check-icon text-gold-600 font-bold shrink-0 ${{isSel ? '' : 'hidden'}}">✓</span>
+            </button>
+          `;
+        }});
+        uMenu.innerHTML = userHtml;
+      }}
 
       const tbody = document.getElementById('users-tbody');
+      const mobileCards = document.getElementById('users-cards-mobile');
+
       if (stateUsers.length === 0) {{
-        tbody.innerHTML = '<tr><td colspan="6" class="py-8 text-center text-slate-500">Nenhum usuário cadastrado.</td></tr>';
+        const emptyMsg = '<div class="py-12 text-center text-slate-500 font-medium">Nenhum usuário cadastrado.</div>';
+        if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="py-12 text-center text-slate-500 font-medium">Nenhum usuário cadastrado.</td></tr>';
+        if (mobileCards) mobileCards.innerHTML = emptyMsg;
         return;
       }}
 
-      tbody.innerHTML = stateUsers.map(u => {{
-        const isSelf = stateMe && stateMe.id === u.id;
-        return `
-        <tr class="hover:bg-slate-50/80">
-          <td class="py-3.5 px-4">
-            <div class="font-bold text-navy-900 flex items-center gap-1.5">
-              <span>${{u.nome}}</span>
-              ${{isSelf ? '<span class="text-[10px] px-1.5 py-0.5 rounded bg-gold-100 text-gold-700 font-extrabold">Você</span>' : ''}}
-            </div>
-            <div class="text-xs text-slate-600 font-mono">${{u.email}}</div>
-            ${{u.precisa_trocar_senha ? '<span class="inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200">Aguardando troca de senha temporária</span>' : ''}}
-          </td>
-          <td class="py-3.5 px-4">
-            <span class="font-mono text-xs font-bold px-2.5 py-1 rounded-lg ${{u.cargo === 'ADMIN' ? 'bg-navy-900 text-gold-400' : 'bg-slate-100 text-navy-900 border border-slate-200'}}">
-              ${{u.cargo}}
-            </span>
-          </td>
-          <td class="py-3.5 px-4">
-            <div class="flex flex-wrap gap-1">
-              ${{(u.apps_permitidos || []).map(a => `<span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700">${{a === '*' ? 'Todos os Apps (*)' : a}}</span>`).join('')}}
-            </div>
-          </td>
-          <td class="py-3.5 px-4">
-            <div class="flex flex-col items-start gap-1">
-              ${{u.ativo
-                ? `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Ativo (${{u.sessoes_ativas || 0}} sessões)</span>`
-                : `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-50 text-red-700 border border-red-200">Bloqueado</span>`
-              }}
-              ${{(u.sessoes_ativas > 0) ? `
-                <button type="button" onclick="revogarSessoesUsuario(${{u.id}}, '${{u.nome.replace(/'/g, "\\'")}}')" class="text-[11px] font-bold text-amber-800 hover:underline">
-                  Derrubar sessões
+      // Desktop Table
+      if (tbody) {{
+        tbody.innerHTML = stateUsers.map(u => {{
+          const isSelf = stateMe && stateMe.id === u.id;
+          return `
+          <tr class="hover:bg-slate-50/80 transition-colors">
+            <td class="py-3.5 px-4">
+              <div class="font-bold text-navy-900 flex items-center gap-1.5">
+                <span>${{u.nome}}</span>
+                ${{isSelf ? '<span class="text-[10px] px-1.5 py-0.5 rounded-full bg-gold-100 text-gold-800 font-extrabold border border-gold-300">Você</span>' : ''}}
+              </div>
+              <div class="text-xs text-slate-600 font-mono">${{u.email}}</div>
+              ${{u.precisa_trocar_senha ? '<span class="inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200">Aguardando troca de senha</span>' : ''}}
+            </td>
+            <td class="py-3.5 px-4">
+              <span class="font-mono text-xs font-bold px-2.5 py-1 rounded-lg ${{u.cargo === 'ADMIN' ? 'bg-navy-900 text-gold-400' : 'bg-slate-100 text-navy-900 border border-slate-200'}}">
+                ${{u.cargo}}
+              </span>
+            </td>
+            <td class="py-3.5 px-4">
+              <div class="flex flex-wrap gap-1">
+                ${{(u.apps_permitidos || []).map(a => `<span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700">${{a === '*' ? 'Todos (*)' : a}}</span>`).join('')}}
+              </div>
+            </td>
+            <td class="py-3.5 px-4">
+              <div class="flex flex-col items-start gap-1">
+                ${{u.ativo
+                  ? `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Ativo (${{u.sessoes_ativas || 0}} sessões)</span>`
+                  : `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-50 text-red-700 border border-red-200">Bloqueado</span>`
+                }}
+                ${{(u.sessoes_ativas > 0) ? `
+                  <button type="button" onclick="revogarSessoesPorId(${{u.id}})" class="text-[11px] font-bold text-amber-800 hover:underline">
+                    Derrubar sessões
+                  </button>
+                ` : ''}}
+                ${{u.em_ferias ? `
+                  <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-900 border border-amber-300">
+                    🏖️ Em Férias ${{u.ferias_retorno ? `(Volta: ${{fmtDataSoDia(u.ferias_retorno)}})` : ''}}
+                  </span>
+                ` : ''}}
+              </div>
+            </td>
+            <td class="py-3.5 px-4 text-xs text-slate-600 tabular-nums">
+              ${{fmtData(u.ultimo_login)}}
+            </td>
+            <td class="py-3.5 px-4 text-right space-x-1 whitespace-nowrap">
+              <button
+                type="button"
+                onclick="gerarEEnviarSenhaTemporaria(${{u.id}})"
+                title="Gera uma senha temporária e envia por e-mail"
+                class="btn-tactile px-2.5 py-1.5 rounded-lg bg-gold-50 hover:bg-gold-100 border border-gold-300 text-xs font-extrabold text-navy-900"
+              >
+                Senha Temp.
+              </button>
+              <button
+                type="button"
+                onclick="editarUsuarioPorId(${{u.id}})"
+                class="btn-tactile px-2.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-xs font-bold text-navy-900"
+              >
+                Editar
+              </button>
+              ${{(u.cargo === 'VENDEDOR' || u.cargo === 'SUPERVISOR') ? `
+                <button
+                  type="button"
+                  onclick="handleFeriasRapido(${{u.id}})"
+                  class="btn-tactile px-2.5 py-1.5 rounded-lg text-xs font-bold ${{u.em_ferias ? 'bg-blue-50 text-blue-800 hover:bg-blue-100 border border-blue-200' : 'bg-amber-50 text-amber-900 hover:bg-amber-100 border border-amber-200'}}"
+                  title="${{u.em_ferias ? 'Retornar vendedor à roleta de leads' : 'Marcar férias do vendedor'}}"
+                >
+                  ${{u.em_ferias ? 'Voltar Férias' : '🏖️ Férias'}}
                 </button>
               ` : ''}}
+              ${{!isSelf ? `
+                <button
+                  type="button"
+                  onclick="alternarStatusUsuario(${{u.id}}, ${{!u.ativo}})"
+                  class="btn-tactile px-2.5 py-1.5 rounded-lg text-xs font-bold ${{u.ativo ? 'bg-red-50 text-red-700 hover:bg-red-100 border border-red-200' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200'}}"
+                >
+                  ${{u.ativo ? 'Bloquear' : 'Reativar'}}
+                </button>
+                <button
+                  type="button"
+                  onclick="excluirUsuarioConfirmadoPorId(${{u.id}})"
+                  title="Excluir usuário"
+                  class="btn-tactile px-2 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:text-red-700 hover:bg-red-50"
+                >
+                  Excluir
+                </button>
+              ` : ''}}
+            </td>
+          </tr>
+        `;}}).join('');
+      }}
+
+      // Mobile Cards
+      if (mobileCards) {{
+        mobileCards.innerHTML = stateUsers.map(u => {{
+          const isSelf = stateMe && stateMe.id === u.id;
+          return `
+          <div class="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-2xs space-y-3">
+            <div class="flex items-start justify-between gap-2">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-9 h-9 rounded-xl bg-navy-900 text-gold-400 flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+                  ${{getInitials(u.nome)}}
+                </div>
+                <div class="min-w-0">
+                  <div class="font-extrabold text-navy-950 text-sm truncate flex items-center gap-1.5">
+                    <span>${{u.nome}}</span>
+                    ${{isSelf ? '<span class="text-[9px] px-1.5 py-0.2 rounded-full bg-gold-100 text-gold-800 font-extrabold border border-gold-300">Você</span>' : ''}}
+                  </div>
+                  <div class="text-[11px] text-slate-500 font-mono truncate">${{u.email}}</div>
+                </div>
+              </div>
+              <span class="font-mono text-[11px] font-bold px-2 py-0.5 rounded-lg ${{u.cargo === 'ADMIN' ? 'bg-navy-900 text-gold-400' : 'bg-slate-100 text-navy-900 border border-slate-200'}} shrink-0">
+                ${{u.cargo}}
+              </span>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-1.5 pt-1">
+              ${{u.ativo
+                ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Ativo (${{u.sessoes_ativas || 0}} sessões)</span>`
+                : `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-red-50 text-red-700 border border-red-200">Bloqueado</span>`
+              }}
               ${{u.em_ferias ? `
-                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-900 border border-amber-300">
-                  🏖️ Em Férias ${{u.ferias_retorno ? `(Volta: ${{fmtDataSoDia(u.ferias_retorno)}})` : ''}}
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-900 border border-amber-300">
+                  🏖️ Férias
                 </span>
               ` : ''}}
+              <span class="text-[11px] text-slate-400 ml-auto tabular-nums">Login: ${{fmtData(u.ultimo_login)}}</span>
             </div>
-          </td>
-          <td class="py-3.5 px-4 text-xs text-slate-600 tabular-nums">
-            ${{fmtData(u.ultimo_login)}}
-          </td>
-          <td class="py-3.5 px-4 text-right space-x-1 whitespace-nowrap">
-            <button
-              type="button"
-              onclick="gerarEEnviarSenhaTemporaria(${{u.id}})"
-              title="Gera uma senha temporária, envia por e-mail e pede troca no primeiro acesso"
-              class="btn-tactile px-2.5 py-1.5 rounded-lg bg-gold-50 hover:bg-gold-100 border border-gold-300 text-xs font-extrabold text-navy-900"
-            >
-              Enviar Senha Temp.
-            </button>
-            <button
-              type="button"
-              onclick='editarUsuario(${{JSON.stringify(u)}})'
-              class="btn-tactile px-2.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-xs font-bold text-navy-900"
-            >
-              Editar / E-mail
-            </button>
-            ${{(u.cargo === 'VENDEDOR' || u.cargo === 'SUPERVISOR') ? `
+
+            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100">
               <button
                 type="button"
-                onclick="${{u.em_ferias ? `encerrarFeriasRapido(${{u.id}}, '${{u.nome.replace(/'/g, "\\'")}}')` : `abrirModalFeriasRapido(${{u.id}}, '${{u.nome.replace(/'/g, "\\'")}}')`}}"
-                class="btn-tactile px-2.5 py-1.5 rounded-lg text-xs font-bold ${{u.em_ferias ? 'bg-blue-50 text-blue-800 hover:bg-blue-100 border border-blue-200' : 'bg-amber-50 text-amber-900 hover:bg-amber-100 border border-amber-200'}}"
-                title="${{u.em_ferias ? 'Retornar vendedor para a roleta de leads imediatamente' : 'Marcar férias do vendedor'}}"
+                onclick="gerarEEnviarSenhaTemporaria(${{u.id}})"
+                class="btn-tactile py-2 rounded-xl bg-gold-50 hover:bg-gold-100 border border-gold-300 text-xs font-extrabold text-navy-900 text-center"
               >
-                ${{u.em_ferias ? 'Voltar Férias' : '🏖️ Férias'}}
-              </button>
-            ` : ''}}
-            ${{!isSelf ? `
-              <button
-                type="button"
-                onclick="alternarStatusUsuario(${{u.id}}, ${{!u.ativo}})"
-                class="btn-tactile px-2.5 py-1.5 rounded-lg text-xs font-bold ${{u.ativo ? 'bg-red-50 text-red-700 hover:bg-red-100 border border-red-200' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200'}}"
-              >
-                ${{u.ativo ? 'Bloquear' : 'Reativar'}}
+                Senha Temp.
               </button>
               <button
                 type="button"
-                onclick="excluirUsuarioConfirmado(${{u.id}}, '${{u.nome.replace(/'/g, "\\'")}}')"
-                title="Excluir usuário permanentemente"
-                class="btn-tactile px-2 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:text-red-700 hover:bg-red-50"
+                onclick="editarUsuarioPorId(${{u.id}})"
+                class="btn-tactile py-2 rounded-xl border border-slate-200 hover:bg-slate-100 text-xs font-bold text-navy-900 text-center"
               >
-                Excluir
+                Editar
               </button>
-            ` : ''}}
-          </td>
-        </tr>
-      `}}).join('');
-    }}
-
-    async function gerarEEnviarSenhaTemporaria(userId) {{
-      const u = stateUsers.find(x => x.id === userId);
-      if (!u) return;
-      if (!confirm(`Gerar uma nova senha temporária para ${{u.nome}} (${{u.email}})?\\n\\nA pessoa será solicitada a trocar a senha assim que entrar.`)) return;
-
-      const res = await fetch(`/api/admin/users/${{userId}}/send-temp-password`, {{
-        method: 'POST',
-        headers: {{ 'Content-Type': 'application/json' }},
-        body: JSON.stringify({{ enviar_email: true }})
-      }});
-      const data = await res.json();
-      if (!res.ok) {{
-        alert(data.detail || 'Erro ao gerar senha temporária.');
-        return;
+              ${{(u.cargo === 'VENDEDOR' || u.cargo === 'SUPERVISOR') ? `
+                <button
+                  type="button"
+                  onclick="handleFeriasRapido(${{u.id}})"
+                  class="btn-tactile py-2 rounded-xl text-xs font-bold ${{u.em_ferias ? 'bg-blue-50 text-blue-800 border border-blue-200' : 'bg-amber-50 text-amber-900 border border-amber-200'}} text-center"
+                >
+                  ${{u.em_ferias ? 'Voltar de Férias' : '🏖️ Marcar Férias'}}
+                </button>
+              ` : ''}}
+              ${{!isSelf ? `
+                <button
+                  type="button"
+                  onclick="alternarStatusUsuario(${{u.id}}, ${{!u.ativo}})"
+                  class="btn-tactile py-2 rounded-xl text-xs font-bold ${{u.ativo ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}} text-center"
+                >
+                  ${{u.ativo ? 'Bloquear Acesso' : 'Reativar'}}
+                </button>
+              ` : ''}}
+            </div>
+          </div>
+        `;}}).join('');
       }}
-      exibirModalSenhaTemporaria(u, data);
-      await carregarUsuarios();
-      await carregarAuditoria();
-    }}
-
-    async function resolverRecuperacaoPorEmail(emailAlvo) {{
-      const u = stateUsers.find(x => (x.email || '').toLowerCase() === (emailAlvo || '').toLowerCase());
-      if (!u) {{
-        alert(`O e-mail ${{emailAlvo}} não pertence a nenhum usuário cadastrado. Você pode cadastrá-lo na aba Vendedores & Equipe.`);
-        return;
-      }}
-      await gerarEEnviarSenhaTemporaria(u.id);
-    }}
-
-    function exibirModalSenhaTemporaria(usuario, data) {{
-      ultimoResultadoSenhaTemp = {{ usuario, data }};
-      document.getElementById('tp-user-name').textContent = usuario.nome;
-      document.getElementById('tp-user-email').textContent = usuario.email;
-      document.getElementById('tp-password-val').textContent = data.senha_temporaria;
-
-      const st = document.getElementById('tp-smtp-status');
-      if (data.email_enviado) {{
-        st.className = 'rounded-xl p-3 font-bold bg-emerald-50 text-emerald-800 border border-emerald-200';
-        st.textContent = `✓ E-mail automático enviado para ${{usuario.email}}!`;
-      }} else {{
-        st.className = 'rounded-xl p-3 font-bold bg-amber-50 text-amber-900 border border-amber-200';
-        st.textContent = `Envio automático indisponível (${{data.mensagem_smtp}}). Copie o texto abaixo ou clique em "Abrir no Aplicativo de E-mail".`;
-      }}
-
-      const assunto = encodeURIComponent('Sua senha temporária de acesso • Gold Corretora');
-      const corpo = encodeURIComponent(
-        `Olá, ${{usuario.nome}}!\\n\\n` +
-        `Segue sua senha temporária para acessar o Portal Interno da Gold Corretora:\\n\\n` +
-        `E-mail: ${{usuario.email}}\\n` +
-        `Senha Temporária: ${{data.senha_temporaria}}\\n` +
-        `Link de acesso: ${{data.portal_url}}\\n\\n` +
-        `Assim que você entrar com esta senha temporária, o sistema pedirá para você escolher sua nova senha pessoal.`
-      );
-      document.getElementById('tp-mailto-link').href = `mailto:${{usuario.email}}?subject=${{assunto}}&body=${{corpo}}`;
-      document.getElementById('temp-pw-modal').classList.remove('hidden');
-    }}
-
-    function copiarSenhaTemporaria() {{
-      if (!ultimoResultadoSenhaTemp) return;
-      const {{ usuario, data }} = ultimoResultadoSenhaTemp;
-      const texto = `Olá, ${{usuario.nome}}! Seu acesso ao Portal Gold Corretora:\\nE-mail: ${{usuario.email}}\\nSenha temporária: ${{data.senha_temporaria}}\\nAcesse em: ${{data.portal_url}} (o sistema pedirá para você criar sua senha pessoal no primeiro login).`;
-      navigator.clipboard.writeText(texto);
-      const btn = document.getElementById('btn-copy-tp');
-      btn.textContent = 'Copiado!';
-      setTimeout(() => {{ btn.textContent = 'Copiar Texto'; }}, 2000);
-    }}
-
-    function fecharModalSenhaTemp() {{
-      document.getElementById('temp-pw-modal').classList.add('hidden');
-    }}
-
-    async function revogarSessoesUsuario(userId, nome) {{
-      if (!confirm(`Deseja desconectar todos os dispositivos logados de ${{nome}} agora?`)) return;
-      await fetch(`/api/admin/users/${{userId}}/revoke-sessions`, {{ method: 'POST' }});
-      await carregarUsuarios();
-      await carregarAuditoria();
-    }}
-
-    async function excluirUsuarioConfirmado(userId, nome) {{
-      if (!confirm(`ATENÇÃO: Deseja excluir permanentemente o usuário ${{nome}}?\\n\\nSe quiser apenas impedir o acesso mantendo o cadastro, use o botão "Bloquear".`)) return;
-      const res = await fetch(`/api/admin/users/${{userId}}`, {{ method: 'DELETE' }});
-      if (!res.ok) {{
-        const data = await res.json().catch(() => ({{}}));
-        alert(data.detail || 'Não foi possível excluir.');
-        return;
-      }}
-      await carregarUsuarios();
-      await carregarAuditoria();
     }}
 
     function formatarDetalhesAuditoria(item) {{
       const d = item.detalhes || {{}};
       let html = '';
+
       if (d.resumo) {{
         html = `<span class="font-semibold text-navy-900">${{d.resumo}}</span>`;
       }} else if (d.lead_nome || d.novo_status) {{
-        html = `<span class="font-semibold text-navy-900">Lead #${{d.lead_id || ''}} (${{d.lead_nome || ''}})</span> → <span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 font-bold text-xs">${{d.novo_status || ''}}</span> ${{d.observacoes ? `<span class="text-slate-600 italic">"${{d.observacoes}}"</span>` : ''}}`;
+        html = `
+          <div class="flex flex-wrap items-center gap-1.5">
+            <span class="font-bold text-navy-900">Lead #${{d.lead_id || ''}} (${{d.lead_nome || ''}})</span>
+            <span class="text-slate-400">→</span>
+            <span class="px-2 py-0.5 rounded-md bg-amber-100 text-amber-900 font-extrabold text-[11px] border border-amber-200">${{d.novo_status || ''}}</span>
+            ${{d.observacoes ? `<span class="text-slate-500 italic text-xs">"${{d.observacoes}}"</span>` : ''}}
+          </div>
+        `;
+      }} else if (item.acao === 'ACESSO_PAINEL_VENDEDOR' || (d.host && !d.user_agent)) {{
+        html = `
+          <div class="flex items-center gap-1.5 text-xs">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
+            <span class="text-slate-600">Acesso via</span>
+            <span class="font-mono font-semibold text-navy-900 bg-slate-100 px-1.5 py-0.5 rounded text-[11px]">${{d.host || 'vendas.goldcorretora.com.br'}}</span>
+          </div>
+        `;
+      }} else if (item.acao === 'LOGIN_SUCESSO' || d.user_agent) {{
+        let dev = 'Navegador Web';
+        const ua = d.user_agent || '';
+        if (ua.includes('Windows')) dev = '🖥️ Windows';
+        else if (ua.includes('Macintosh') || ua.includes('Mac OS')) dev = '🍏 macOS';
+        else if (ua.includes('iPhone')) dev = '📱 iPhone';
+        else if (ua.includes('Android')) dev = '📱 Android';
+        else if (ua.includes('Linux')) dev = '🐧 Linux';
+
+        if (ua.includes('Chrome')) dev += ' • Chrome';
+        else if (ua.includes('Firefox')) dev += ' • Firefox';
+        else if (ua.includes('Safari')) dev += ' • Safari';
+        else if (ua.includes('Edg')) dev += ' • Edge';
+
+        html = `
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="font-semibold text-navy-900">${{dev}}</span>
+              ${{d.permanecer_conectado ? '<span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">Sessão Salva</span>' : ''}}
+            </div>
+            ${{d.senha_temporaria ? '<div class="text-[11px] text-amber-800 font-bold">⚠️ Usuário autenticou com Senha Temporária</div>' : ''}}
+          </div>
+        `;
       }} else if (d.alvo_email) {{
-        html = `Usuário alvo: <span class="font-mono font-semibold">${{d.alvo_email}}</span>`;
+        html = `Usuário alvo: <span class="font-mono font-bold text-navy-900">${{d.alvo_email}}</span>`;
       }} else if (d.motivo) {{
-        html = `<span class="text-red-600 font-medium">${{d.motivo}}</span>`;
+        html = `<span class="text-red-600 font-bold">${{d.motivo}}</span>`;
       }} else {{
-        const str = JSON.stringify(d);
-        html = str === '{{}}' ? `<span class="text-slate-500 font-mono">${{item.rota || '/'}}</span>` : `<span class="font-mono text-xs text-slate-600">${{str}}</span>`;
+        const keys = Object.keys(d);
+        if (keys.length === 0) {{
+          html = `<span class="text-slate-500 font-mono text-xs">${{item.rota || '/'}}</span>`;
+        }} else {{
+          html = `
+            <details class="group cursor-pointer">
+              <summary class="text-[11px] font-bold text-slate-500 group-hover:text-gold-600 flex items-center gap-1 select-none">
+                <span>Ver parâmetros (${{keys.length}})</span>
+                <span class="text-[10px] font-mono text-slate-400">▾</span>
+              </summary>
+              <pre class="mt-1 p-2 rounded-lg bg-slate-100 text-[11px] font-mono text-slate-700 overflow-x-auto whitespace-pre-wrap max-w-md border border-slate-200">${{JSON.stringify(d, null, 2)}}</pre>
+            </details>
+          `;
+        }}
       }}
 
       if (item.acao === 'SOLICITACAO_REDEFINICAO_SENHA' && (d.alvo_email || item.usuario_email)) {{
         const emailAlvo = d.alvo_email || item.usuario_email;
-        html += ` <button type="button" onclick="resolverRecuperacaoPorEmail('${{emailAlvo}}')" class="ml-2 px-2.5 py-1 rounded-lg bg-navy-900 text-gold-400 font-extrabold text-[11px] hover:bg-navy-800">Gerar & Enviar Senha Temp.</button>`;
+        html += ` <button type="button" onclick="resolverRecuperacaoPorEmail('${{emailAlvo}}')" class="btn-tactile mt-1 sm:mt-0 sm:ml-2 inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-navy-900 text-gold-400 font-extrabold text-[11px] hover:bg-navy-800 shadow-2xs">Gerar & Enviar Senha Temp.</button>`;
       }}
       return html;
     }}
@@ -2009,12 +2190,12 @@ def get_admin_html(
     }}
 
     async function carregarAuditoria() {{
-      const q = document.getElementById('audit-search').value.trim();
-      const app = document.getElementById('audit-app-filter').value;
-      const email = document.getElementById('audit-user-filter').value;
+      const q = (document.getElementById('audit-search') || {{}}).value || '';
+      const app = (document.getElementById('audit-app-filter') || {{}}).value || 'TODOS';
+      const email = (document.getElementById('audit-user-filter') || {{}}).value || 'TODOS';
 
       const params = new URLSearchParams();
-      if (q) params.set('q', q);
+      if (q.trim()) params.set('q', q.trim());
       if (app && app !== 'TODOS') params.set('app', app);
       if (email && email !== 'TODOS') params.set('email', email);
 
@@ -2022,46 +2203,82 @@ def get_admin_html(
       if (!res.ok) return;
       stateAudit = await res.json();
 
-      document.getElementById('kpi-audit-count').textContent = stateAudit.length;
+      const kpiCount = document.getElementById('kpi-audit-count');
+      if (kpiCount) kpiCount.textContent = stateAudit.length;
+
       const tbody = document.getElementById('audit-tbody');
+      const mobileCards = document.getElementById('audit-cards-mobile');
 
       if (stateAudit.length === 0) {{
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="6" class="py-12 text-center">
-              <p class="text-sm font-bold text-navy-900">Nenhuma atividade encontrada para este filtro</p>
-              <p class="text-xs text-slate-600 mt-1">Assim que os vendedores acessarem ou interagirem com os leads, os eventos aparecerão aqui.</p>
-            </td>
-          </tr>
+        const emptyMsg = `
+          <div class="py-12 text-center">
+            <p class="text-sm font-bold text-navy-900">Nenhuma atividade encontrada para este filtro</p>
+            <p class="text-xs text-slate-600 mt-1">Assim que os vendedores acessarem ou interagirem com os leads, os eventos aparecerão aqui.</p>
+          </div>
         `;
+        if (tbody) tbody.innerHTML = `<tr><td colspan="6" class="py-12 text-center"><p class="text-sm font-bold text-navy-900">Nenhuma atividade encontrada para este filtro</p><p class="text-xs text-slate-600 mt-1">Assim que os vendedores acessarem ou interagirem com os leads, os eventos aparecerão aqui.</p></td></tr>`;
+        if (mobileCards) mobileCards.innerHTML = emptyMsg;
         return;
       }}
 
-      tbody.innerHTML = stateAudit.map(item => `
-        <tr class="hover:bg-slate-50/80">
-          <td class="py-3 px-4 text-xs text-slate-600 tabular-nums whitespace-nowrap">
-            ${{fmtData(item.created_at)}}
-          </td>
-          <td class="py-3 px-4">
-            <div class="font-bold text-navy-900">${{item.usuario_nome || 'Visitante'}}</div>
-            <div class="text-[11px] text-slate-600 font-mono">${{item.usuario_email || '—'}} ${{item.usuario_cargo ? `• ${{item.usuario_cargo}}` : ''}}</div>
-          </td>
-          <td class="py-3 px-4">
-            <span class="text-xs font-bold text-navy-900 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">
-              ${{item.app || 'gold-auth'}}
-            </span>
-          </td>
-          <td class="py-3 px-4 whitespace-nowrap">
-            ${{badgeAcao(item.acao)}}
-          </td>
-          <td class="py-3 px-4 text-xs">
-            ${{formatarDetalhesAuditoria(item)}}
-          </td>
-          <td class="py-3 px-4 text-xs font-mono text-slate-500 tabular-nums">
-            ${{item.ip || '—'}}
-          </td>
-        </tr>
-      `).join('');
+      // Desktop Table (>= md)
+      if (tbody) {{
+        tbody.innerHTML = stateAudit.map(item => `
+          <tr class="hover:bg-slate-50/80 transition-colors">
+            <td class="py-3 px-4 text-xs text-slate-600 tabular-nums whitespace-nowrap">
+              ${{fmtData(item.created_at)}}
+            </td>
+            <td class="py-3 px-4">
+              <div class="font-bold text-navy-900">${{item.usuario_nome || 'Visitante'}}</div>
+              <div class="text-[11px] text-slate-600 font-mono">${{item.usuario_email || '—'}} ${{item.usuario_cargo ? `• ${{item.usuario_cargo}}` : ''}}</div>
+            </td>
+            <td class="py-3 px-4">
+              <span class="text-xs font-bold text-navy-900 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">
+                ${{item.app || 'gold-auth'}}
+              </span>
+            </td>
+            <td class="py-3 px-4 whitespace-nowrap">
+              ${{badgeAcao(item.acao)}}
+            </td>
+            <td class="py-3 px-4 text-xs">
+              ${{formatarDetalhesAuditoria(item)}}
+            </td>
+            <td class="py-3 px-4 text-xs font-mono text-slate-500 tabular-nums text-right">
+              ${{item.ip || '—'}}
+            </td>
+          </tr>
+        `).join('');
+      }}
+
+      // Mobile Cards (< md)
+      if (mobileCards) {{
+        mobileCards.innerHTML = stateAudit.map(item => `
+          <div class="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-2xs space-y-2.5">
+            <div class="flex items-start justify-between gap-2">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-8 h-8 rounded-xl bg-navy-900 text-gold-400 flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+                  ${{getInitials(item.usuario_nome)}}
+                </div>
+                <div class="min-w-0">
+                  <div class="font-extrabold text-navy-950 text-xs truncate">${{item.usuario_nome || 'Visitante'}}</div>
+                  <div class="text-[10px] text-slate-500 font-mono truncate">${{item.usuario_email || '—'}}</div>
+                </div>
+              </div>
+              <span class="text-[10px] font-semibold text-slate-400 tabular-nums shrink-0">${{fmtData(item.created_at)}}</span>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-1.5 pt-2 border-t border-slate-100">
+              ${{badgeAcao(item.acao)}}
+              <span class="text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">${{item.app || 'gold-auth'}}</span>
+              ${{item.ip ? `<span class="text-[10px] font-mono text-slate-400 ml-auto">${{item.ip}}</span>` : ''}}
+            </div>
+
+            <div class="text-xs text-slate-700 bg-slate-50/80 rounded-xl p-2.5 border border-slate-100">
+              ${{formatarDetalhesAuditoria(item)}}
+            </div>
+          </div>
+        `).join('');
+      }}
     }}
 
     function debounceAudit() {{
@@ -2265,10 +2482,16 @@ def get_admin_html(
       if (container && !container.contains(e.target)) {{
         fecharMenuUsuario();
       }}
+      const appWrap = document.getElementById('wrap-app-dropdown');
+      const userWrap = document.getElementById('wrap-user-dropdown');
+      if ((!appWrap || !appWrap.contains(e.target)) && (!userWrap || !userWrap.contains(e.target))) {{
+        fecharTodosDropdowns();
+      }}
     }});
     window.addEventListener('keydown', (e) => {{
       if (e.key === 'Escape') {{
         fecharMenuUsuario();
+        fecharTodosDropdowns();
         fecharModalUsuario();
         fecharModalCargo();
         fecharModalSenhaTemp();
@@ -2281,6 +2504,72 @@ def get_admin_html(
 
     carregarTudo();
     setInterval(carregarAuditoria, 10000);
+
+
+    // Funções de Gestão de Férias e Ausência da Roleta
+    function fmtDataSoDia(dStr) {{
+      if (!dStr) return '';
+      const parts = dStr.split('-');
+      if (parts.length === 3) return `${{parts[2]}}/${{parts[1]}}/${{parts[0]}}`;
+      return dStr;
+    }}
+
+    function alternarCamposFeriasNoModal() {{
+      const checked = document.getElementById('u-ferias').checked;
+      const wrap = document.getElementById('u-ferias-wrap');
+      if (checked) {{
+        wrap.classList.remove('hidden');
+      }} else {{
+        wrap.classList.add('hidden');
+      }}
+    }}
+
+    function abrirModalFeriasRapido(id, nome) {{
+      document.getElementById('ferias-user-id').value = id;
+      document.getElementById('ferias-modal-title').textContent = 'Férias: ' + nome;
+      document.getElementById('ferias-data-retorno').value = '';
+      document.getElementById('ferias-modal').classList.remove('hidden');
+    }}
+
+    function fecharModalFeriasRapido() {{
+      document.getElementById('ferias-modal').classList.add('hidden');
+    }}
+
+    document.getElementById('ferias-form').addEventListener('submit', async (e) => {{
+      e.preventDefault();
+      const id = document.getElementById('ferias-user-id').value;
+      const dataRetorno = document.getElementById('ferias-data-retorno').value || null;
+
+      const res = await fetch(`/api/admin/users/${{id}}`, {{
+        method: 'PATCH',
+        headers: {{ 'Content-Type': 'application/json' }},
+        body: JSON.stringify({{ em_ferias: true, ferias_retorno: dataRetorno }})
+      }});
+      if (!res.ok) {{
+        const d = await res.json().catch(() => ({{}}));
+        alert(d.detail || 'Não foi possível marcar as férias.');
+        return;
+      }}
+      fecharModalFeriasRapido();
+      await carregarUsuarios();
+      await carregarAuditoria();
+    }});
+
+    async function encerrarFeriasRapido(id, nome) {{
+      if (!confirm(`Deseja encerrar as férias de ${{nome}} e reincorporá-lo à roleta de leads imediatamente?`)) return;
+      const res = await fetch(`/api/admin/users/${{id}}`, {{
+        method: 'PATCH',
+        headers: {{ 'Content-Type': 'application/json' }},
+        body: JSON.stringify({{ em_ferias: false, ferias_retorno: null }})
+      }});
+      if (!res.ok) {{
+        const d = await res.json().catch(() => ({{}}));
+        alert(d.detail || 'Não foi possível encerrar as férias.');
+        return;
+      }}
+      await carregarUsuarios();
+      await carregarAuditoria();
+    }}
   </script>
 </body>
 </html>"""
