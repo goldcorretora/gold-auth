@@ -35,6 +35,9 @@ GOLD_LOGO_HEADER = _build_gold_logo_svg(text_fill="#FFFFFF", gold_fill="#F5B82E"
 SHARED_HEAD = """
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -543,16 +546,31 @@ def get_login_html(
     const eyeOpen = document.getElementById('eye-open');
     const eyeClosed = document.getElementById('eye-closed');
 
+    function resetLoginForm() {{
+      if (submitBtn) submitBtn.disabled = false;
+      if (submitLabel) submitLabel.textContent = 'Entrar';
+      if (submitArrow) submitArrow.classList.remove('hidden');
+      if (submitSpinner) submitSpinner.classList.add('hidden');
+      if (senhaInput) senhaInput.value = '';
+    }}
+
+    // Previne que a tela fique congelada em "Entrando..." ao voltar via logout ou histórico (bfcache)
+    window.addEventListener('pageshow', () => {{ resetLoginForm(); }});
+    window.addEventListener('pagehide', () => {{ resetLoginForm(); }});
+    document.addEventListener('DOMContentLoaded', () => {{ resetLoginForm(); }});
+    if (emailInput) emailInput.addEventListener('input', () => {{ if (submitBtn && submitBtn.disabled) resetLoginForm(); }});
+    if (senhaInput) senhaInput.addEventListener('input', () => {{ if (submitBtn && submitBtn.disabled) resetLoginForm(); }});
+    resetLoginForm();
+
     function concluirRedirecionamentoPosLogin() {{
       const params = new URLSearchParams(window.location.search);
       const rd = params.get('rd');
-      if (rd && !rd.includes('auth.goldcorretora.com.br')) {{
-        window.location.href = rd;
-      }} else if ('{default_redirect}' && '{default_redirect}' !== 'https://goldcorretora.com.br') {{
-        window.location.href = '{default_redirect}';
-      }} else {{
-        window.location.href = 'https://vendas.goldcorretora.com.br';
-      }}
+      const destination = (rd && !rd.includes('auth.goldcorretora.com.br'))
+        ? rd
+        : (('{default_redirect}' && '{default_redirect}' !== 'https://goldcorretora.com.br') ? '{default_redirect}' : 'https://vendas.goldcorretora.com.br');
+
+      setTimeout(() => {{ resetLoginForm(); }}, 1200);
+      window.location.href = destination;
     }}
 
     function abrirModalTrocaSenhaObrigatoria(emailUsuario) {{
