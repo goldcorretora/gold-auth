@@ -364,8 +364,14 @@ def get_login_html(
         </div>
       </div>
 
-      <!-- Rodapé Mobile: Copyright -->
-      <footer class="lg:hidden relative z-10 pt-3 text-center text-[11px] text-slate-400 font-medium border-t border-slate-100">
+      <!-- Rodapé Mobile com Onda Azul Institucional -->
+      <footer class="lg:hidden relative z-10 -mx-5 sm:-mx-8 -mb-5 sm:-mb-8 bg-navy-950 pt-5 pb-3.5 px-4 text-center text-[11px] text-slate-400 font-medium shrink-0 mt-3 sm:mt-4">
+        <!-- Onda Azul Superior do Rodapé (Mobile) -->
+        <div class="absolute -top-4 sm:-top-5 left-0 right-0 w-full h-4 sm:h-5 pointer-events-none z-20">
+          <svg class="w-full h-full fill-[#0A121E]" viewBox="0 0 1000 100" preserveAspectRatio="none">
+            <path d="M 0 100 C 250 100, 350 0, 500 0 C 650 0, 750 100, 1000 100 Z" />
+          </svg>
+        </div>
         <span>© 2026 Gold Corretora de Seguros. Todos os direitos reservados.</span>
       </footer>
 
