@@ -375,14 +375,6 @@ def get_login_html(
         <span>© 2026 Gold Corretora de Seguros. Todos os direitos reservados.</span>
       </footer>
 
-      <!-- Rodapé Desktop sutil à direita: Conexão Segura -->
-      <div class="hidden lg:flex items-center justify-between pt-4 text-[11px] text-slate-400 font-medium border-t border-slate-100 relative z-10">
-        <span class="inline-flex items-center gap-1.5 text-slate-500">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-          Conexão Segura SSO
-        </span>
-        <span class="text-slate-400">Gold Corretora</span>
-      </div>
     </main>
 
   </div>
