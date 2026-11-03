@@ -366,29 +366,39 @@ DEFAULT_EMAIL_SETTINGS = {
 }
 
 def obter_configuracoes_email(ocultar_senha: bool = False) -> Dict[str, Any]:
-    ensure_db_initialized()
-    conn, is_pg = get_connection()
-    cur = conn.cursor()
-    tb_cfg = "schema_auth.configuracoes" if is_pg else "auth_configuracoes"
-    cur.execute(f"SELECT chave, valor FROM {tb_cfg};")
-    rows = cur.fetchall()
-    conn.close()
-
-    stored = {r["chave"]: r["valor"] for r in rows}
     cfg = dict(DEFAULT_EMAIL_SETTINGS)
+    try:
+        ensure_db_initialized()
+        conn, is_pg = get_connection()
+        cur = conn.cursor()
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS schema_auth.configuracoes (
+                chave VARCHAR(100) PRIMARY KEY,
+                valor TEXT,
+                updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+            );
+        """)
+        conn.commit()
+        tb_cfg = "schema_auth.configuracoes" if is_pg else "auth_configuracoes"
+        cur.execute(f"SELECT chave, valor FROM {tb_cfg};")
+        rows = cur.fetchall()
+        conn.close()
 
-    for k in ("support_email", "smtp_host", "smtp_user", "smtp_password", "smtp_from_name", "smtp_from_email"):
-        if k in stored and stored[k] is not None:
-            cfg[k] = stored[k]
+        stored = {r["chave"]: r["valor"] for r in rows}
+        for k in ("support_email", "smtp_host", "smtp_user", "smtp_password", "smtp_from_name", "smtp_from_email"):
+            if k in stored and stored[k] is not None:
+                cfg[k] = stored[k]
 
-    if "smtp_port" in stored and stored["smtp_port"]:
-        try:
-            cfg["smtp_port"] = int(stored["smtp_port"])
-        except Exception:
-            pass
+        if "smtp_port" in stored and stored["smtp_port"]:
+            try:
+                cfg["smtp_port"] = int(stored["smtp_port"])
+            except Exception:
+                pass
 
-    if "smtp_use_tls" in stored and stored["smtp_use_tls"] is not None:
-        cfg["smtp_use_tls"] = str(stored["smtp_use_tls"]).lower() in ("true", "1", "yes")
+        if "smtp_use_tls" in stored and stored["smtp_use_tls"] is not None:
+            cfg["smtp_use_tls"] = str(stored["smtp_use_tls"]).lower() in ("true", "1", "yes")
+    except Exception as e:
+        logger.warning(f"Aviso ao carregar configuracoes de email: {e}")
 
     cfg["smtp_configurado"] = bool(cfg.get("smtp_host") and cfg.get("smtp_user") and cfg.get("smtp_password"))
     if ocultar_senha:

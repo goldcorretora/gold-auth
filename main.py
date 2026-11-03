@@ -221,7 +221,11 @@ async def admin_page(request: Request):
     perms = user.get("permissoes") or []
     if user.get("cargo") != "ADMIN" and "*" not in perms and "auditoria.view" not in perms:
         return RedirectResponse(url=DEFAULT_REDIRECT_URL, status_code=302)
-    cfg = obter_configuracoes_email(ocultar_senha=True)
+    try:
+        cfg = obter_configuracoes_email(ocultar_senha=True)
+    except Exception as e:
+        logger.warning(f"Aviso em admin_page ao carregar configuracoes: {e}")
+        cfg = {}
     return HTMLResponse(
         content=get_admin_html(
             default_redirect=DEFAULT_REDIRECT_URL,
