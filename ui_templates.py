@@ -741,7 +741,10 @@ def get_login_html(
 </html>"""
 
 
-def get_admin_html(default_redirect: str = "https://vendas.goldcorretora.com.br") -> str:
+def get_admin_html(
+    default_redirect: str = "https://vendas.goldcorretora.com.br",
+    support_email: str = "acesso@goldcorretora.com.br"
+) -> str:
     return f"""<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -761,7 +764,7 @@ def get_admin_html(default_redirect: str = "https://vendas.goldcorretora.com.br"
             Portal de Acessos Gold
           </span>
           <span class="text-[11px] text-slate-300 font-medium block">
-            Controle de Vendedores, Cargos & Auditoria em Tempo Real
+            Controle de Vendedores, Cargos, E-mail Oficial & Auditoria
           </span>
         </div>
       </div>
@@ -796,18 +799,18 @@ def get_admin_html(default_redirect: str = "https://vendas.goldcorretora.com.br"
   <!-- Conteúdo Principal -->
   <main class="flex-1 max-w-[1440px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
     <!-- Cabeçalho da Página + Abas -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
       <div>
         <h1 class="text-2xl sm:text-3xl font-extrabold text-navy-900 tracking-tight">
           Gestão da Equipe & Auditoria Operacional
         </h1>
         <p class="text-xs sm:text-sm text-slate-600 mt-0.5">
-          Gerencie quem pode acessar cada aplicativo da Gold Corretora e acompanhe todas as ações em tempo real.
+          Gerencie logins, e-mail de usuários, senhas temporárias, cargos e o e-mail oficial de suporte da Gold Corretora.
         </p>
       </div>
 
       <!-- Segmented Control de Navegação -->
-      <nav aria-label="Seções do painel" class="bg-white p-1 rounded-2xl border border-slate-200 shadow-xs flex items-center self-start sm:self-auto">
+      <nav aria-label="Seções do painel" class="bg-white p-1 rounded-2xl border border-slate-200 shadow-xs flex flex-wrap items-center self-start lg:self-auto gap-1">
         <button
           type="button"
           data-tab="auditoria"
@@ -832,11 +835,19 @@ def get_admin_html(default_redirect: str = "https://vendas.goldcorretora.com.br"
         >
           Cargos & Permissões
         </button>
+        <button
+          type="button"
+          data-tab="email"
+          onclick="switchTab('email')"
+          class="tab-btn btn-tactile px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-100"
+        >
+          E-mail & Recuperação
+        </button>
       </nav>
     </div>
 
     <!-- KPIs Rápidos -->
-    <section aria-label="Resumo operacional" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <section aria-label="Resumo operacional" class="grid grid-cols-1 sm:grid-cols-4 gap-4">
       <div class="bg-white rounded-2xl border border-slate-200 p-4 flex items-center justify-between">
         <div>
           <span class="text-xs font-bold text-slate-600 block">Usuários Ativos</span>
@@ -850,12 +861,26 @@ def get_admin_html(default_redirect: str = "https://vendas.goldcorretora.com.br"
           <span class="text-xs font-bold text-slate-600 block">Sessões Conectadas</span>
           <strong id="kpi-active-sessions" class="text-2xl font-extrabold text-navy-900 tabular-nums mt-0.5 block">—</strong>
         </div>
-        <span class="px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 text-xs font-bold border border-amber-200">Dispositivos logados</span>
+        <span class="px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 text-xs font-bold border border-amber-200">Dispositivos vivos</span>
       </div>
 
       <div class="bg-white rounded-2xl border border-slate-200 p-4 flex items-center justify-between">
         <div>
-          <span class="text-xs font-bold text-slate-600 block">Eventos Auditados (Recentes)</span>
+          <span class="text-xs font-bold text-slate-600 block">E-mail de Suporte Gold</span>
+          <strong id="kpi-support-email" class="text-sm font-mono font-extrabold text-navy-900 mt-1.5 block truncate max-w-[180px]">{support_email}</strong>
+        </div>
+        <button
+          type="button"
+          onclick="switchTab('email')"
+          class="btn-tactile px-2.5 py-1 rounded-lg bg-gold-50 text-gold-700 border border-gold-300 text-xs font-bold"
+        >
+          Configurar
+        </button>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 flex items-center justify-between">
+        <div>
+          <span class="text-xs font-bold text-slate-600 block">Eventos Auditados</span>
           <strong id="kpi-audit-count" class="text-2xl font-extrabold text-navy-900 tabular-nums mt-0.5 block">—</strong>
         </div>
         <button
@@ -937,7 +962,7 @@ def get_admin_html(default_redirect: str = "https://vendas.goldcorretora.com.br"
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white rounded-2xl border border-slate-200 p-4">
         <div>
           <h2 class="text-base font-extrabold text-navy-900">Consultores, Supervisores e Administradores</h2>
-          <p class="text-xs text-slate-600">Crie logins, redefina senhas, defina quais aplicativos cada pessoa pode abrir ou bloqueie o acesso instantaneamente.</p>
+          <p class="text-xs text-slate-600">Altere nome ou e-mail de login, envie senhas temporárias (com troca obrigatória no 1º acesso), encerre sessões abertas ou bloqueie contas.</p>
         </div>
         <button
           type="button"
@@ -958,7 +983,7 @@ def get_admin_html(default_redirect: str = "https://vendas.goldcorretora.com.br"
                 <th class="py-3 px-4">Aplicativos Liberados</th>
                 <th class="py-3 px-4">Status / Sessões</th>
                 <th class="py-3 px-4">Último Login</th>
-                <th class="py-3 px-4 text-right">Ações</th>
+                <th class="py-3 px-4 text-right">Ações Administrativas</th>
               </tr>
             </thead>
             <tbody id="users-tbody" class="divide-y divide-slate-200 text-xs sm:text-sm">
@@ -978,7 +1003,7 @@ def get_admin_html(default_redirect: str = "https://vendas.goldcorretora.com.br"
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white rounded-2xl border border-slate-200 p-4">
         <div>
           <h2 class="text-base font-extrabold text-navy-900">Cargos e Permissões Customizáveis</h2>
-          <p class="text-xs text-slate-600">Crie novos cargos (ex: Financeiro, Pós-Venda, Auditor) e defina exatamente quais permissões possuem.</p>
+          <p class="text-xs text-slate-600">Crie novos cargos (ex: Financeiro, Pós-Venda, Auditor) e defina quais aplicativos e permissões são liberados por padrão.</p>
         </div>
         <button
           type="button"
@@ -991,6 +1016,128 @@ def get_admin_html(default_redirect: str = "https://vendas.goldcorretora.com.br"
 
       <div id="roles-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <!-- Renderizado via JS -->
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- ABA 4: E-MAIL DA GOLD & RECUPERAÇÃO        -->
+    <!-- ========================================== -->
+    <section id="tab-email" class="hidden space-y-4">
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-4">
+          <div>
+            <h2 class="text-lg font-extrabold text-navy-900">E-mail Oficial da Gold Corretora para Recuperação de Senha</h2>
+            <p class="text-xs sm:text-sm text-slate-600 mt-0.5">
+              Defina o endereço de e-mail oficial da Gold para contato de suporte e configure o servidor SMTP para enviar senhas temporárias automaticamente.
+            </p>
+          </div>
+          <span id="smtp-status-badge" class="px-3 py-1 rounded-full text-xs font-extrabold bg-slate-100 text-slate-700 border border-slate-200 self-start sm:self-auto">
+            Verificando SMTP...
+          </span>
+        </div>
+
+        <form id="email-settings-form" class="space-y-5">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label for="cfg-support-email" class="block text-xs font-extrabold text-slate-700 mb-1">
+                E-mail Oficial de Contato / Suporte Gold
+              </label>
+              <input
+                id="cfg-support-email"
+                type="email"
+                required
+                placeholder="Ex: acesso@goldcorretora.com.br"
+                class="w-full h-10 rounded-xl border border-slate-300 px-3 text-sm font-mono font-semibold text-navy-900 focus:outline-none focus:border-gold-500"
+              />
+              <span class="text-[11px] text-slate-500 mt-1 block">Exibido na tela de login ("Esqueceu sua senha?") e no rodapé dos e-mails enviados.</span>
+            </div>
+
+            <div>
+              <label for="cfg-from-name" class="block text-xs font-extrabold text-slate-700 mb-1">
+                Nome do Remetente nos E-mails
+              </label>
+              <input
+                id="cfg-from-name"
+                type="text"
+                placeholder="Gold Corretora de Seguros"
+                class="w-full h-10 rounded-xl border border-slate-300 px-3 text-sm font-medium text-navy-900 focus:outline-none focus:border-gold-500"
+              />
+            </div>
+
+            <div>
+              <label for="cfg-from-email" class="block text-xs font-extrabold text-slate-700 mb-1">
+                E-mail Remetente (Disparo SMTP)
+              </label>
+              <input
+                id="cfg-from-email"
+                type="email"
+                placeholder="Ex: acesso@goldcorretora.com.br"
+                class="w-full h-10 rounded-xl border border-slate-300 px-3 text-sm font-mono text-navy-900 focus:outline-none focus:border-gold-500"
+              />
+            </div>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-xs font-extrabold uppercase tracking-wider text-navy-900">Credenciais do Servidor SMTP (Envio Automático de Senha Temporária)</h3>
+              <span class="text-[11px] text-slate-500">Compatível com Google Workspace, Titan/Hostinger, Zoho, Brevo ou Outlook</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+              <div class="md:col-span-2">
+                <label for="cfg-smtp-host" class="block text-xs font-bold text-slate-700 mb-1">Servidor SMTP (Host)</label>
+                <input id="cfg-smtp-host" type="text" placeholder="Ex: smtp.gmail.com ou smtp.titan.email" class="w-full h-10 rounded-xl border border-slate-300 bg-white px-3 text-xs font-mono text-navy-900 focus:outline-none focus:border-gold-500" />
+              </div>
+              <div>
+                <label for="cfg-smtp-port" class="block text-xs font-bold text-slate-700 mb-1">Porta SMTP</label>
+                <input id="cfg-smtp-port" type="number" value="587" class="w-full h-10 rounded-xl border border-slate-300 bg-white px-3 text-xs font-mono text-navy-900 focus:outline-none focus:border-gold-500" />
+              </div>
+              <div class="flex items-end pb-2">
+                <label class="inline-flex items-center gap-2 text-xs font-bold text-navy-900 cursor-pointer">
+                  <input id="cfg-smtp-tls" type="checkbox" checked class="w-4 h-4 rounded text-gold-600" />
+                  <span>Usar criptografia STARTTLS</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label for="cfg-smtp-user" class="block text-xs font-bold text-slate-700 mb-1">Usuário / Login SMTP</label>
+                <input id="cfg-smtp-user" type="text" placeholder="Ex: acesso@goldcorretora.com.br" class="w-full h-10 rounded-xl border border-slate-300 bg-white px-3 text-xs font-mono text-navy-900 focus:outline-none focus:border-gold-500" />
+              </div>
+              <div>
+                <label for="cfg-smtp-pass" class="block text-xs font-bold text-slate-700 mb-1">
+                  Senha do E-mail / Senha de App <span id="cfg-pass-hint" class="font-normal text-slate-500"></span>
+                </label>
+                <input id="cfg-smtp-pass" type="password" placeholder="Digite para definir ou alterar a senha SMTP" class="w-full h-10 rounded-xl border border-slate-300 bg-white px-3 text-xs font-mono text-navy-900 focus:outline-none focus:border-gold-500" />
+              </div>
+            </div>
+          </div>
+
+          <div id="email-settings-feedback" class="hidden rounded-xl p-3 text-xs font-bold"></div>
+
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-slate-200">
+            <div class="flex items-center gap-2">
+              <input id="test-email-dest" type="email" placeholder="E-mail para receber teste..." class="h-10 rounded-xl border border-slate-300 px-3 text-xs font-mono text-navy-900 w-60" />
+              <button
+                type="button"
+                id="btn-test-smtp"
+                onclick="dispararTesteEmail()"
+                class="btn-tactile h-10 px-3.5 rounded-xl border border-slate-300 hover:bg-slate-100 text-xs font-bold text-navy-900"
+              >
+                Testar Disparo de E-mail
+              </button>
+            </div>
+
+            <button
+              type="submit"
+              id="btn-save-email-cfg"
+              class="btn-tactile h-10 px-5 rounded-xl bg-navy-900 hover:bg-navy-800 text-gold-400 text-xs font-extrabold"
+            >
+              Salvar Configuração de E-mail
+            </button>
+          </div>
+        </form>
       </div>
     </section>
   </main>
@@ -1019,12 +1166,26 @@ def get_admin_html(default_redirect: str = "https://vendas.goldcorretora.com.br"
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label for="u-cargo" class="block text-xs font-bold text-slate-700 mb-1">Cargo</label>
-            <select id="u-cargo" class="w-full h-10 rounded-xl border border-slate-300 px-3 text-sm font-bold text-navy-900 bg-white focus:outline-none focus:border-gold-500"></select>
+            <select id="u-cargo" onchange="aoMudarCargoNoModal()" class="w-full h-10 rounded-xl border border-slate-300 px-3 text-sm font-bold text-navy-900 bg-white focus:outline-none focus:border-gold-500"></select>
           </div>
           <div>
-            <label for="u-senha" class="block text-xs font-bold text-slate-700 mb-1">Senha <span id="u-senha-hint" class="text-[11px] font-normal text-slate-500"></span></label>
-            <input id="u-senha" type="password" placeholder="Mínimo 4 caracteres" class="w-full h-10 rounded-xl border border-slate-300 px-3 text-sm font-medium text-navy-900 focus:outline-none focus:border-gold-500" />
+            <div class="flex items-center justify-between mb-1">
+              <label for="u-senha" class="block text-xs font-bold text-slate-700">Senha <span id="u-senha-hint" class="text-[11px] font-normal text-slate-500"></span></label>
+              <button type="button" onclick="preencherSenhaTemporariaNoModal()" class="text-[11px] font-extrabold text-gold-700 hover:underline">Gerar temporária</button>
+            </div>
+            <input id="u-senha" type="text" placeholder="Mínimo 4 caracteres" class="w-full h-10 rounded-xl border border-slate-300 px-3 text-sm font-mono font-semibold text-navy-900 focus:outline-none focus:border-gold-500" />
           </div>
+        </div>
+
+        <div class="bg-amber-50/70 border border-amber-200 rounded-xl p-3 space-y-2">
+          <label class="inline-flex items-center gap-2 text-xs font-bold text-navy-900 cursor-pointer">
+            <input id="u-force-change" type="checkbox" checked class="w-4 h-4 rounded text-gold-600" />
+            <span>Exigir que a pessoa troque esta senha no primeiro acesso (Senha Temporária)</span>
+          </label>
+          <label id="u-send-email-wrap" class="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+            <input id="u-send-email" type="checkbox" checked class="w-4 h-4 rounded text-gold-600" />
+            <span>Enviar credenciais por e-mail automaticamente ao salvar (se o SMTP estiver ativo)</span>
+          </label>
         </div>
 
         <div>
@@ -1053,6 +1214,57 @@ def get_admin_html(default_redirect: str = "https://vendas.goldcorretora.com.br"
     </div>
   </div>
 
+  <!-- MODAL: SENHA TEMPORÁRIA GERADA / ENVIAR POR E-MAIL -->
+  <div id="temp-pw-modal" class="hidden fixed inset-0 z-50 bg-navy-950/75 backdrop-blur-xs flex items-center justify-center p-4" role="dialog" aria-modal="true">
+    <div class="modal-panel bg-white rounded-2xl border border-slate-200 max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <h3 class="text-lg font-extrabold text-navy-900">Senha Temporária de Recuperação</h3>
+        <button type="button" onclick="fecharModalSenhaTemp()" class="w-8 h-8 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 flex items-center justify-center font-bold">✕</button>
+      </div>
+
+      <div class="space-y-3 text-xs text-slate-600">
+        <p>Uma nova senha temporária foi configurada para <strong id="tp-user-name" class="text-navy-900"></strong> (<span id="tp-user-email" class="font-mono text-navy-900"></span>).</p>
+        <p class="bg-amber-50 border border-amber-200 text-amber-900 p-2.5 rounded-xl font-semibold">
+          Assim que a pessoa entrar com esta senha, o portal pedirá automaticamente para ela escolher uma nova senha pessoal.
+        </p>
+
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex items-center justify-between">
+          <div>
+            <span class="text-[11px] font-bold text-slate-500 uppercase block">Senha Temporária Gerada</span>
+            <strong id="tp-password-val" class="text-lg font-mono font-extrabold text-navy-900 tracking-wider"></strong>
+          </div>
+          <button
+            type="button"
+            onclick="copiarSenhaTemporaria()"
+            id="btn-copy-tp"
+            class="btn-tactile px-3 py-1.5 rounded-lg bg-navy-900 text-gold-400 font-bold text-xs"
+          >
+            Copiar Texto
+          </button>
+        </div>
+
+        <div id="tp-smtp-status" class="rounded-xl p-3 font-bold"></div>
+      </div>
+
+      <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-200">
+        <a
+          id="tp-mailto-link"
+          href="#"
+          class="btn-tactile px-3.5 py-2 rounded-xl border border-slate-300 hover:bg-slate-100 text-xs font-bold text-navy-900"
+        >
+          Abrir no Aplicativo de E-mail
+        </a>
+        <button
+          type="button"
+          onclick="fecharModalSenhaTemp()"
+          class="btn-tactile px-4 py-2 rounded-xl bg-navy-900 text-white text-xs font-extrabold"
+        >
+          Concluir
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL: CRIAR / EDITAR CARGO -->
   <div id="role-modal" class="hidden fixed inset-0 z-50 bg-navy-950/70 backdrop-blur-xs flex items-center justify-center p-4" role="dialog" aria-modal="true">
     <div class="modal-panel bg-white rounded-2xl border border-slate-200 max-w-md w-full p-6 shadow-2xl space-y-4">
@@ -1075,6 +1287,16 @@ def get_admin_html(default_redirect: str = "https://vendas.goldcorretora.com.br"
           <input id="r-desc" type="text" placeholder="Acesso a relatórios de boletos e comissões" class="w-full h-10 rounded-xl border border-slate-300 px-3 text-sm text-navy-900 focus:outline-none focus:border-gold-500" />
         </div>
         <div>
+          <span class="block text-xs font-bold text-slate-700 mb-1.5">Aplicativos Padrão deste Cargo</span>
+          <div class="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs font-semibold text-navy-900">
+            <label class="flex items-center gap-2"><input type="checkbox" name="r-app" value="painel-vendedor" checked class="rounded text-gold-600" /> Painel de Vendas</label>
+            <label class="flex items-center gap-2"><input type="checkbox" name="r-app" value="gold-db-api" checked class="rounded text-gold-600" /> API de Leads</label>
+            <label class="flex items-center gap-2"><input type="checkbox" name="r-app" value="cotador-web" checked class="rounded text-gold-600" /> Simulador</label>
+            <label class="flex items-center gap-2"><input type="checkbox" name="r-app" value="carteira" class="rounded text-gold-600" /> Carteira Geral</label>
+            <label class="flex items-center gap-2 col-span-2"><input type="checkbox" name="r-app" value="*" class="rounded text-gold-600" /> Todos os Aplicativos (*)</label>
+          </div>
+        </div>
+        <div>
           <label for="r-perms" class="block text-xs font-bold text-slate-700 mb-1">Permissões do Cargo (separadas por vírgula)</label>
           <input id="r-perms" type="text" placeholder="leads.view, carteira.view, financeiro.boletos" class="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs font-mono text-navy-900 focus:outline-none focus:border-gold-500" />
         </div>
@@ -1088,9 +1310,12 @@ def get_admin_html(default_redirect: str = "https://vendas.goldcorretora.com.br"
   </div>
 
   <script>
+    let stateMe = null;
     let stateUsers = [];
     let stateRoles = [];
     let stateAudit = [];
+    let stateEmailCfg = {{}};
+    let ultimoResultadoSenhaTemp = null;
     let auditDebounceTimer = null;
 
     function fmtData(iso) {{
@@ -1109,8 +1334,9 @@ def get_admin_html(default_redirect: str = "https://vendas.goldcorretora.com.br"
     }}
 
     function switchTab(tab) {{
-      ['auditoria', 'usuarios', 'cargos'].forEach(t => {{
-        document.getElementById('tab-' + t).classList.toggle('hidden', t !== tab);
+      ['auditoria', 'usuarios', 'cargos', 'email'].forEach(t => {{
+        const el = document.getElementById('tab-' + t);
+        if (el) el.classList.toggle('hidden', t !== tab);
       }});
       document.querySelectorAll('.tab-btn').forEach(btn => {{
         const isCurrent = btn.getAttribute('data-tab') === tab;
@@ -1120,15 +1346,138 @@ def get_admin_html(default_redirect: str = "https://vendas.goldcorretora.com.br"
       }});
     }}
 
+    function gerarCodigoSenhaTemporariaLocal() {{
+      const nums = Math.floor(1000 + Math.random() * 9000);
+      const letras = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+      const sufixo = letras[Math.floor(Math.random() * letras.length)] + letras[Math.floor(Math.random() * letras.length)];
+      return `Gold@${{nums}}${{sufixo}}`;
+    }}
+
+    function preencherSenhaTemporariaNoModal() {{
+      document.getElementById('u-senha').value = gerarCodigoSenhaTemporariaLocal();
+      document.getElementById('u-force-change').checked = true;
+    }}
+
+    function aoMudarCargoNoModal() {{
+      const id = document.getElementById('u-id').value;
+      if (id) return;
+      const cod = document.getElementById('u-cargo').value;
+      const role = stateRoles.find(r => r.codigo === cod);
+      if (!role) return;
+      const padrao = role.apps_padrao || ['painel-vendedor', 'gold-db-api', 'cotador-web'];
+      document.querySelectorAll('input[name="u-app"]').forEach(cb => {{
+        cb.checked = padrao.includes(cb.value);
+      }});
+    }}
+
     async function carregarMe() {{
       try {{
         const res = await fetch('/api/auth/me');
         if (res.ok) {{
           const data = await res.json();
+          stateMe = data.user;
           document.getElementById('header-user-name').textContent = data.user.nome;
           document.getElementById('header-user-role').textContent = data.user.cargo;
+          const testInput = document.getElementById('test-email-dest');
+          if (testInput && !testInput.value) testInput.value = data.user.email;
         }}
       }} catch {{}}
+    }}
+
+    async function carregarConfigEmail() {{
+      try {{
+        const res = await fetch('/api/admin/email-settings');
+        if (!res.ok) return;
+        stateEmailCfg = await res.json();
+        document.getElementById('kpi-support-email').textContent = stateEmailCfg.support_email || 'acesso@goldcorretora.com.br';
+        document.getElementById('cfg-support-email').value = stateEmailCfg.support_email || '';
+        document.getElementById('cfg-from-name').value = stateEmailCfg.smtp_from_name || 'Gold Corretora de Seguros';
+        document.getElementById('cfg-from-email').value = stateEmailCfg.smtp_from_email || '';
+        document.getElementById('cfg-smtp-host').value = stateEmailCfg.smtp_host || '';
+        document.getElementById('cfg-smtp-port').value = stateEmailCfg.smtp_port || 587;
+        document.getElementById('cfg-smtp-user').value = stateEmailCfg.smtp_user || '';
+        document.getElementById('cfg-smtp-tls').checked = stateEmailCfg.smtp_use_tls !== false;
+        document.getElementById('cfg-smtp-pass').value = '';
+        document.getElementById('cfg-pass-hint').textContent = stateEmailCfg.tem_senha_salva ? '(já salva • deixe em branco para manter)' : '(ainda não definida)';
+
+        const badge = document.getElementById('smtp-status-badge');
+        if (stateEmailCfg.smtp_configurado) {{
+          badge.className = 'px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200 self-start sm:self-auto';
+          badge.textContent = 'Disparo Automático SMTP Ativo';
+        }} else {{
+          badge.className = 'px-3 py-1 rounded-full text-xs font-extrabold bg-amber-50 text-amber-800 border border-amber-200 self-start sm:self-auto';
+          badge.textContent = 'Modo Manual (Configure o SMTP para envio automático)';
+        }}
+      }} catch {{}}
+    }}
+
+    document.getElementById('email-settings-form').addEventListener('submit', async (e) => {{
+      e.preventDefault();
+      const fb = document.getElementById('email-settings-feedback');
+      const btn = document.getElementById('btn-save-email-cfg');
+      fb.classList.add('hidden');
+      btn.disabled = true;
+      btn.textContent = 'Salvando...';
+
+      const payload = {{
+        support_email: document.getElementById('cfg-support-email').value.trim(),
+        smtp_from_name: document.getElementById('cfg-from-name').value.trim(),
+        smtp_from_email: document.getElementById('cfg-from-email').value.trim(),
+        smtp_host: document.getElementById('cfg-smtp-host').value.trim(),
+        smtp_port: parseInt(document.getElementById('cfg-smtp-port').value || '587', 10),
+        smtp_user: document.getElementById('cfg-smtp-user').value.trim(),
+        smtp_password: document.getElementById('cfg-smtp-pass').value,
+        smtp_use_tls: document.getElementById('cfg-smtp-tls').checked
+      }};
+
+      try {{
+        const res = await fetch('/api/admin/email-settings', {{
+          method: 'POST',
+          headers: {{ 'Content-Type': 'application/json' }},
+          body: JSON.stringify(payload)
+        }});
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Erro ao salvar configurações.');
+        await carregarConfigEmail();
+        fb.className = 'rounded-xl p-3 text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200';
+        fb.textContent = 'Configurações de e-mail oficial da Gold salvas com sucesso!';
+        fb.classList.remove('hidden');
+      }} catch (err) {{
+        fb.className = 'rounded-xl p-3 text-xs font-bold bg-red-50 text-red-800 border border-red-200';
+        fb.textContent = err.message;
+        fb.classList.remove('hidden');
+      }} finally {{
+        btn.disabled = false;
+        btn.textContent = 'Salvar Configuração de E-mail';
+      }}
+    }});
+
+    async function dispararTesteEmail() {{
+      const fb = document.getElementById('email-settings-feedback');
+      const btn = document.getElementById('btn-test-smtp');
+      const destinatario = document.getElementById('test-email-dest').value.trim();
+      fb.classList.add('hidden');
+      btn.disabled = true;
+      btn.textContent = 'Enviando teste...';
+      try {{
+        const res = await fetch('/api/admin/email-settings/test', {{
+          method: 'POST',
+          headers: {{ 'Content-Type': 'application/json' }},
+          body: JSON.stringify({{ destinatario }})
+        }});
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Falha no envio de teste.');
+        fb.className = 'rounded-xl p-3 text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200';
+        fb.textContent = data.message;
+        fb.classList.remove('hidden');
+      }} catch (err) {{
+        fb.className = 'rounded-xl p-3 text-xs font-bold bg-red-50 text-red-800 border border-red-200';
+        fb.textContent = err.message;
+        fb.classList.remove('hidden');
+      }} finally {{
+        btn.disabled = false;
+        btn.textContent = 'Testar Disparo de E-mail';
+      }}
     }}
 
     async function carregarCargos() {{
@@ -1152,17 +1501,25 @@ def get_admin_html(default_redirect: str = "https://vendas.goldcorretora.com.br"
             <h3 class="text-base font-extrabold text-navy-900 mt-3">${{r.nome}}</h3>
             <p class="text-xs text-slate-600 mt-1">${{r.descricao || 'Sem descrição.'}}</p>
           </div>
-          <div class="pt-3 border-t border-slate-100">
-            <span class="text-[11px] font-bold text-slate-500 uppercase block mb-1.5">Permissões Atribuídas</span>
-            <div class="flex flex-wrap gap-1.5">
-              ${{(r.permissoes || []).map(p => `<span class="font-mono text-[11px] px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">${{p}}</span>`).join('') || '<span class="text-xs text-slate-500">Básicas</span>'}}
+          <div class="pt-3 border-t border-slate-100 space-y-2.5">
+            <div>
+              <span class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Apps Padrão</span>
+              <div class="flex flex-wrap gap-1">
+                ${{(r.apps_padrao || []).map(a => `<span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-gold-50 text-gold-700 border border-gold-200">${{a === '*' ? 'Todos (*)' : a}}</span>`).join('')}}
+              </div>
+            </div>
+            <div>
+              <span class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Permissões Atribuídas</span>
+              <div class="flex flex-wrap gap-1.5">
+                ${{(r.permissoes || []).map(p => `<span class="font-mono text-[11px] px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">${{p}}</span>`).join('') || '<span class="text-xs text-slate-500">Básicas</span>'}}
+              </div>
             </div>
             <button
               type="button"
               onclick='editarCargo(${{JSON.stringify(r)}})'
-              class="mt-3 w-full py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-bold text-navy-900"
+              class="mt-2 w-full py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-bold text-navy-900"
             >
-              Editar Permissões
+              Editar Cargo & Apps
             </button>
           </div>
         </div>
@@ -1191,11 +1548,17 @@ def get_admin_html(default_redirect: str = "https://vendas.goldcorretora.com.br"
         return;
       }}
 
-      tbody.innerHTML = stateUsers.map(u => `
+      tbody.innerHTML = stateUsers.map(u => {{
+        const isSelf = stateMe && stateMe.id === u.id;
+        return `
         <tr class="hover:bg-slate-50/80">
           <td class="py-3.5 px-4">
-            <div class="font-bold text-navy-900">${{u.nome}}</div>
+            <div class="font-bold text-navy-900 flex items-center gap-1.5">
+              <span>${{u.nome}}</span>
+              ${{isSelf ? '<span class="text-[10px] px-1.5 py-0.5 rounded bg-gold-100 text-gold-700 font-extrabold">Você</span>' : ''}}
+            </div>
             <div class="text-xs text-slate-600 font-mono">${{u.email}}</div>
+            ${{u.precisa_trocar_senha ? '<span class="inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200">Aguardando troca de senha temporária</span>' : ''}}
           </td>
           <td class="py-3.5 px-4">
             <span class="font-mono text-xs font-bold px-2.5 py-1 rounded-lg ${{u.cargo === 'ADMIN' ? 'bg-navy-900 text-gold-400' : 'bg-slate-100 text-navy-900 border border-slate-200'}}">
@@ -1208,61 +1571,183 @@ def get_admin_html(default_redirect: str = "https://vendas.goldcorretora.com.br"
             </div>
           </td>
           <td class="py-3.5 px-4">
-            ${{u.ativo
-              ? `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Ativo (${{u.sessoes_ativas || 0}} sessões)</span>`
-              : `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-50 text-red-700 border border-red-200">Bloqueado</span>`
-            }}
+            <div class="flex flex-col items-start gap-1">
+              ${{u.ativo
+                ? `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Ativo (${{u.sessoes_ativas || 0}} sessões)</span>`
+                : `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-50 text-red-700 border border-red-200">Bloqueado</span>`
+              }}
+              ${{(u.sessoes_ativas > 0) ? `
+                <button type="button" onclick="revogarSessoesUsuario(${{u.id}}, '${{u.nome.replace(/'/g, "\\'")}}')" class="text-[11px] font-bold text-amber-800 hover:underline">
+                  Derrubar sessões
+                </button>
+              ` : ''}}
+            </div>
           </td>
           <td class="py-3.5 px-4 text-xs text-slate-600 tabular-nums">
             ${{fmtData(u.ultimo_login)}}
           </td>
-          <td class="py-3.5 px-4 text-right space-x-1.5 whitespace-nowrap">
+          <td class="py-3.5 px-4 text-right space-x-1 whitespace-nowrap">
+            <button
+              type="button"
+              onclick="gerarEEnviarSenhaTemporaria(${{u.id}})"
+              title="Gera uma senha temporária, envia por e-mail e pede troca no primeiro acesso"
+              class="btn-tactile px-2.5 py-1.5 rounded-lg bg-gold-50 hover:bg-gold-100 border border-gold-300 text-xs font-extrabold text-navy-900"
+            >
+              Enviar Senha Temp.
+            </button>
             <button
               type="button"
               onclick='editarUsuario(${{JSON.stringify(u)}})'
               class="btn-tactile px-2.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-xs font-bold text-navy-900"
             >
-              Editar / Senha
+              Editar / E-mail
             </button>
-            <button
-              type="button"
-              onclick="alternarStatusUsuario(${{u.id}}, ${{!u.ativo}})"
-              class="btn-tactile px-2.5 py-1.5 rounded-lg text-xs font-bold ${{u.ativo ? 'bg-red-50 text-red-700 hover:bg-red-100 border border-red-200' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200'}}"
-            >
-              ${{u.ativo ? 'Bloquear' : 'Reativar'}}
-            </button>
+            ${{!isSelf ? `
+              <button
+                type="button"
+                onclick="alternarStatusUsuario(${{u.id}}, ${{!u.ativo}})"
+                class="btn-tactile px-2.5 py-1.5 rounded-lg text-xs font-bold ${{u.ativo ? 'bg-red-50 text-red-700 hover:bg-red-100 border border-red-200' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200'}}"
+              >
+                ${{u.ativo ? 'Bloquear' : 'Reativar'}}
+              </button>
+              <button
+                type="button"
+                onclick="excluirUsuarioConfirmado(${{u.id}}, '${{u.nome.replace(/'/g, "\\'")}}')"
+                title="Excluir usuário permanentemente"
+                class="btn-tactile px-2 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:text-red-700 hover:bg-red-50"
+              >
+                Excluir
+              </button>
+            ` : ''}}
           </td>
         </tr>
-      `).join('');
+      `}}).join('');
+    }}
+
+    async function gerarEEnviarSenhaTemporaria(userId) {{
+      const u = stateUsers.find(x => x.id === userId);
+      if (!u) return;
+      if (!confirm(`Gerar uma nova senha temporária para ${{u.nome}} (${{u.email}})?\\n\\nA pessoa será solicitada a trocar a senha assim que entrar.`)) return;
+
+      const res = await fetch(`/api/admin/users/${{userId}}/send-temp-password`, {{
+        method: 'POST',
+        headers: {{ 'Content-Type': 'application/json' }},
+        body: JSON.stringify({{ enviar_email: true }})
+      }});
+      const data = await res.json();
+      if (!res.ok) {{
+        alert(data.detail || 'Erro ao gerar senha temporária.');
+        return;
+      }}
+      exibirModalSenhaTemporaria(u, data);
+      await carregarUsuarios();
+      await carregarAuditoria();
+    }}
+
+    async function resolverRecuperacaoPorEmail(emailAlvo) {{
+      const u = stateUsers.find(x => (x.email || '').toLowerCase() === (emailAlvo || '').toLowerCase());
+      if (!u) {{
+        alert(`O e-mail ${{emailAlvo}} não pertence a nenhum usuário cadastrado. Você pode cadastrá-lo na aba Vendedores & Equipe.`);
+        return;
+      }}
+      await gerarEEnviarSenhaTemporaria(u.id);
+    }}
+
+    function exibirModalSenhaTemporaria(usuario, data) {{
+      ultimoResultadoSenhaTemp = {{ usuario, data }};
+      document.getElementById('tp-user-name').textContent = usuario.nome;
+      document.getElementById('tp-user-email').textContent = usuario.email;
+      document.getElementById('tp-password-val').textContent = data.senha_temporaria;
+
+      const st = document.getElementById('tp-smtp-status');
+      if (data.email_enviado) {{
+        st.className = 'rounded-xl p-3 font-bold bg-emerald-50 text-emerald-800 border border-emerald-200';
+        st.textContent = `✓ E-mail automático enviado para ${{usuario.email}}!`;
+      }} else {{
+        st.className = 'rounded-xl p-3 font-bold bg-amber-50 text-amber-900 border border-amber-200';
+        st.textContent = `Envio automático indisponível (${{data.mensagem_smtp}}). Copie o texto abaixo ou clique em "Abrir no Aplicativo de E-mail".`;
+      }}
+
+      const assunto = encodeURIComponent('Sua senha temporária de acesso • Gold Corretora');
+      const corpo = encodeURIComponent(
+        `Olá, ${{usuario.nome}}!\\n\\n` +
+        `Segue sua senha temporária para acessar o Portal Interno da Gold Corretora:\\n\\n` +
+        `E-mail: ${{usuario.email}}\\n` +
+        `Senha Temporária: ${{data.senha_temporaria}}\\n` +
+        `Link de acesso: ${{data.portal_url}}\\n\\n` +
+        `Assim que você entrar com esta senha temporária, o sistema pedirá para você escolher sua nova senha pessoal.`
+      );
+      document.getElementById('tp-mailto-link').href = `mailto:${{usuario.email}}?subject=${{assunto}}&body=${{corpo}}`;
+      document.getElementById('temp-pw-modal').classList.remove('hidden');
+    }}
+
+    function copiarSenhaTemporaria() {{
+      if (!ultimoResultadoSenhaTemp) return;
+      const {{ usuario, data }} = ultimoResultadoSenhaTemp;
+      const texto = `Olá, ${{usuario.nome}}! Seu acesso ao Portal Gold Corretora:\\nE-mail: ${{usuario.email}}\\nSenha temporária: ${{data.senha_temporaria}}\\nAcesse em: ${{data.portal_url}} (o sistema pedirá para você criar sua senha pessoal no primeiro login).`;
+      navigator.clipboard.writeText(texto);
+      const btn = document.getElementById('btn-copy-tp');
+      btn.textContent = 'Copiado!';
+      setTimeout(() => {{ btn.textContent = 'Copiar Texto'; }}, 2000);
+    }}
+
+    function fecharModalSenhaTemp() {{
+      document.getElementById('temp-pw-modal').classList.add('hidden');
+    }}
+
+    async function revogarSessoesUsuario(userId, nome) {{
+      if (!confirm(`Deseja desconectar todos os dispositivos logados de ${{nome}} agora?`)) return;
+      await fetch(`/api/admin/users/${{userId}}/revoke-sessions`, {{ method: 'POST' }});
+      await carregarUsuarios();
+      await carregarAuditoria();
+    }}
+
+    async function excluirUsuarioConfirmado(userId, nome) {{
+      if (!confirm(`ATENÇÃO: Deseja excluir permanentemente o usuário ${{nome}}?\\n\\nSe quiser apenas impedir o acesso mantendo o cadastro, use o botão "Bloquear".`)) return;
+      const res = await fetch(`/api/admin/users/${{userId}}`, {{ method: 'DELETE' }});
+      if (!res.ok) {{
+        const data = await res.json().catch(() => ({{}}));
+        alert(data.detail || 'Não foi possível excluir.');
+        return;
+      }}
+      await carregarUsuarios();
+      await carregarAuditoria();
     }}
 
     function formatarDetalhesAuditoria(item) {{
       const d = item.detalhes || {{}};
-      if (d.resumo) return `<span class="font-semibold text-navy-900">${{d.resumo}}</span>`;
-      if (d.lead_nome || d.novo_status) {{
-        return `<span class="font-semibold text-navy-900">Lead #${{d.lead_id || ''}} (${{d.lead_nome || ''}})</span> → <span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 font-bold text-xs">${{d.novo_status || ''}}</span> ${{d.observacoes ? `<span class="text-slate-600 italic">"${{d.observacoes}}"</span>` : ''}}`;
+      let html = '';
+      if (d.resumo) {{
+        html = `<span class="font-semibold text-navy-900">${{d.resumo}}</span>`;
+      }} else if (d.lead_nome || d.novo_status) {{
+        html = `<span class="font-semibold text-navy-900">Lead #${{d.lead_id || ''}} (${{d.lead_nome || ''}})</span> → <span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 font-bold text-xs">${{d.novo_status || ''}}</span> ${{d.observacoes ? `<span class="text-slate-600 italic">"${{d.observacoes}}"</span>` : ''}}`;
+      }} else if (d.alvo_email) {{
+        html = `Usuário alvo: <span class="font-mono font-semibold">${{d.alvo_email}}</span>`;
+      }} else if (d.motivo) {{
+        html = `<span class="text-red-600 font-medium">${{d.motivo}}</span>`;
+      }} else {{
+        const str = JSON.stringify(d);
+        html = str === '{{}}' ? `<span class="text-slate-500 font-mono">${{item.rota || '/'}}</span>` : `<span class="font-mono text-xs text-slate-600">${{str}}</span>`;
       }}
-      if (d.alvo_email) {{
-        return `Usuário alvo: <span class="font-mono font-semibold">${{d.alvo_email}}</span>`;
+
+      if (item.acao === 'SOLICITACAO_REDEFINICAO_SENHA' && (d.alvo_email || item.usuario_email)) {{
+        const emailAlvo = d.alvo_email || item.usuario_email;
+        html += ` <button type="button" onclick="resolverRecuperacaoPorEmail('${{emailAlvo}}')" class="ml-2 px-2.5 py-1 rounded-lg bg-navy-900 text-gold-400 font-extrabold text-[11px] hover:bg-navy-800">Gerar & Enviar Senha Temp.</button>`;
       }}
-      if (d.motivo) {{
-        return `<span class="text-red-600 font-medium">${{d.motivo}}</span>`;
-      }}
-      const str = JSON.stringify(d);
-      return str === '{{}}' ? `<span class="text-slate-500 font-mono">${{item.rota || '/'}}</span>` : `<span class="font-mono text-xs text-slate-600">${{str}}</span>`;
+      return html;
     }}
 
     function badgeAcao(acao) {{
-      if (acao.includes('FALHA') || acao.includes('NEGADO') || acao.includes('BLOQUEADO')) {{
+      if (acao.includes('FALHA') || acao.includes('NEGADO') || acao.includes('BLOQUEADO') || acao.includes('EXCLUIDO')) {{
         return `<span class="px-2 py-0.5 rounded-md bg-red-50 text-red-700 border border-red-200 font-mono text-[11px] font-bold">${{acao}}</span>`;
       }}
-      if (acao.includes('REDEFINICAO_SENHA')) {{
+      if (acao.includes('REDEFINICAO_SENHA') || acao.includes('SENHA_TEMPORARIA')) {{
         return `<span class="px-2 py-0.5 rounded-md bg-purple-50 text-purple-800 border border-purple-200 font-mono text-[11px] font-bold">${{acao}}</span>`;
       }}
       if (acao.includes('LEAD') || acao.includes('WHATSAPP') || acao.includes('CONVERTIDO')) {{
         return `<span class="px-2 py-0.5 rounded-md bg-amber-50 text-amber-900 border border-amber-200 font-mono text-[11px] font-bold">${{acao}}</span>`;
       }}
-      if (acao.includes('LOGIN_SUCESSO')) {{
+      if (acao.includes('LOGIN_SUCESSO') || acao.includes('SENHA_ALTERADA')) {{
         return `<span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono text-[11px] font-bold">${{acao}}</span>`;
       }}
       return `<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200 font-mono text-[11px] font-bold">${{acao}}</span>`;
@@ -1334,9 +1819,12 @@ def get_admin_html(default_redirect: str = "https://vendas.goldcorretora.com.br"
       document.getElementById('user-modal-title').textContent = 'Novo Vendedor / Usuário';
       document.getElementById('u-nome').value = '';
       document.getElementById('u-email').value = '';
-      document.getElementById('u-senha').value = '';
+      document.getElementById('u-senha').value = gerarCodigoSenhaTemporariaLocal();
       document.getElementById('u-senha').required = true;
-      document.getElementById('u-senha-hint').textContent = '(obrigatória)';
+      document.getElementById('u-senha-hint').textContent = '(temporária sugerida)';
+      document.getElementById('u-force-change').checked = true;
+      document.getElementById('u-send-email').checked = true;
+      document.getElementById('u-send-email-wrap').classList.remove('hidden');
       document.getElementById('u-perms').value = '';
       document.getElementById('user-form-error').classList.add('hidden');
       document.querySelectorAll('input[name="u-app"]').forEach(cb => {{
@@ -1353,7 +1841,9 @@ def get_admin_html(default_redirect: str = "https://vendas.goldcorretora.com.br"
       document.getElementById('u-cargo').value = u.cargo;
       document.getElementById('u-senha').value = '';
       document.getElementById('u-senha').required = false;
-      document.getElementById('u-senha-hint').textContent = '(deixe em branco para manter a atual)';
+      document.getElementById('u-senha-hint').textContent = '(em branco mantém a atual)';
+      document.getElementById('u-force-change').checked = Boolean(u.precisa_trocar_senha);
+      document.getElementById('u-send-email-wrap').classList.add('hidden');
       document.getElementById('u-perms').value = (u.permissoes_extras || []).join(', ');
       document.getElementById('user-form-error').classList.add('hidden');
 
@@ -1374,12 +1864,15 @@ def get_admin_html(default_redirect: str = "https://vendas.goldcorretora.com.br"
       const nome = document.getElementById('u-nome').value.trim();
       const email = document.getElementById('u-email').value.trim();
       const cargo = document.getElementById('u-cargo').value;
-      const senha = document.getElementById('u-senha').value;
+      const senha = document.getElementById('u-senha').value.trim();
+      const precisa_trocar_senha = document.getElementById('u-force-change').checked;
+      const enviar_por_email = document.getElementById('u-send-email').checked;
       const apps = Array.from(document.querySelectorAll('input[name="u-app"]:checked')).map(cb => cb.value);
       const perms = document.getElementById('u-perms').value.split(',').map(s => s.trim()).filter(Boolean);
 
-      const payload = {{ nome, email, cargo, apps_permitidos: apps, permissoes_extras: perms }};
+      const payload = {{ nome, email, cargo, apps_permitidos: apps, permissoes_extras: perms, precisa_trocar_senha }};
       if (senha) payload.senha = senha;
+      if (!id) payload.enviar_por_email = enviar_por_email;
 
       const errEl = document.getElementById('user-form-error');
       errEl.classList.add('hidden');
@@ -1404,11 +1897,16 @@ def get_admin_html(default_redirect: str = "https://vendas.goldcorretora.com.br"
     }});
 
     async function alternarStatusUsuario(id, novoAtivo) {{
-      await fetch(`/api/admin/users/${{id}}`, {{
+      const res = await fetch(`/api/admin/users/${{id}}`, {{
         method: 'PATCH',
         headers: {{ 'Content-Type': 'application/json' }},
         body: JSON.stringify({{ ativo: novoAtivo }})
       }});
+      if (!res.ok) {{
+        const data = await res.json().catch(() => ({{}}));
+        alert(data.detail || 'Não foi possível alterar o status.');
+        return;
+      }}
       await carregarUsuarios();
       await carregarAuditoria();
     }}
@@ -1419,6 +1917,9 @@ def get_admin_html(default_redirect: str = "https://vendas.goldcorretora.com.br"
       document.getElementById('r-nome').value = '';
       document.getElementById('r-desc').value = '';
       document.getElementById('r-perms').value = '';
+      document.querySelectorAll('input[name="r-app"]').forEach(cb => {{
+        cb.checked = ['painel-vendedor', 'gold-db-api', 'cotador-web'].includes(cb.value);
+      }});
       document.getElementById('role-modal').classList.remove('hidden');
     }}
 
@@ -1428,6 +1929,10 @@ def get_admin_html(default_redirect: str = "https://vendas.goldcorretora.com.br"
       document.getElementById('r-nome').value = r.nome;
       document.getElementById('r-desc').value = r.descricao || '';
       document.getElementById('r-perms').value = (r.permissoes || []).join(', ');
+      const apps = r.apps_padrao || [];
+      document.querySelectorAll('input[name="r-app"]').forEach(cb => {{
+        cb.checked = apps.includes(cb.value);
+      }});
       document.getElementById('role-modal').classList.remove('hidden');
     }}
 
@@ -1440,12 +1945,13 @@ def get_admin_html(default_redirect: str = "https://vendas.goldcorretora.com.br"
       const codigo = document.getElementById('r-codigo').value.trim().toUpperCase();
       const nome = document.getElementById('r-nome').value.trim();
       const descricao = document.getElementById('r-desc').value.trim();
+      const apps_padrao = Array.from(document.querySelectorAll('input[name="r-app"]:checked')).map(cb => cb.value);
       const permissoes = document.getElementById('r-perms').value.split(',').map(s => s.trim()).filter(Boolean);
 
       const res = await fetch('/api/admin/roles', {{
         method: 'POST',
         headers: {{ 'Content-Type': 'application/json' }},
-        body: JSON.stringify({{ codigo, nome, descricao, permissoes }})
+        body: JSON.stringify({{ codigo, nome, descricao, permissoes, apps_padrao }})
       }});
       if (res.ok) {{
         fecharModalCargo();
@@ -1465,11 +1971,12 @@ def get_admin_html(default_redirect: str = "https://vendas.goldcorretora.com.br"
       if (e.key === 'Escape') {{
         fecharModalUsuario();
         fecharModalCargo();
+        fecharModalSenhaTemp();
       }}
     }});
 
     async function carregarTudo() {{
-      await Promise.all([carregarMe(), carregarCargos(), carregarUsuarios(), carregarAuditoria()]);
+      await Promise.all([carregarMe(), carregarConfigEmail(), carregarCargos(), carregarUsuarios(), carregarAuditoria()]);
     }}
 
     carregarTudo();
