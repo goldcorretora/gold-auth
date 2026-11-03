@@ -862,46 +862,153 @@ def get_admin_html(
   <title>Gestão de Acessos & Auditoria • Gold Corretora</title>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col selection:bg-gold-500 selection:text-white">
-  <!-- Topbar Oficial Gold -->
-  <header class="bg-navy-900 border-b border-navy-800 sticky top-0 z-30">
-    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-      <div class="flex items-center gap-4">
-        <a href="/admin" class="flex items-center shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 rounded-lg">
+  <!-- Topbar Oficial Gold (Idêntica ao Painel do Consultor) -->
+  <header class="bg-navy-900 border-b border-navy-800 sticky top-0 z-30 shadow-md">
+    <div class="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-4">
+      <!-- Lado Esquerdo: Logo & Identidade -->
+      <div class="flex items-center gap-3 sm:gap-5">
+        <a href="/admin" class="flex items-center shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 rounded-lg p-0.5" aria-label="Portal de Acessos Gold">
           {GOLD_LOGO_HEADER}
         </a>
-        <div class="hidden sm:block border-l border-slate-700/70 pl-4">
-          <span class="text-xs font-extrabold uppercase tracking-wider text-gold-400 block">
-            Portal de Acessos Gold
+        <div class="hidden sm:block border-l border-slate-700/60 pl-3.5">
+          <span class="text-xs font-black uppercase tracking-wider block text-gold-400">
+            Portal de Acessos
           </span>
-          <span class="text-[11px] text-slate-300 font-medium block">
-            Controle de Vendedores, Cargos, E-mail Oficial & Auditoria
+          <span class="text-[11px] font-medium block text-slate-400">
+            Gestão de Equipe & Auditoria
           </span>
         </div>
       </div>
 
-      <div class="flex items-center gap-2.5">
+      <!-- Lado Direito: Controles Compactos & Menu do Usuário -->
+      <div class="flex items-center gap-2 sm:gap-2.5">
+        <!-- Atalho Painel de Vendas -->
         <a
           href="{default_redirect}"
-          class="btn-tactile px-3.5 py-2 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/15 text-white border border-white/15 flex items-center gap-1.5"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-navy-950/80 hover:bg-navy-950 text-slate-300 hover:text-white border border-slate-700/70 transition-all duration-150 active:scale-95 cursor-pointer"
+          title="Abrir Painel de Vendas em nova aba"
         >
-          <span>Abrir Painel de Vendas</span>
+          <span>Painel de Vendas</span>
           <svg class="w-3.5 h-3.5 text-gold-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
           </svg>
         </a>
 
-        <div id="current-user-pill" class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-navy-950 border border-slate-800 text-xs">
-          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-          <span id="header-user-name" class="font-bold text-white">Admin</span>
-          <span id="header-user-role" class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-gold-500/20 text-gold-400 font-bold">ADMIN</span>
-        </div>
+        <!-- Usuário & Menu Dropdown (Idêntico ao do Painel do Consultor) -->
+        <div class="relative" id="user-dropdown-container">
+          <button
+            type="button"
+            id="user-menu-btn"
+            onclick="alternarMenuUsuario()"
+            aria-expanded="false"
+            aria-haspopup="menu"
+            aria-label="Menu do usuário"
+            class="flex items-center gap-2 pl-2 pr-2.5 sm:pr-3 py-1.5 rounded-xl border border-slate-700/70 bg-navy-950/80 hover:bg-navy-950 transition-all duration-150 cursor-pointer active:scale-98 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500"
+          >
+            <!-- Avatar simples com iniciais -->
+            <div id="header-avatar-initials" class="w-7 h-7 rounded-lg bg-navy-800 border border-slate-700 text-gold-400 flex items-center justify-center font-bold text-xs shrink-0">
+              AD
+            </div>
 
-        <a
-          href="/api/auth/logout"
-          class="btn-tactile px-3 py-2 rounded-xl text-xs font-bold bg-red-500/15 hover:bg-red-500/25 text-red-200 border border-red-500/30"
-        >
-          Sair
-        </a>
+            <!-- Nome do Usuário -->
+            <span id="header-user-name" class="hidden md:inline font-bold text-xs text-white truncate max-w-[140px] lg:max-w-[180px]">
+              Admin
+            </span>
+
+            <!-- Chevron com Rotação -->
+            <svg id="header-chevron" class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          <!-- Dropdown Popover -->
+          <div
+            id="user-dropdown-menu"
+            role="menu"
+            aria-orientation="vertical"
+            class="hidden absolute right-0 top-full mt-2 w-64 sm:w-72 rounded-2xl bg-navy-950/98 backdrop-blur-md border border-slate-700/80 shadow-2xl p-2 z-50 origin-top-right transition-all duration-150"
+          >
+            <!-- Cabeçalho do Perfil -->
+            <div class="p-3 bg-navy-900/80 rounded-xl border border-slate-800/80 flex items-center gap-3">
+              <div id="dropdown-avatar-initials" class="w-9 h-9 rounded-xl bg-navy-800 border border-slate-700 text-gold-400 flex items-center justify-center font-bold text-xs shrink-0">
+                AD
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-1.5">
+                  <span id="dropdown-user-name" class="font-bold text-xs text-white truncate block">
+                    Admin
+                  </span>
+                  <span id="dropdown-user-role" class="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold uppercase tracking-wider bg-gold-500/20 text-gold-400 border border-gold-500/30">
+                    ADMIN
+                  </span>
+                </div>
+                <span id="dropdown-user-email" class="text-[11px] text-slate-400 truncate block mt-0.5">
+                  acesso@goldcorretora.com.br
+                </span>
+              </div>
+            </div>
+
+            <!-- Itens do Menu -->
+            <div class="mt-2 space-y-1">
+              <!-- Atalho Painel de Vendas -->
+              <a
+                href="{default_redirect}"
+                target="_blank"
+                rel="noopener noreferrer"
+                role="menuitem"
+                onclick="fecharMenuUsuario()"
+                class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-colors group"
+              >
+                <div class="flex items-center gap-2.5">
+                  <svg class="w-4 h-4 text-slate-400 group-hover:text-gold-400 group-hover:scale-105 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                  </svg>
+                  <span>Painel de Vendas</span>
+                </div>
+                <svg class="w-3.5 h-3.5 text-slate-500 group-hover:text-slate-300 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+
+              <!-- Atalho Simulador de Seguros -->
+              <a
+                href="https://simulador.goldcorretora.com.br"
+                target="_blank"
+                rel="noopener noreferrer"
+                role="menuitem"
+                onclick="fecharMenuUsuario()"
+                class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-colors group"
+              >
+                <div class="flex items-center gap-2.5">
+                  <svg class="w-4 h-4 text-slate-400 group-hover:text-gold-400 group-hover:scale-105 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                  <span>Simulador de Seguros</span>
+                </div>
+                <svg class="w-3.5 h-3.5 text-slate-500 group-hover:text-slate-300 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+            </div>
+
+            <!-- Divisor -->
+            <div class="my-1.5 border-t border-slate-800"></div>
+
+            <!-- Sair -->
+            <a
+              href="/api/auth/logout"
+              role="menuitem"
+              class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-red-300 hover:text-red-200 hover:bg-red-500/15 border border-transparent hover:border-red-500/30 transition-all duration-150"
+            >
+              <svg class="w-4 h-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              <span>Sair</span>
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   </header>
@@ -1498,8 +1605,19 @@ def get_admin_html(
         if (res.ok) {{
           const data = await res.json();
           stateMe = data.user;
-          document.getElementById('header-user-name').textContent = data.user.nome;
-          document.getElementById('header-user-role').textContent = data.user.cargo;
+          const initials = getInitials(data.user.nome);
+          const elAvatar = document.getElementById('header-avatar-initials');
+          if (elAvatar) elAvatar.textContent = initials;
+          const elDropAvatar = document.getElementById('dropdown-avatar-initials');
+          if (elDropAvatar) elDropAvatar.textContent = initials;
+          const elName = document.getElementById('header-user-name');
+          if (elName) elName.textContent = data.user.nome;
+          const elDropName = document.getElementById('dropdown-user-name');
+          if (elDropName) elDropName.textContent = data.user.nome;
+          const elDropRole = document.getElementById('dropdown-user-role');
+          if (elDropRole) elDropRole.textContent = data.user.cargo;
+          const elDropEmail = document.getElementById('dropdown-user-email');
+          if (elDropEmail) elDropEmail.textContent = data.user.email;
           const testInput = document.getElementById('test-email-dest');
           if (testInput && !testInput.value) testInput.value = data.user.email;
         }}
@@ -2111,8 +2229,46 @@ def get_admin_html(
       await carregarAuditoria();
     }}
 
+
+    function getInitials(name) {{
+      if (!name) return 'AD';
+      const parts = name.trim().split(/\\s+/).filter(Boolean);
+      if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }}
+
+    function alternarMenuUsuario() {{
+      const menu = document.getElementById('user-dropdown-menu');
+      const chevron = document.getElementById('header-chevron');
+      const btn = document.getElementById('user-menu-btn');
+      const isHidden = menu.classList.contains('hidden');
+      if (isHidden) {{
+        menu.classList.remove('hidden');
+        chevron.classList.add('rotate-180', 'text-gold-400');
+        btn.classList.add('bg-navy-950', 'border-gold-500/50', 'shadow-inner');
+      }} else {{
+        fecharMenuUsuario();
+      }}
+    }}
+
+    function fecharMenuUsuario() {{
+      const menu = document.getElementById('user-dropdown-menu');
+      const chevron = document.getElementById('header-chevron');
+      if (menu) menu.classList.add('hidden');
+      if (chevron) chevron.classList.remove('rotate-180', 'text-gold-400');
+      const btn = document.getElementById('user-menu-btn');
+      if (btn) btn.classList.remove('bg-navy-950', 'border-gold-500/50', 'shadow-inner');
+    }}
+
+    document.addEventListener('pointerdown', (e) => {{
+      const container = document.getElementById('user-dropdown-container');
+      if (container && !container.contains(e.target)) {{
+        fecharMenuUsuario();
+      }}
+    }});
     window.addEventListener('keydown', (e) => {{
       if (e.key === 'Escape') {{
+        fecharMenuUsuario();
         fecharModalUsuario();
         fecharModalCargo();
         fecharModalSenhaTemp();
