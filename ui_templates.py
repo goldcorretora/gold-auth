@@ -149,9 +149,9 @@ def get_login_html(
   <div class="min-h-screen w-full flex flex-col lg:flex-row relative">
 
     <!-- ------------------------------------------------------------------- -->
-    <!-- LADO ESQUERDO: PAINEL INSTITUCIONAL DEEP NAVY                       -->
+    <!-- LADO ESQUERDO / TOPO MOBILE                                         -->
     <!-- ------------------------------------------------------------------- -->
-    <aside class="w-full lg:w-[48%] xl:w-[50%] bg-navy-950 flex flex-col justify-between p-6 sm:p-10 lg:p-14 xl:p-16 relative overflow-hidden z-10 shrink-0 min-h-[380px] lg:min-h-screen">
+    <aside class="w-full lg:w-[48%] xl:w-[50%] bg-navy-950 flex flex-col justify-between p-4 sm:p-6 lg:p-14 xl:p-16 relative overflow-hidden z-10 shrink-0 lg:min-h-screen">
       
       <!-- Iluminação ambiente Apple/Boutique -->
       <div class="pointer-events-none absolute -top-32 -left-32 w-96 h-96 rounded-full bg-gold-500/10 blur-[110px]"></div>
@@ -175,22 +175,22 @@ def get_login_html(
         </a>
       </header>
 
-      <!-- Conteúdo Editorial Institucional -->
-      <div class="my-auto py-8 sm:py-12 space-y-4 sm:space-y-6 relative z-10 max-w-lg">
-        <div class="hidden sm:inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-gold-500/15 border border-gold-400/30 text-gold-300 text-xs font-bold tracking-wide">
+      <!-- Conteúdo Editorial Institucional: EXCLUSIVO DESKTOP (lg:block), não empurra o formulário no mobile! -->
+      <div class="hidden lg:block my-auto py-8 sm:py-12 space-y-5 relative z-10 max-w-lg">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-gold-500/15 border border-gold-400/30 text-gold-300 text-xs font-bold tracking-wide">
           Tradição em Proteção Familiar e Patrimonial
         </div>
 
-        <h1 class="text-2xl sm:text-3xl xl:text-4xl 2xl:text-5xl font-black text-white tracking-tight leading-[1.15]">
+        <h1 class="text-3xl xl:text-4xl 2xl:text-5xl font-black text-white tracking-tight leading-[1.15]">
           Cuidando do futuro de quem confia na Gold Corretora.
         </h1>
 
-        <p class="hidden sm:block text-sm sm:text-base text-slate-300 font-normal leading-relaxed">
+        <p class="text-sm sm:text-base text-slate-300 font-normal leading-relaxed">
           Central integrada de autenticação e ferramentas corporativas. Acompanhe cotações, clientes e emissões com agilidade e segurança institucional.
         </p>
 
         <!-- Indicadores sutis de segurança -->
-        <div class="hidden sm:flex pt-4 flex-wrap items-center gap-6 text-xs text-slate-400 font-medium border-t border-white/10">
+        <div class="flex pt-4 flex-wrap items-center gap-6 text-xs text-slate-400 font-medium border-t border-white/10">
           <div class="flex items-center gap-2">
             <svg class="w-4 h-4 text-gold-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -213,9 +213,9 @@ def get_login_html(
     </aside>
 
     <!-- ------------------------------------------------------------------- -->
-    <!-- LADO DIREITO: SUPERFÍCIE BRANCA COM CURVA ORGÂNICA DIVISÓRIA        -->
+    <!-- LADO DIREITO / PARTE PRINCIPAL MOBILE (LOGIN FIT TO SCREEN)         -->
     <!-- ------------------------------------------------------------------- -->
-    <main class="w-full lg:w-[52%] xl:w-[50%] bg-white text-navy-950 flex flex-col justify-between p-6 sm:p-10 lg:p-14 xl:p-16 relative z-20 min-h-screen">
+    <main class="w-full lg:w-[52%] xl:w-[50%] bg-white text-navy-950 flex flex-col justify-between p-5 sm:p-8 lg:p-14 xl:p-16 relative z-20 flex-1 lg:min-h-screen">
       
       <!-- CURVA ORGÂNICA DIVISÓRIA (DESKTOP) -->
       <div class="hidden lg:block absolute -left-24 xl:-left-36 2xl:-left-44 top-0 bottom-0 h-full w-24 xl:w-36 2xl:w-44 pointer-events-none z-20">
@@ -224,8 +224,8 @@ def get_login_html(
         </svg>
       </div>
 
-      <!-- CURVA ORGÂNICA HORIZONTAL (MOBILE) -->
-      <div class="lg:hidden absolute -top-8 left-0 right-0 w-full h-8 pointer-events-none z-20">
+      <!-- CURVA ORGÂNICA HORIZONTAL (MOBILE: Suave e Compacta) -->
+      <div class="lg:hidden absolute -top-5 left-0 right-0 w-full h-5 pointer-events-none z-20">
         <svg class="w-full h-full fill-white" viewBox="0 0 1000 100" preserveAspectRatio="none">
           <path d="M 0 100 C 250 100, 350 0, 500 0 C 650 0, 750 100, 1000 100 Z" />
         </svg>
@@ -246,11 +246,11 @@ def get_login_html(
         </a>
       </div>
 
-      <!-- Centro Direito: Formulário de Login -->
-      <div class="my-auto w-full max-w-[400px] mx-auto py-6 relative z-10">
+      <!-- Formulário de Login: my-auto para ajuste perfeito sem rolagem no mobile -->
+      <div class="my-auto w-full max-w-[400px] mx-auto py-2 sm:py-6 relative z-10">
         
-        <div class="mb-6 sm:mb-8">
-          <h2 class="text-3xl sm:text-4xl font-extrabold text-navy-900 tracking-tight">
+        <div class="mb-4 sm:mb-7">
+          <h2 class="text-2xl sm:text-4xl font-extrabold text-navy-900 tracking-tight">
             Login
           </h2>
         </div>
@@ -259,7 +259,7 @@ def get_login_html(
         <div
           id="error-banner"
           role="alert"
-          class="hidden mb-5 rounded-2xl bg-red-50 border border-red-200 px-4 py-3.5 text-xs font-bold text-red-800 flex items-start gap-2.5"
+          class="hidden mb-4 rounded-2xl bg-red-50 border border-red-200 px-4 py-3 text-xs font-bold text-red-800 flex items-start gap-2.5"
         >
           <svg class="w-4 h-4 text-red-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
@@ -268,10 +268,10 @@ def get_login_html(
         </div>
 
         <!-- Formulário de Login -->
-        <form id="login-form" class="space-y-5" novalidate>
+        <form id="login-form" class="space-y-3.5 sm:space-y-5" novalidate>
           <!-- E-mail -->
           <div class="field-group">
-            <label for="email" class="block text-xs font-bold text-slate-700 mb-2 transition-colors">
+            <label for="email" class="block text-xs font-bold text-slate-700 mb-1.5 sm:mb-2 transition-colors">
               E-mail
             </label>
             <input
@@ -281,13 +281,13 @@ def get_login_html(
               autocomplete="email"
               required
               placeholder="Digite seu e-mail"
-              class="input-corporate w-full h-12 rounded-xl bg-slate-50 border border-slate-300 px-4 text-sm font-semibold text-navy-900 placeholder:text-slate-400 focus:bg-white"
+              class="input-corporate w-full h-11 sm:h-12 rounded-xl bg-slate-50 border border-slate-300 px-4 text-sm sm:text-base font-semibold text-navy-900 placeholder:text-slate-400 focus:bg-white"
             />
           </div>
 
           <!-- Senha -->
           <div class="field-group">
-            <label for="senha" class="block text-xs font-bold text-slate-700 mb-2 transition-colors">
+            <label for="senha" class="block text-xs font-bold text-slate-700 mb-1.5 sm:mb-2 transition-colors">
               Senha
             </label>
             <div class="relative">
@@ -298,7 +298,7 @@ def get_login_html(
                 autocomplete="current-password"
                 required
                 placeholder="Digite sua senha"
-                class="input-corporate w-full h-12 rounded-xl bg-slate-50 border border-slate-300 pl-4 pr-12 text-sm font-semibold text-navy-900 placeholder:text-slate-400 focus:bg-white"
+                class="input-corporate w-full h-11 sm:h-12 rounded-xl bg-slate-50 border border-slate-300 pl-4 pr-12 text-sm sm:text-base font-semibold text-navy-900 placeholder:text-slate-400 focus:bg-white"
               />
               <button
                 type="button"
@@ -319,7 +319,7 @@ def get_login_html(
           </div>
 
           <!-- Lembrar meu e-mail -->
-          <div class="flex items-center gap-2.5 pt-1">
+          <div class="flex items-center gap-2.5 pt-0.5">
             <input
               id="lembrar"
               name="lembrar"
@@ -336,7 +336,7 @@ def get_login_html(
           <button
             type="submit"
             id="submit-btn"
-            class="btn-tactile btn-gold-primary w-full h-12 rounded-xl text-sm font-extrabold flex items-center justify-center gap-2 shadow-lg cursor-pointer transition-all active:scale-[0.98]"
+            class="btn-tactile btn-gold-primary w-full h-11 sm:h-12 rounded-xl text-sm font-extrabold flex items-center justify-center gap-2 shadow-lg cursor-pointer transition-all active:scale-[0.98]"
           >
             <span id="submit-label">Entrar</span>
             <svg id="submit-arrow" class="w-4 h-4 text-gold-400 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -350,7 +350,7 @@ def get_login_html(
         </form>
 
         <!-- Suporte / Redefinição de Senha -->
-        <div class="mt-6 pt-5 border-t border-slate-100 text-center">
+        <div class="mt-4 sm:mt-5 pt-3 sm:pt-4 border-t border-slate-100 text-center">
           <p class="text-xs font-medium text-slate-500">
             Problemas para acessar?
             <button
@@ -365,7 +365,7 @@ def get_login_html(
       </div>
 
       <!-- Rodapé Mobile: Copyright -->
-      <footer class="lg:hidden relative z-10 pt-6 text-center text-xs text-slate-400 font-medium border-t border-slate-100">
+      <footer class="lg:hidden relative z-10 pt-3 text-center text-[11px] text-slate-400 font-medium border-t border-slate-100">
         <span>© 2026 Gold Corretora de Seguros. Todos os direitos reservados.</span>
       </footer>
 
@@ -737,6 +737,7 @@ def get_login_html(
   </script>
 </body>
 </html>"""
+
 
 
 
