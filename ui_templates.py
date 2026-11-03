@@ -154,24 +154,17 @@ def get_login_html(
     <a href="https://goldcorretora.com.br" class="inline-block focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 rounded-lg">
       {GOLD_LOGO_LIGHT}
     </a>
-    <div class="flex items-center gap-3">
-      <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-gold-300 tracking-wide backdrop-blur-md">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span class="hidden sm:inline">Ambiente Interno Protegido</span>
-        <span class="sm:hidden">Protegido</span>
-      </span>
-      <a
-        href="https://goldcorretora.com.br"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="hidden sm:flex text-xs font-bold text-slate-300 hover:text-white items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-white/5 transition"
-      >
-        <span>Site Institucional</span>
-        <svg class="w-3.5 h-3.5 text-gold-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-        </svg>
-      </a>
-    </div>
+    <a
+      href="https://goldcorretora.com.br"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="text-xs font-bold text-slate-300 hover:text-white flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-white/5 transition"
+    >
+      <span>Site Institucional</span>
+      <svg class="w-3.5 h-3.5 text-gold-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+      </svg>
+    </a>
   </header>
 
   <!-- ===================================================================== -->
@@ -180,21 +173,21 @@ def get_login_html(
   <main class="w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 py-8 sm:py-12 my-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-16 items-center relative z-10">
 
     <!-- Coluna Esquerda: Mensagem Editorial e de Confiança -->
-    <div class="lg:col-span-6 xl:col-span-7 space-y-5 sm:space-y-6 text-left">
-      <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-gold-500/15 border border-gold-400/30 text-gold-300 text-xs font-bold tracking-wide">
+    <div class="lg:col-span-6 xl:col-span-7 space-y-4 sm:space-y-6 text-left">
+      <div class="hidden sm:inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-gold-500/15 border border-gold-400/30 text-gold-300 text-xs font-bold tracking-wide">
         Tradição em Proteção Familiar e Patrimonial
       </div>
 
-      <h1 class="text-3xl sm:text-4xl xl:text-5xl font-black text-white tracking-tight leading-[1.12]">
+      <h1 class="text-2xl sm:text-4xl xl:text-5xl font-black text-white tracking-tight leading-[1.15]">
         Cuidando do futuro de quem confia na Gold Corretora.
       </h1>
 
-      <p class="text-sm sm:text-base text-slate-300 font-normal leading-relaxed max-w-lg">
+      <p class="hidden sm:block text-sm sm:text-base text-slate-300 font-normal leading-relaxed max-w-lg">
         Central integrada de autenticação e ferramentas operacionais. Acompanhe cotações, clientes e emissões com velocidade e segurança institucional.
       </p>
 
       <!-- Indicadores sutis de segurança -->
-      <div class="pt-4 flex flex-wrap items-center gap-6 text-xs text-slate-400 font-medium border-t border-white/10">
+      <div class="hidden sm:flex pt-4 flex-wrap items-center gap-6 text-xs text-slate-400 font-medium border-t border-white/10">
         <div class="flex items-center gap-2">
           <svg class="w-4 h-4 text-gold-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -214,17 +207,11 @@ def get_login_html(
     <div class="lg:col-span-6 xl:col-span-5 flex justify-center lg:justify-end w-full">
       <div class="w-full max-w-[440px] bg-white rounded-[28px] sm:rounded-[36px] lg:rounded-[44px] shadow-[0_30px_90px_-15px_rgba(0,0,0,0.65)] p-7 sm:p-9 border border-white/20 relative">
 
-        <!-- Cabeçalho da Ilha de Login -->
-        <div class="mb-7">
-          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-navy-50 text-navy-800 text-[11px] font-extrabold uppercase tracking-wider mb-2.5">
-            Portal Corporativo
-          </span>
-          <h2 class="text-2xl sm:text-[26px] font-black text-navy-900 tracking-tight leading-tight">
-            Acesse sua conta
+        <!-- Cabeçalho da Ilha de Login (Referência minimalista com bons textos) -->
+        <div class="mb-6 sm:mb-8">
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-navy-900 tracking-tight">
+            Login
           </h2>
-          <p class="text-xs sm:text-sm text-slate-500 mt-1 font-medium">
-            Informe suas credenciais para entrar no sistema.
-          </p>
         </div>
 
         <!-- Banner de Erro -->
@@ -243,18 +230,16 @@ def get_login_html(
         <form id="login-form" class="space-y-5" novalidate>
           <!-- E-mail -->
           <div class="field-group">
-            <div class="flex items-center justify-between mb-2">
-              <label for="email" class="block text-xs font-extrabold text-slate-700 transition-colors">
-                Seu e-mail de acesso
-              </label>
-            </div>
+            <label for="email" class="block text-xs font-bold text-slate-700 mb-2 transition-colors">
+              E-mail
+            </label>
             <input
               id="email"
               name="email"
               type="email"
               autocomplete="email"
               required
-              placeholder="voce@goldcorretora.com.br"
+              placeholder="Digite seu e-mail"
               class="input-corporate w-full h-12 rounded-xl bg-slate-50 border border-slate-300 px-4 text-sm font-semibold text-navy-900 placeholder:text-slate-400 focus:bg-white"
             />
           </div>
@@ -262,15 +247,15 @@ def get_login_html(
           <!-- Senha -->
           <div class="field-group">
             <div class="flex items-center justify-between mb-2">
-              <label for="senha" class="block text-xs font-extrabold text-slate-700 transition-colors">
-                Sua senha
+              <label for="senha" class="block text-xs font-bold text-slate-700 transition-colors">
+                Senha
               </label>
               <button
                 type="button"
                 onclick="abrirModalRecuperacao()"
-                class="text-xs font-bold text-gold-700 hover:text-navy-900 underline decoration-gold-400 underline-offset-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-navy-900 rounded px-1 transition-colors cursor-pointer"
+                class="text-xs font-semibold text-gold-700 hover:text-navy-900 underline decoration-gold-400 underline-offset-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-navy-900 rounded px-1 transition-colors cursor-pointer"
               >
-                Esqueceu sua senha?
+                Esqueceu a senha?
               </button>
             </div>
             <div class="relative">
@@ -311,7 +296,7 @@ def get_login_html(
               class="w-4 h-4 rounded border-slate-300 text-gold-600 focus:ring-gold-500 cursor-pointer"
             />
             <label for="lembrar" class="text-xs font-semibold text-slate-700 cursor-pointer select-none">
-              Lembrar meu e-mail e permanecer conectado
+              Lembrar meu e-mail
             </label>
           </div>
 
@@ -321,7 +306,7 @@ def get_login_html(
             id="submit-btn"
             class="btn-tactile btn-gold-primary w-full h-12 rounded-xl text-sm font-extrabold flex items-center justify-center gap-2 shadow-lg cursor-pointer transition-all active:scale-[0.98]"
           >
-            <span id="submit-label">Entrar no Portal Gold</span>
+            <span id="submit-label">Entrar</span>
             <svg id="submit-arrow" class="w-4 h-4 text-gold-400 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
             </svg>
@@ -332,16 +317,16 @@ def get_login_html(
           </button>
         </form>
 
-        <!-- Suporte TI -->
-        <div class="mt-6 pt-5 border-t border-slate-200/80 text-center">
+        <!-- Suporte -->
+        <div class="mt-6 pt-5 border-t border-slate-100 text-center">
           <p class="text-xs font-medium text-slate-500">
-            Precisa de ajuda com seu acesso?
+            Problemas para acessar?
             <button
               type="button"
               onclick="abrirModalRecuperacao()"
               class="font-bold text-navy-900 hover:text-gold-700 underline decoration-slate-300 hover:decoration-gold-500 underline-offset-4 ml-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-navy-900 rounded cursor-pointer"
             >
-              Falar com o Suporte Gold
+              Falar com o suporte
             </button>
           </p>
         </div>
@@ -350,11 +335,10 @@ def get_login_html(
   </main>
 
   <!-- ===================================================================== -->
-  <!-- RODAPÉ INFERIOR UNIFICADO                                            -->
+  <!-- RODAPÉ                                                               -->
   <!-- ===================================================================== -->
-  <footer class="w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400 font-medium relative z-10 border-t border-white/10">
-    <span>© Gold Corretora de Seguros</span>
-    <span>Goiânia • GO</span>
+  <footer class="w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 py-6 flex items-center justify-center sm:justify-start text-xs text-slate-400 font-medium relative z-10 border-t border-white/10">
+    <span>© 2026 Gold Corretora de Seguros. Todos os direitos reservados.</span>
   </footer>
 
   <!-- Modais -->
@@ -676,7 +660,7 @@ def get_login_html(
       }} catch {{}}
 
       submitBtn.disabled = true;
-      submitLabel.textContent = 'Autenticando...';
+      submitLabel.textContent = 'Entrando...';
       submitArrow.classList.add('hidden');
       submitSpinner.classList.remove('hidden');
 
@@ -693,7 +677,7 @@ def get_login_html(
 
         if (data.must_change_password) {{
           submitBtn.disabled = false;
-          submitLabel.textContent = 'Entrar no Portal Gold';
+          submitLabel.textContent = 'Entrar';
           submitArrow.classList.remove('hidden');
           submitSpinner.classList.add('hidden');
           abrirModalTrocaSenhaObrigatoria(data.user?.email || email);
@@ -705,7 +689,7 @@ def get_login_html(
         errorText.textContent = err.message || 'Não foi possível conectar ao servidor.';
         errorBanner.classList.remove('hidden');
         submitBtn.disabled = false;
-        submitLabel.textContent = 'Entrar no Portal Gold';
+        submitLabel.textContent = 'Entrar';
         submitArrow.classList.remove('hidden');
         submitSpinner.classList.add('hidden');
       }}
