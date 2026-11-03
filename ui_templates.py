@@ -141,67 +141,61 @@ def get_login_html(
   {SHARED_HEAD}
   <title>Portal Interno • Gold Corretora de Seguros</title>
 </head>
-<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col lg:flex-row selection:bg-gold-500 selection:text-white">
+<body class="bg-navy-950 text-slate-100 min-h-screen flex flex-col lg:flex-row selection:bg-gold-500 selection:text-white relative overflow-x-hidden">
 
   <!-- ===================================================================== -->
-  <!-- COLUNA ESQUERDA: PAINEL INSTITUCIONAL GOLD CORRETORA (DESKTOP SPLIT)  -->
+  <!-- COLUNA ESQUERDA: AMBIENTE INSTITUCIONAL GOLD (DEEP NAVY LUXURY)       -->
   <!-- ===================================================================== -->
-  <aside class="hidden lg:flex lg:w-[46%] xl:w-[48%] bg-navy-900 text-white p-12 xl:p-16 flex-col justify-between relative overflow-hidden border-r border-navy-800">
-    <!-- Iluminação ambiente sutil institucional -->
-    <div class="pointer-events-none absolute -top-32 -left-32 w-[480px] h-[480px] rounded-full bg-gold-500/10 blur-3xl"></div>
-    <div class="pointer-events-none absolute bottom-0 right-0 w-[420px] h-[420px] rounded-full bg-gold-400/5 blur-3xl"></div>
+  <aside class="w-full lg:w-[48%] xl:w-[50%] p-6 sm:p-10 lg:p-14 xl:p-16 flex flex-col justify-between relative z-10 shrink-0">
+    <!-- Efeitos sutis de iluminação ambiente boutique -->
+    <div class="pointer-events-none absolute -top-24 -left-24 w-96 h-96 rounded-full bg-gold-500/10 blur-[100px]"></div>
+    <div class="pointer-events-none absolute bottom-10 left-10 w-80 h-80 rounded-full bg-navy-700/40 blur-[80px]"></div>
 
-    <!-- Topo: Logo Oficial Completo + Selo Institucional -->
-    <div class="relative z-10 flex items-center justify-between">
+    <!-- Topo: Logo Oficial Completo + Selo de Segurança -->
+    <div class="relative z-10 flex items-center justify-between gap-4">
       <a href="https://goldcorretora.com.br" class="inline-block focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 rounded-lg">
         {GOLD_LOGO_LIGHT}
       </a>
-      <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/15 text-xs font-semibold text-gold-300">
-        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+      <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-gold-300 tracking-wide backdrop-blur-md">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
         Ambiente Interno Protegido
       </span>
     </div>
 
-    <!-- Centro: Mensagem Institucional Humanizada -->
-    <div class="relative z-10 my-auto py-10 max-w-lg space-y-6">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-gold-500/15 border border-gold-400/30 text-gold-300 text-xs font-bold tracking-wide">
+    <!-- Centro: Mensagem Institucional Limpa e Confiante -->
+    <div class="relative z-10 my-auto py-10 lg:py-16 max-w-lg space-y-6">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-gold-500/15 border border-gold-400/30 text-gold-300 text-xs font-bold tracking-wide">
         Tradição em Proteção Familiar e Patrimonial
       </div>
 
-      <h2 class="text-3xl xl:text-4xl font-extrabold text-white tracking-tight leading-[1.18]">
+      <h1 class="text-3xl sm:text-4xl xl:text-5xl font-black text-white tracking-tight leading-[1.12]">
         Cuidando do futuro de quem confia na Gold Corretora.
-      </h2>
+      </h1>
 
-      <p class="text-base text-slate-200 leading-relaxed font-normal">
-        Bem-vindo à nossa central integrada de atendimento, cotações e gestão de carteira. Um único acesso para você acompanhar seus clientes com agilidade e segurança.
+      <p class="text-sm sm:text-base text-slate-300 font-normal leading-relaxed">
+        Central integrada de autenticação e ferramentas corporativas. Um único acesso para acompanhar cotações, clientes e emissões com agilidade e segurança.
       </p>
-
-      <!-- Pilares Operacionais -->
-      <div class="pt-4 grid grid-cols-2 gap-4 border-t border-white/10">
-        <div class="bg-white/5 border border-white/10 rounded-2xl p-4">
-          <div class="text-xs font-bold text-gold-300 mb-1">Central Comercial</div>
-          <p class="text-xs text-slate-200 leading-relaxed">Atendimento imediato de simulações de Seguro de Vida e propostas.</p>
-        </div>
-        <div class="bg-white/5 border border-white/10 rounded-2xl p-4">
-          <div class="text-xs font-bold text-gold-300 mb-1">Gestão de Carteira</div>
-          <p class="text-xs text-slate-200 leading-relaxed">Consulta unificada de apólices vigentes, segurados e assistência.</p>
-        </div>
-      </div>
     </div>
 
-    <!-- Rodapé Institucional Esquerdo (Alto Contraste WCAG AA) -->
-    <div class="relative z-10 pt-6 border-t border-white/15 flex items-center justify-between text-xs text-slate-200">
-      <span class="font-medium">© Gold Corretora de Seguros</span>
-      <span class="text-slate-300">Goiânia • GO</span>
+    <!-- Rodapé Esquerdo -->
+    <div class="relative z-10 pt-6 border-t border-white/10 flex items-center justify-between text-xs text-slate-400 font-medium">
+      <span>© Gold Corretora de Seguros</span>
+      <span>Goiânia • GO</span>
     </div>
   </aside>
 
   <!-- ===================================================================== -->
-  <!-- COLUNA DIREITA: ÁREA DE LOGIN CLARA, AREJADA E DE ALTO CONTRASTE      -->
+  <!-- COLUNA DIREITA: SUPERFÍCIE ORGÂNICA BRANCA (CURVA FLUIDA ESTILO REF)   -->
   <!-- ===================================================================== -->
-  <main class="flex-1 flex flex-col justify-between p-5 sm:p-8 lg:p-12 xl:p-16 bg-slate-50">
-    <!-- Barra Superior Mobile / Atalho Institucional -->
-    <div class="flex items-center justify-between max-w-md w-full mx-auto lg:max-w-none">
+  <main class="relative flex-1 flex flex-col justify-between bg-white lg:rounded-l-[90px] xl:rounded-l-[130px] p-6 sm:p-10 lg:p-12 xl:p-16 shadow-[-30px_0_60px_rgba(0,0,0,0.35)] -mt-6 lg:mt-0 rounded-t-[36px] lg:rounded-tr-none z-20">
+
+    <!-- Curva Convexa Orgânica Inspirada na Referência Visual -->
+    <svg class="hidden lg:block absolute -left-[79px] top-0 bottom-0 h-full w-20 text-white fill-current pointer-events-none z-20" viewBox="0 0 100 1000" preserveAspectRatio="none">
+      <path d="M100,0 C30,300 0,420 0,500 C0,580 30,700 100,1000 L100,0 Z" />
+    </svg>
+
+    <!-- Barra Superior da Direita -->
+    <div class="flex items-center justify-between w-full max-w-[420px] mx-auto lg:max-w-none mb-4">
       <div class="lg:hidden">
         {GOLD_LOGO_NAVY}
       </div>
@@ -210,282 +204,180 @@ def get_login_html(
         href="https://goldcorretora.com.br"
         target="_blank"
         rel="noopener noreferrer"
-        class="text-xs font-bold text-slate-600 hover:text-navy-900 flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-slate-200/60 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-navy-900"
+        class="text-xs font-bold text-slate-500 hover:text-navy-900 flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-slate-100 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-navy-900"
       >
-        <span>Site institucional</span>
+        <span>Site Institucional</span>
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
         </svg>
       </a>
     </div>
 
-    <!-- Container Central do Formulário -->
-    <div class="w-full max-w-[440px] mx-auto my-8">
-      <!-- Card Branco Elevado com Contraste Nítido sobre o Fundo Slate-50 -->
-      <section class="bg-white rounded-3xl border border-slate-200/90 shadow-[0_20px_50px_-12px_rgba(15,26,42,0.10)] p-7 sm:p-9">
-        <!-- Cabeçalho do Card -->
-        <div class="mb-7">
-          <div class="hidden lg:block mb-5">
-            {GOLD_LOGO_NAVY}
-          </div>
-          <h1 class="text-2xl sm:text-[26px] font-extrabold text-navy-900 tracking-tight leading-snug">
-            Acesse o portal interno
-          </h1>
-          <p class="text-sm text-slate-600 mt-1.5 font-medium">
-            Informe seu e-mail e senha para entrar nos sistemas da Gold Corretora.
-          </p>
+    <!-- Container Central do Formulário de Login (Simples, Elegante, Direto) -->
+    <div class="w-full max-w-[400px] mx-auto my-auto py-6">
+      <div class="mb-8">
+        <div class="hidden lg:block mb-5">
+          {GOLD_LOGO_NAVY}
         </div>
+        <h2 class="text-2xl sm:text-[28px] font-black text-navy-900 tracking-tight leading-snug">
+          Acesse o portal interno
+        </h2>
+        <p class="text-sm text-slate-600 mt-1.5 font-medium">
+          Informe seu e-mail e senha corporativa para entrar.
+        </p>
+      </div>
 
-        <!-- Banner de Erro / Alerta -->
-        <div
-          id="error-banner"
-          role="alert"
-          class="hidden mb-5 rounded-2xl bg-red-50 border border-red-200 px-4 py-3.5 text-xs font-bold text-red-800 flex items-start gap-2.5"
-        >
-          <svg class="w-4 h-4 text-red-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-          </svg>
-          <span id="error-text">Verifique seu e-mail e sua senha.</span>
-        </div>
+      <!-- Banner de Erro -->
+      <div
+        id="error-banner"
+        role="alert"
+        class="hidden mb-5 rounded-2xl bg-red-50 border border-red-200 px-4 py-3.5 text-xs font-bold text-red-800 flex items-start gap-2.5"
+      >
+        <svg class="w-4 h-4 text-red-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+        <span id="error-text">Verifique seu e-mail e sua senha.</span>
+      </div>
 
-        <!-- Formulário de Login -->
-        <form id="login-form" class="space-y-5" novalidate>
-          <!-- Campo de E-mail -->
-          <div class="field-group">
-            <div class="flex items-center justify-between mb-2">
-              <label for="email" class="block text-xs font-extrabold text-slate-700 transition-colors">
-                Seu e-mail de acesso
-              </label>
-              <span class="focus-badge opacity-0 -translate-x-1 transition-all text-[11px] font-bold text-gold-700 bg-gold-50 px-2 py-0.5 rounded-md border border-gold-300">
-                Editando
-              </span>
-            </div>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              autocomplete="email"
-              required
-              placeholder="Ex.: voce@goldcorretora.com.br"
-              class="input-corporate w-full h-12 rounded-xl bg-slate-50/70 border border-slate-300 px-4 text-sm font-semibold text-navy-900"
-            />
-          </div>
-
-          <!-- Campo de Senha + Link Esqueceu sua senha? -->
-          <div class="field-group">
-            <div class="flex items-center justify-between mb-2">
-              <label for="senha" class="block text-xs font-extrabold text-slate-700 transition-colors">
-                Sua senha
-              </label>
-              <button
-                type="button"
-                onclick="abrirModalRecuperacao()"
-                class="text-xs font-bold text-gold-700 hover:text-navy-900 underline decoration-gold-400 underline-offset-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-navy-900 rounded px-1"
-              >
-                Esqueceu sua senha?
-              </button>
-            </div>
-            <div class="relative">
-              <input
-                id="senha"
-                name="senha"
-                type="password"
-                autocomplete="current-password"
-                required
-                placeholder="Digite sua senha"
-                class="input-corporate w-full h-12 rounded-xl bg-slate-50/70 border border-slate-300 pl-4 pr-12 text-sm font-semibold text-navy-900"
-              />
-              <button
-                type="button"
-                id="toggle-pw"
-                aria-label="Mostrar ou ocultar senha"
-                title="Mostrar ou ocultar senha"
-                class=" absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-lg text-slate-600 hover:text-navy-900 hover:bg-slate-200/70 flex items-center justify-center transition focus:outline-none focus-visible:ring-2 focus-visible:ring-navy-900"
-              >
-                <svg id="eye-open" class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-                <svg id="eye-closed" class="hidden w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          <!-- Opção Lembrar Meu Usuário / Permanecer Conectado -->
-          <div class="flex items-center justify-between pt-0.5">
-            <label for="lembrar" class="inline-flex items-center gap-2.5 cursor-pointer select-none">
-              <input
-                id="lembrar"
-                name="lembrar"
-                type="checkbox"
-                checked
-                class="w-4 h-4 rounded border-slate-300 text-navy-900 focus:ring-2 focus:ring-gold-500"
-              />
-              <span class="text-xs font-semibold text-slate-700">
-                Lembrar meu e-mail e permanecer conectado
-              </span>
+      <!-- Formulário de Login -->
+      <form id="login-form" class="space-y-5" novalidate>
+        <!-- E-mail -->
+        <div class="field-group">
+          <div class="flex items-center justify-between mb-2">
+            <label for="email" class="block text-xs font-extrabold text-slate-700 transition-colors">
+              Seu e-mail de acesso
             </label>
           </div>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            autocomplete="email"
+            required
+            placeholder="voce@goldcorretora.com.br"
+            class="input-corporate w-full h-12 rounded-xl bg-slate-50 border border-slate-300 px-4 text-sm font-semibold text-navy-900 placeholder:text-slate-400 focus:bg-white"
+          />
+        </div>
 
-          <!-- Botão Principal -->
-          <div class="pt-1">
+        <!-- Senha -->
+        <div class="field-group">
+          <div class="flex items-center justify-between mb-2">
+            <label for="senha" class="block text-xs font-extrabold text-slate-700 transition-colors">
+              Sua senha
+            </label>
             <button
-              type="submit"
-              id="submit-btn"
-              class="btn-tactile btn-gold-primary w-full h-12 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-navy-900 disabled:opacity-50"
+              type="button"
+              onclick="abrirModalRecuperacao()"
+              class="text-xs font-bold text-gold-700 hover:text-navy-900 underline decoration-gold-400 underline-offset-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-navy-900 rounded px-1 transition-colors cursor-pointer"
             >
-              <span id="submit-label">Entrar no Portal Gold</span>
-              <svg id="submit-arrow" class="w-4 h-4 text-gold-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              Esqueceu sua senha?
+            </button>
+          </div>
+          <div class="relative">
+            <input
+              id="senha"
+              name="senha"
+              type="password"
+              autocomplete="current-password"
+              required
+              placeholder="Digite sua senha"
+              class="input-corporate w-full h-12 rounded-xl bg-slate-50 border border-slate-300 pl-4 pr-12 text-sm font-semibold text-navy-900 placeholder:text-slate-400 focus:bg-white"
+            />
+            <button
+              type="button"
+              id="toggle-pw"
+              class="absolute right-1 top-1 bottom-1 w-10 flex items-center justify-center text-slate-500 hover:text-navy-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-navy-900 rounded-lg transition-colors cursor-pointer"
+              title="Mostrar ou ocultar senha"
+              aria-label="Mostrar ou ocultar senha"
+            >
+              <svg id="eye-open" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
               </svg>
-              <svg id="submit-spinner" class="hidden w-4 h-4 animate-spin text-gold-400" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+              <svg id="eye-closed" class="w-4 h-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
               </svg>
             </button>
           </div>
-        </form>
+        </div>
 
-        <!-- Bloco de Suporte ao Colaborador / Corretor -->
-        <div class="mt-7 pt-5 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-600">
-          <span class="font-medium">Precisa de ajuda com seu acesso?</span>
+        <!-- Lembrar meu e-mail -->
+        <div class="flex items-center gap-2.5 pt-1">
+          <input
+            id="lembrar"
+            name="lembrar"
+            type="checkbox"
+            checked
+            class="w-4 h-4 rounded border-slate-300 text-gold-600 focus:ring-gold-500 cursor-pointer"
+          />
+          <label for="lembrar" class="text-xs font-semibold text-slate-700 cursor-pointer select-none">
+            Lembrar meu e-mail e permanecer conectado
+          </label>
+        </div>
+
+        <!-- Botão Entrar -->
+        <button
+          type="submit"
+          id="submit-btn"
+          class="btn-tactile btn-gold-primary w-full h-12 rounded-xl text-sm font-extrabold flex items-center justify-center gap-2 shadow-lg cursor-pointer transition-all active:scale-[0.98]"
+        >
+          <span id="submit-label">Entrar no Portal Gold</span>
+          <svg id="submit-arrow" class="w-4 h-4 text-gold-400 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          </svg>
+          <svg id="submit-spinner" class="w-4 h-4 animate-spin text-white hidden" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+          </svg>
+        </button>
+      </form>
+
+      <!-- Suporte TI -->
+      <div class="mt-6 pt-6 border-t border-slate-200/80 text-center">
+        <p class="text-xs font-medium text-slate-500">
+          Precisa de ajuda com seu acesso?
           <button
             type="button"
             onclick="abrirModalRecuperacao()"
-            class="font-extrabold text-navy-900 hover:text-gold-700 inline-flex items-center gap-1 underline decoration-slate-300 underline-offset-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-navy-900 rounded"
+            class="font-bold text-navy-900 hover:text-gold-700 underline decoration-slate-300 hover:decoration-gold-500 underline-offset-4 ml-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-navy-900 rounded cursor-pointer"
           >
-            <span>Falar com o Suporte Gold</span>
+            Falar com o Suporte Gold
           </button>
-        </div>
-      </section>
+        </p>
+      </div>
     </div>
 
-    <!-- Rodapé Direito com Contraste WCAG AA Validado (>5.5:1) -->
-    <footer class="max-w-md w-full mx-auto lg:max-w-none text-center lg:flex lg:items-center lg:justify-between text-xs text-slate-600 font-medium pt-4 border-t border-slate-200/80">
-      <span>Gold Corretora de Seguros • Portal de Colaboradores e Consultores</span>
-      <span class="block lg:inline mt-1 lg:mt-0 text-slate-600">Conexão segura verificada</span>
-    </footer>
+    <!-- Rodapé Direita -->
+    <div class="w-full text-center lg:text-right pt-4 border-t border-slate-100 text-[11px] text-slate-400 font-medium">
+      <span>Portal Corporativo • Conexão Segura Verificada</span>
+    </div>
   </main>
 
-  <!-- ===================================================================== -->
-  <!-- MODAL: RECUPERAÇÃO DE SENHA & SUPORTE INTERNO                         -->
-  <!-- ===================================================================== -->
-  <div
-    id="forgot-modal"
-    class="hidden fixed inset-0 z-50 bg-navy-950/60 backdrop-blur-xs flex items-center justify-center p-4"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="forgot-title"
-  >
-    <div class="modal-panel bg-white rounded-3xl border border-slate-200 max-w-md w-full p-6 sm:p-7 shadow-2xl space-y-4">
-      <div class="flex items-start justify-between gap-3">
-        <div>
-          <h2 id="forgot-title" class="text-lg font-extrabold text-navy-900">
-            Recuperar ou liberar acesso
-          </h2>
-          <p class="text-xs text-slate-600 mt-1 leading-relaxed">
-            Informe seu e-mail abaixo. A administração da Gold Corretora receberá seu pedido imediatamente para gerar uma nova senha.
-          </p>
-        </div>
-        <button
-          type="button"
-          onclick="fecharModalRecuperacao()"
-          aria-label="Fechar janela"
-          class="w-8 h-8 rounded-lg text-slate-500 hover:text-navy-900 hover:bg-slate-100 flex items-center justify-center font-bold focus:outline-none focus-visible:ring-2 focus-visible:ring-navy-900"
-        >
-          ✕
-        </button>
-      </div>
-
-      <form id="forgot-form" class="space-y-4">
-        <div>
-          <label for="forgot-email" class="block text-xs font-extrabold text-slate-700 mb-1.5">
-            Seu e-mail de cadastro
-          </label>
-          <input
-            id="forgot-email"
-            type="email"
-            required
-            placeholder="Ex.: voce@goldcorretora.com.br"
-            class="input-corporate w-full h-11 rounded-xl bg-slate-50 border border-slate-300 px-3.5 text-sm font-semibold text-navy-900"
-          />
-        </div>
-
-        <div>
-          <label for="forgot-obs" class="block text-xs font-extrabold text-slate-700 mb-1.5">
-            Como podemos ajudar? <span class="font-normal text-slate-500">(opcional)</span>
-          </label>
-          <input
-            id="forgot-obs"
-            type="text"
-            placeholder="Ex.: Esqueci minha senha / Preciso liberar acesso ao painel"
-            class="input-corporate w-full h-11 rounded-xl bg-slate-50 border border-slate-300 px-3.5 text-xs font-medium text-navy-900"
-          />
-        </div>
-
-        <div id="forgot-feedback" class="hidden rounded-xl p-3 text-xs font-bold"></div>
-
-        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-200">
-          <button
-            type="button"
-            onclick="fecharModalRecuperacao()"
-            class="btn-tactile px-4 py-2.5 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100"
-          >
-            Fechar
-          </button>
-          <button
-            type="submit"
-            id="forgot-submit"
-            class="btn-tactile btn-gold-primary px-5 py-2.5 rounded-xl text-xs font-extrabold"
-          >
-            Solicitar Nova Senha
-          </button>
-        </div>
-      </form>
-
-      <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600">
-        <span>Contato direto com a gestão:</span>
-        <a
-          href="mailto:{support_email}?subject=Suporte%20Acesso%20Portal%20Gold"
-          class="font-bold text-navy-900 hover:underline font-mono"
-        >
-          {support_email}
-        </a>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===================================================================== -->
-  <!-- MODAL OBRIGATÓRIO: TROCA DA SENHA TEMPORÁRIA NO PRIMEIRO ACESSO       -->
-  <!-- ===================================================================== -->
+  <!-- Modais -->
+  <!-- 1. Modal de Troca de Senha Obrigatória -->
   <div
     id="force-pw-modal"
-    class="{"flex" if must_change_password else "hidden"} fixed inset-0 z-50 bg-navy-950/75 backdrop-blur-xs items-center justify-center p-4"
     role="dialog"
     aria-modal="true"
-    aria-labelledby="force-pw-title"
+    class="fixed inset-0 z-50 bg-navy-950/80 backdrop-blur-sm hidden items-center justify-center p-4"
   >
-    <div class="modal-panel bg-white rounded-3xl border border-slate-200 max-w-md w-full p-6 sm:p-7 shadow-2xl space-y-4">
-      <div class="flex items-start justify-between gap-3">
-        <div>
-          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 border border-amber-200 text-[11px] font-extrabold text-amber-900 mb-2">
-            Primeiro Acesso com Senha Temporária
-          </span>
-          <h2 id="force-pw-title" class="text-lg font-extrabold text-navy-900">
-            Crie sua nova senha pessoal
-          </h2>
-          <p class="text-xs text-slate-600 mt-1 leading-relaxed">
-            Para proteger sua conta (<span id="force-pw-email" class="font-mono font-bold text-navy-900">{logged_user_email}</span>), escolha uma senha definitiva que só você conheça antes de continuar.
-          </p>
+    <div class="modal-panel bg-white w-full max-w-md rounded-3xl p-7 sm:p-8 shadow-2xl border border-slate-200 space-y-5">
+      <div>
+        <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gold-100 text-gold-700 text-[11px] font-extrabold uppercase tracking-wider mb-2">
+          Atualização de Segurança
         </div>
+        <h3 class="text-xl font-extrabold text-navy-900">
+          Defina sua senha definitiva
+        </h3>
+        <p class="text-xs text-slate-600 mt-1">
+          Olá, <span id="force-pw-email" class="font-bold text-navy-900">{logged_user_email}</span>. Você recebeu uma senha provisória da gestão e deve definir uma senha pessoal para prosseguir.
+        </p>
       </div>
 
       <form id="force-pw-form" class="space-y-4">
         <div>
           <label for="new-password" class="block text-xs font-extrabold text-slate-700 mb-1.5">
-            Nova senha definitiva
+            Nova senha pessoal
           </label>
           <input
             id="new-password"
@@ -532,7 +424,85 @@ def get_login_html(
     </div>
   </div>
 
-  <script>
+  <!-- 2. Modal de Solicitação de Recuperação de Senha -->
+  <div
+    id="forgot-modal"
+    role="dialog"
+    aria-modal="true"
+    class="fixed inset-0 z-50 bg-navy-950/75 backdrop-blur-sm hidden items-center justify-center p-4"
+  >
+    <div class="modal-panel bg-white w-full max-w-md rounded-3xl p-7 sm:p-8 shadow-2xl border border-slate-200 space-y-5">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-gold-50 border border-gold-200 text-gold-700 text-[11px] font-extrabold uppercase tracking-wide">
+            Suporte Gold TI
+          </span>
+          <h3 class="text-xl font-extrabold text-navy-900 mt-2">
+            Recuperação de Senha
+          </h3>
+          <p class="text-xs text-slate-600 mt-1">
+            Informe seu e-mail corporativo. A gestão da Gold Corretora será notificada no painel administrativo para restaurar seu acesso.
+          </p>
+        </div>
+        <button
+          type="button"
+          onclick="fecharModalRecuperacao()"
+          class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-sm font-bold focus:outline-none focus-visible:ring-2 focus-visible:ring-navy-900 cursor-pointer"
+          title="Fechar"
+        >
+          ✕
+        </button>
+      </div>
+
+      <form id="forgot-form" class="space-y-4">
+        <div>
+          <label for="forgot-email" class="block text-xs font-extrabold text-slate-700 mb-1.5">
+            E-mail cadastrado
+          </label>
+          <input
+            id="forgot-email"
+            type="email"
+            required
+            placeholder="voce@goldcorretora.com.br"
+            class="input-corporate w-full h-11 rounded-xl bg-slate-50 border border-slate-300 px-3.5 text-sm font-semibold text-navy-900"
+          />
+        </div>
+
+        <div>
+          <label for="forgot-obs" class="block text-xs font-extrabold text-slate-700 mb-1.5">
+            Observação (opcional)
+          </label>
+          <textarea
+            id="forgot-obs"
+            rows="2"
+            placeholder="Ex.: Esqueci minha senha ou preciso trocar de dispositivo"
+            class="input-corporate w-full rounded-xl bg-slate-50 border border-slate-300 p-3 text-xs font-medium text-navy-900"
+          ></textarea>
+        </div>
+
+        <div id="forgot-feedback" class="hidden rounded-xl p-3 text-xs font-bold"></div>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-200">
+          <button
+            type="button"
+            onclick="fecharModalRecuperacao()"
+            class="btn-tactile px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 cursor-pointer"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            id="forgot-submit"
+            class="btn-tactile btn-gold-primary px-5 py-2.5 rounded-xl text-xs font-extrabold cursor-pointer"
+          >
+            Notificar Gestão
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+<script>
     const form = document.getElementById('login-form');
     const emailInput = document.getElementById('email');
     const senhaInput = document.getElementById('senha');
