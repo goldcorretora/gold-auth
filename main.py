@@ -613,6 +613,8 @@ class UsuarioUpdateIn(BaseModel):
     permissoes_extras: Optional[List[str]] = None
     ativo: Optional[bool] = None
     precisa_trocar_senha: Optional[bool] = None
+    em_ferias: Optional[bool] = None
+    ferias_retorno: Optional[str] = None
 
 class SendTempPasswordIn(BaseModel):
     senha_personalizada: Optional[str] = None
@@ -707,6 +709,8 @@ async def admin_update_user(user_id: int, payload: UsuarioUpdateIn, request: Req
     acao = "USUARIO_ATUALIZADO"
     if "ativo" in updates and len(updates) == 1:
         acao = "USUARIO_ATIVADO" if updates["ativo"] else "USUARIO_BLOQUEADO"
+    elif "em_ferias" in updates:
+        acao = "USUARIO_FERIAS_MARCADAS" if updates["em_ferias"] else "USUARIO_FERIAS_ENCERRADAS"
 
     registrar_auditoria(
         acao=acao,

@@ -164,6 +164,15 @@ def init_db():
             ALTER TABLE schema_auth.usuarios
             ADD COLUMN IF NOT EXISTS precisa_trocar_senha BOOLEAN DEFAULT FALSE;
 
+            ALTER TABLE schema_auth.usuarios
+            ADD COLUMN IF NOT EXISTS em_ferias BOOLEAN DEFAULT FALSE;
+
+            ALTER TABLE schema_auth.usuarios
+            ADD COLUMN IF NOT EXISTS ferias_retorno DATE;
+
+            ALTER TABLE schema_auth.usuarios
+            ADD COLUMN IF NOT EXISTS ultimo_lead_em TIMESTAMPTZ;
+
             CREATE TABLE IF NOT EXISTS schema_auth.sessoes (
                 id SERIAL PRIMARY KEY,
                 usuario_id INTEGER REFERENCES schema_auth.usuarios(id) ON DELETE CASCADE,
@@ -342,6 +351,9 @@ def _normalize_user(row: Any, is_pg: bool) -> Dict[str, Any]:
     d["permissoes_extras"] = _parse_json_field(d.get("permissoes_extras"), [])
     d["ativo"] = bool(d.get("ativo", True))
     d["precisa_trocar_senha"] = bool(d.get("precisa_trocar_senha", False))
+    d["em_ferias"] = bool(d.get("em_ferias", False))
+    d["ferias_retorno"] = str(d["ferias_retorno"]) if d.get("ferias_retorno") else None
+    d["ultimo_lead_em"] = d["ultimo_lead_em"].isoformat() if d.get("ultimo_lead_em") else None
     return d
 
 def _normalize_role(row: Any) -> Dict[str, Any]:
@@ -905,6 +917,14 @@ def atualizar_usuario(usuario_id: int, dados: Dict[str, Any]) -> Optional[Dict[s
     if "ativo" in dados and dados["ativo"] is not None:
         sets.append(f"ativo = {ph}")
         params.append(bool(dados["ativo"]) if is_pg else (1 if dados["ativo"] else 0))
+
+    if "em_ferias" in dados and dados["em_ferias"] is not None:
+        sets.append(f"em_ferias = {ph}")
+        params.append(bool(dados["em_ferias"]) if is_pg else (1 if dados["em_ferias"] else 0))
+
+    if "ferias_retorno" in dados:
+        sets.append(f"ferias_retorno = {ph}")
+        params.append(dados["ferias_retorno"] or None)
 
     if not sets:
         conn.close()

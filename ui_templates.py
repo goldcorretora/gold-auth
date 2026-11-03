@@ -750,6 +750,100 @@ def get_login_html(
         submitSpinner.classList.add('hidden');
       }}
     }});
+  <!-- MODAL: MARCAR FÉRIAS / AUSÊNCIA -->
+  <div id="ferias-modal" class="hidden fixed inset-0 z-50 bg-navy-950/70 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden">
+      <div class="p-5 border-b border-slate-200 flex items-center justify-between bg-amber-50/60">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🏖️</span>
+          <h3 class="text-base font-extrabold text-navy-900" id="ferias-modal-title">Marcar Férias</h3>
+        </div>
+        <button type="button" onclick="fecharModalFeriasRapido()" class="w-8 h-8 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-white flex items-center justify-center font-bold">✕</button>
+      </div>
+
+      <form id="ferias-form" class="p-5 space-y-4">
+        <input type="hidden" id="ferias-user-id" />
+        <p class="text-xs text-slate-600 leading-relaxed">
+          Enquanto o vendedor estiver de férias, a <strong>Roleta de Leads</strong> pula o perfil dele automaticamente. Na data de retorno, ele volta a receber novas cotações sozinho.
+        </p>
+
+        <div>
+          <label for="ferias-data-retorno" class="block text-xs font-bold text-slate-700 mb-1">Data Prevista de Retorno (opcional):</label>
+          <input id="ferias-data-retorno" type="date" class="w-full h-10 rounded-xl border border-slate-300 px-3 text-sm font-bold text-navy-900 bg-white focus:outline-none focus:border-gold-500" />
+          <span class="text-[11px] text-slate-500 mt-1 block">Deixe em branco para retorno indeterminado.</span>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-200">
+          <button type="button" onclick="fecharModalFeriasRapido()" class="btn-tactile px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100">Cancelar</button>
+          <button type="submit" class="btn-tactile px-5 py-2 rounded-xl text-xs font-extrabold bg-amber-500 hover:bg-amber-600 text-white shadow-xs">Salvar Férias</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+    function fmtDataSoDia(dStr) {{
+      if (!dStr) return '';
+      const parts = dStr.split('-');
+      if (parts.length === 3) return `${{parts[2]}}/${{parts[1]}}/${{parts[0]}}`;
+      return dStr;
+    }}
+
+    function alternarCamposFeriasNoModal() {{
+      const checked = document.getElementById('u-ferias').checked;
+      const wrap = document.getElementById('u-ferias-wrap');
+      if (checked) {{
+        wrap.classList.remove('hidden');
+      }} else {{
+        wrap.classList.add('hidden');
+      }}
+    }}
+
+    function abrirModalFeriasRapido(id, nome) {{
+      document.getElementById('ferias-user-id').value = id;
+      document.getElementById('ferias-modal-title').textContent = 'Férias: ' + nome;
+      document.getElementById('ferias-data-retorno').value = '';
+      document.getElementById('ferias-modal').classList.remove('hidden');
+    }}
+
+    function fecharModalFeriasRapido() {{
+      document.getElementById('ferias-modal').classList.add('hidden');
+    }}
+
+    document.getElementById('ferias-form').addEventListener('submit', async (e) => {{
+      e.preventDefault();
+      const id = document.getElementById('ferias-user-id').value;
+      const dataRetorno = document.getElementById('ferias-data-retorno').value || null;
+
+      const res = await fetch(`/api/admin/users/${{id}}`, {{
+        method: 'PATCH',
+        headers: {{ 'Content-Type': 'application/json' }},
+        body: JSON.stringify({{ em_ferias: true, ferias_retorno: dataRetorno }})
+      }});
+      if (!res.ok) {{
+        const d = await res.json().catch(() => ({{}}));
+        alert(d.detail || 'Não foi possível marcar as férias.');
+        return;
+      }}
+      fecharModalFeriasRapido();
+      await carregarUsuarios();
+      await carregarAuditoria();
+    }});
+
+    async function encerrarFeriasRapido(id, nome) {{
+      if (!confirm(`Deseja encerrar as férias de ${{nome}} e reincorporá-lo à roleta de leads imediatamente?`)) return;
+      const res = await fetch(`/api/admin/users/${{id}}`, {{
+        method: 'PATCH',
+        headers: {{ 'Content-Type': 'application/json' }},
+        body: JSON.stringify({{ em_ferias: false, ferias_retorno: null }})
+      }});
+      if (!res.ok) {{
+        const d = await res.json().catch(() => ({{}}));
+        alert(d.detail || 'Não foi possível encerrar as férias.');
+        return;
+      }}
+      await carregarUsuarios();
+      await carregarAuditoria();
+    }}
   </script>
 </body>
 </html>"""
@@ -768,46 +862,153 @@ def get_admin_html(
   <title>Gestão de Acessos & Auditoria • Gold Corretora</title>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col selection:bg-gold-500 selection:text-white">
-  <!-- Topbar Oficial Gold -->
-  <header class="bg-navy-900 border-b border-navy-800 sticky top-0 z-30">
-    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-      <div class="flex items-center gap-4">
-        <a href="/admin" class="flex items-center shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 rounded-lg">
+  <!-- Topbar Oficial Gold (Idêntica ao Painel do Consultor) -->
+  <header class="bg-navy-900 border-b border-navy-800 sticky top-0 z-30 shadow-md">
+    <div class="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-4">
+      <!-- Lado Esquerdo: Logo & Identidade -->
+      <div class="flex items-center gap-3 sm:gap-5">
+        <a href="/admin" class="flex items-center shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 rounded-lg p-0.5" aria-label="Portal de Acessos Gold">
           {GOLD_LOGO_HEADER}
         </a>
-        <div class="hidden sm:block border-l border-slate-700/70 pl-4">
-          <span class="text-xs font-extrabold uppercase tracking-wider text-gold-400 block">
-            Portal de Acessos Gold
+        <div class="hidden sm:block border-l border-slate-700/60 pl-3.5">
+          <span class="text-xs font-black uppercase tracking-wider block text-gold-400">
+            Portal de Acessos
           </span>
-          <span class="text-[11px] text-slate-300 font-medium block">
-            Controle de Vendedores, Cargos, E-mail Oficial & Auditoria
+          <span class="text-[11px] font-medium block text-slate-400">
+            Gestão de Equipe & Auditoria
           </span>
         </div>
       </div>
 
-      <div class="flex items-center gap-2.5">
+      <!-- Lado Direito: Controles Compactos & Menu do Usuário -->
+      <div class="flex items-center gap-2 sm:gap-2.5">
+        <!-- Atalho Painel de Vendas -->
         <a
           href="{default_redirect}"
-          class="btn-tactile px-3.5 py-2 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/15 text-white border border-white/15 flex items-center gap-1.5"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-navy-950/80 hover:bg-navy-950 text-slate-300 hover:text-white border border-slate-700/70 transition-all duration-150 active:scale-95 cursor-pointer"
+          title="Abrir Painel de Vendas em nova aba"
         >
-          <span>Abrir Painel de Vendas</span>
+          <span>Painel de Vendas</span>
           <svg class="w-3.5 h-3.5 text-gold-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
           </svg>
         </a>
 
-        <div id="current-user-pill" class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-navy-950 border border-slate-800 text-xs">
-          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-          <span id="header-user-name" class="font-bold text-white">Admin</span>
-          <span id="header-user-role" class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-gold-500/20 text-gold-400 font-bold">ADMIN</span>
-        </div>
+        <!-- Usuário & Menu Dropdown (Idêntico ao do Painel do Consultor) -->
+        <div class="relative" id="user-dropdown-container">
+          <button
+            type="button"
+            id="user-menu-btn"
+            onclick="alternarMenuUsuario()"
+            aria-expanded="false"
+            aria-haspopup="menu"
+            aria-label="Menu do usuário"
+            class="flex items-center gap-2 pl-2 pr-2.5 sm:pr-3 py-1.5 rounded-xl border border-slate-700/70 bg-navy-950/80 hover:bg-navy-950 transition-all duration-150 cursor-pointer active:scale-98 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500"
+          >
+            <!-- Avatar simples com iniciais -->
+            <div id="header-avatar-initials" class="w-7 h-7 rounded-lg bg-navy-800 border border-slate-700 text-gold-400 flex items-center justify-center font-bold text-xs shrink-0">
+              AD
+            </div>
 
-        <a
-          href="/api/auth/logout"
-          class="btn-tactile px-3 py-2 rounded-xl text-xs font-bold bg-red-500/15 hover:bg-red-500/25 text-red-200 border border-red-500/30"
-        >
-          Sair
-        </a>
+            <!-- Nome do Usuário -->
+            <span id="header-user-name" class="hidden md:inline font-bold text-xs text-white truncate max-w-[140px] lg:max-w-[180px]">
+              Admin
+            </span>
+
+            <!-- Chevron com Rotação -->
+            <svg id="header-chevron" class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          <!-- Dropdown Popover -->
+          <div
+            id="user-dropdown-menu"
+            role="menu"
+            aria-orientation="vertical"
+            class="hidden absolute right-0 top-full mt-2 w-64 sm:w-72 rounded-2xl bg-navy-950/98 backdrop-blur-md border border-slate-700/80 shadow-2xl p-2 z-50 origin-top-right transition-all duration-150"
+          >
+            <!-- Cabeçalho do Perfil -->
+            <div class="p-3 bg-navy-900/80 rounded-xl border border-slate-800/80 flex items-center gap-3">
+              <div id="dropdown-avatar-initials" class="w-9 h-9 rounded-xl bg-navy-800 border border-slate-700 text-gold-400 flex items-center justify-center font-bold text-xs shrink-0">
+                AD
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-1.5">
+                  <span id="dropdown-user-name" class="font-bold text-xs text-white truncate block">
+                    Admin
+                  </span>
+                  <span id="dropdown-user-role" class="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold uppercase tracking-wider bg-gold-500/20 text-gold-400 border border-gold-500/30">
+                    ADMIN
+                  </span>
+                </div>
+                <span id="dropdown-user-email" class="text-[11px] text-slate-400 truncate block mt-0.5">
+                  acesso@goldcorretora.com.br
+                </span>
+              </div>
+            </div>
+
+            <!-- Itens do Menu -->
+            <div class="mt-2 space-y-1">
+              <!-- Atalho Painel de Vendas -->
+              <a
+                href="{default_redirect}"
+                target="_blank"
+                rel="noopener noreferrer"
+                role="menuitem"
+                onclick="fecharMenuUsuario()"
+                class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-colors group"
+              >
+                <div class="flex items-center gap-2.5">
+                  <svg class="w-4 h-4 text-slate-400 group-hover:text-gold-400 group-hover:scale-105 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                  </svg>
+                  <span>Painel de Vendas</span>
+                </div>
+                <svg class="w-3.5 h-3.5 text-slate-500 group-hover:text-slate-300 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+
+              <!-- Atalho Simulador de Seguros -->
+              <a
+                href="https://simulador.goldcorretora.com.br"
+                target="_blank"
+                rel="noopener noreferrer"
+                role="menuitem"
+                onclick="fecharMenuUsuario()"
+                class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-colors group"
+              >
+                <div class="flex items-center gap-2.5">
+                  <svg class="w-4 h-4 text-slate-400 group-hover:text-gold-400 group-hover:scale-105 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                  <span>Simulador de Seguros</span>
+                </div>
+                <svg class="w-3.5 h-3.5 text-slate-500 group-hover:text-slate-300 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+            </div>
+
+            <!-- Divisor -->
+            <div class="my-1.5 border-t border-slate-800"></div>
+
+            <!-- Sair -->
+            <a
+              href="/api/auth/logout"
+              role="menuitem"
+              class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-red-300 hover:text-red-200 hover:bg-red-500/15 border border-transparent hover:border-red-500/30 transition-all duration-150"
+            >
+              <svg class="w-4 h-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              <span>Sair</span>
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   </header>
@@ -1220,6 +1421,18 @@ def get_admin_html(
           <input id="u-perms" type="text" placeholder="Ex: leads.delete, relatorios.export" class="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs font-mono text-navy-900 focus:outline-none focus:border-gold-500" />
         </div>
 
+        <!-- Férias & Ausência da Roleta -->
+        <div class="bg-amber-50/60 border border-amber-200 rounded-xl p-3 space-y-2">
+          <label class="inline-flex items-center gap-2 text-xs font-bold text-navy-900 cursor-pointer">
+            <input id="u-ferias" type="checkbox" onchange="alternarCamposFeriasNoModal()" class="w-4 h-4 rounded text-amber-600" />
+            <span>🏖️ Vendedor em Férias (Pausar recebimento automático na roleta)</span>
+          </label>
+          <div id="u-ferias-wrap" class="hidden flex items-center gap-2 pl-6">
+            <label for="u-ferias-retorno" class="text-xs font-semibold text-slate-700">Data de Retorno:</label>
+            <input id="u-ferias-retorno" type="date" class="h-9 rounded-lg border border-slate-300 px-2 text-xs font-bold text-navy-900 bg-white" />
+          </div>
+        </div>
+
         <div id="user-form-error" class="hidden text-xs font-bold text-red-600 bg-red-50 border border-red-200 rounded-xl p-2.5"></div>
 
         <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-200">
@@ -1392,8 +1605,19 @@ def get_admin_html(
         if (res.ok) {{
           const data = await res.json();
           stateMe = data.user;
-          document.getElementById('header-user-name').textContent = data.user.nome;
-          document.getElementById('header-user-role').textContent = data.user.cargo;
+          const initials = getInitials(data.user.nome);
+          const elAvatar = document.getElementById('header-avatar-initials');
+          if (elAvatar) elAvatar.textContent = initials;
+          const elDropAvatar = document.getElementById('dropdown-avatar-initials');
+          if (elDropAvatar) elDropAvatar.textContent = initials;
+          const elName = document.getElementById('header-user-name');
+          if (elName) elName.textContent = data.user.nome;
+          const elDropName = document.getElementById('dropdown-user-name');
+          if (elDropName) elDropName.textContent = data.user.nome;
+          const elDropRole = document.getElementById('dropdown-user-role');
+          if (elDropRole) elDropRole.textContent = data.user.cargo;
+          const elDropEmail = document.getElementById('dropdown-user-email');
+          if (elDropEmail) elDropEmail.textContent = data.user.email;
           const testInput = document.getElementById('test-email-dest');
           if (testInput && !testInput.value) testInput.value = data.user.email;
         }}
@@ -1597,6 +1821,11 @@ def get_admin_html(
                   Derrubar sessões
                 </button>
               ` : ''}}
+              ${{u.em_ferias ? `
+                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-900 border border-amber-300">
+                  🏖️ Em Férias ${{u.ferias_retorno ? `(Volta: ${{fmtDataSoDia(u.ferias_retorno)}})` : ''}}
+                </span>
+              ` : ''}}
             </div>
           </td>
           <td class="py-3.5 px-4 text-xs text-slate-600 tabular-nums">
@@ -1618,6 +1847,16 @@ def get_admin_html(
             >
               Editar / E-mail
             </button>
+            ${{(u.cargo === 'VENDEDOR' || u.cargo === 'SUPERVISOR') ? `
+              <button
+                type="button"
+                onclick="${{u.em_ferias ? `encerrarFeriasRapido(${{u.id}}, '${{u.nome.replace(/'/g, "\\'")}}')` : `abrirModalFeriasRapido(${{u.id}}, '${{u.nome.replace(/'/g, "\\'")}}')`}}"
+                class="btn-tactile px-2.5 py-1.5 rounded-lg text-xs font-bold ${{u.em_ferias ? 'bg-blue-50 text-blue-800 hover:bg-blue-100 border border-blue-200' : 'bg-amber-50 text-amber-900 hover:bg-amber-100 border border-amber-200'}}"
+                title="${{u.em_ferias ? 'Retornar vendedor para a roleta de leads imediatamente' : 'Marcar férias do vendedor'}}"
+              >
+                ${{u.em_ferias ? 'Voltar Férias' : '🏖️ Férias'}}
+              </button>
+            ` : ''}}
             ${{!isSelf ? `
               <button
                 type="button"
@@ -1861,6 +2100,9 @@ def get_admin_html(
       document.getElementById('u-force-change').checked = Boolean(u.precisa_trocar_senha);
       document.getElementById('u-send-email-wrap').classList.add('hidden');
       document.getElementById('u-perms').value = (u.permissoes_extras || []).join(', ');
+      document.getElementById('u-ferias').checked = Boolean(u.em_ferias);
+      document.getElementById('u-ferias-retorno').value = u.ferias_retorno || '';
+      alternarCamposFeriasNoModal();
       document.getElementById('user-form-error').classList.add('hidden');
 
       const apps = u.apps_permitidos || [];
@@ -1887,6 +2129,10 @@ def get_admin_html(
       const perms = document.getElementById('u-perms').value.split(',').map(s => s.trim()).filter(Boolean);
 
       const payload = {{ nome, email, cargo, apps_permitidos: apps, permissoes_extras: perms, precisa_trocar_senha }};
+      if (id) {{
+        payload.em_ferias = document.getElementById('u-ferias').checked;
+        payload.ferias_retorno = payload.em_ferias ? (document.getElementById('u-ferias-retorno').value || null) : null;
+      }}
       if (senha) payload.senha = senha;
       if (!id) payload.enviar_por_email = enviar_por_email;
 
@@ -1983,8 +2229,46 @@ def get_admin_html(
       await carregarAuditoria();
     }}
 
+
+    function getInitials(name) {{
+      if (!name) return 'AD';
+      const parts = name.trim().split(/\\s+/).filter(Boolean);
+      if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }}
+
+    function alternarMenuUsuario() {{
+      const menu = document.getElementById('user-dropdown-menu');
+      const chevron = document.getElementById('header-chevron');
+      const btn = document.getElementById('user-menu-btn');
+      const isHidden = menu.classList.contains('hidden');
+      if (isHidden) {{
+        menu.classList.remove('hidden');
+        chevron.classList.add('rotate-180', 'text-gold-400');
+        btn.classList.add('bg-navy-950', 'border-gold-500/50', 'shadow-inner');
+      }} else {{
+        fecharMenuUsuario();
+      }}
+    }}
+
+    function fecharMenuUsuario() {{
+      const menu = document.getElementById('user-dropdown-menu');
+      const chevron = document.getElementById('header-chevron');
+      if (menu) menu.classList.add('hidden');
+      if (chevron) chevron.classList.remove('rotate-180', 'text-gold-400');
+      const btn = document.getElementById('user-menu-btn');
+      if (btn) btn.classList.remove('bg-navy-950', 'border-gold-500/50', 'shadow-inner');
+    }}
+
+    document.addEventListener('pointerdown', (e) => {{
+      const container = document.getElementById('user-dropdown-container');
+      if (container && !container.contains(e.target)) {{
+        fecharMenuUsuario();
+      }}
+    }});
     window.addEventListener('keydown', (e) => {{
       if (e.key === 'Escape') {{
+        fecharMenuUsuario();
         fecharModalUsuario();
         fecharModalCargo();
         fecharModalSenhaTemp();
