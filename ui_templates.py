@@ -750,6 +750,100 @@ def get_login_html(
         submitSpinner.classList.add('hidden');
       }}
     }});
+  <!-- MODAL: MARCAR FÉRIAS / AUSÊNCIA -->
+  <div id="ferias-modal" class="hidden fixed inset-0 z-50 bg-navy-950/70 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden">
+      <div class="p-5 border-b border-slate-200 flex items-center justify-between bg-amber-50/60">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🏖️</span>
+          <h3 class="text-base font-extrabold text-navy-900" id="ferias-modal-title">Marcar Férias</h3>
+        </div>
+        <button type="button" onclick="fecharModalFeriasRapido()" class="w-8 h-8 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-white flex items-center justify-center font-bold">✕</button>
+      </div>
+
+      <form id="ferias-form" class="p-5 space-y-4">
+        <input type="hidden" id="ferias-user-id" />
+        <p class="text-xs text-slate-600 leading-relaxed">
+          Enquanto o vendedor estiver de férias, a <strong>Roleta de Leads</strong> pula o perfil dele automaticamente. Na data de retorno, ele volta a receber novas cotações sozinho.
+        </p>
+
+        <div>
+          <label for="ferias-data-retorno" class="block text-xs font-bold text-slate-700 mb-1">Data Prevista de Retorno (opcional):</label>
+          <input id="ferias-data-retorno" type="date" class="w-full h-10 rounded-xl border border-slate-300 px-3 text-sm font-bold text-navy-900 bg-white focus:outline-none focus:border-gold-500" />
+          <span class="text-[11px] text-slate-500 mt-1 block">Deixe em branco para retorno indeterminado.</span>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-200">
+          <button type="button" onclick="fecharModalFeriasRapido()" class="btn-tactile px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100">Cancelar</button>
+          <button type="submit" class="btn-tactile px-5 py-2 rounded-xl text-xs font-extrabold bg-amber-500 hover:bg-amber-600 text-white shadow-xs">Salvar Férias</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+    function fmtDataSoDia(dStr) {{
+      if (!dStr) return '';
+      const parts = dStr.split('-');
+      if (parts.length === 3) return `${{parts[2]}}/${{parts[1]}}/${{parts[0]}}`;
+      return dStr;
+    }}
+
+    function alternarCamposFeriasNoModal() {{
+      const checked = document.getElementById('u-ferias').checked;
+      const wrap = document.getElementById('u-ferias-wrap');
+      if (checked) {{
+        wrap.classList.remove('hidden');
+      }} else {{
+        wrap.classList.add('hidden');
+      }}
+    }}
+
+    function abrirModalFeriasRapido(id, nome) {{
+      document.getElementById('ferias-user-id').value = id;
+      document.getElementById('ferias-modal-title').textContent = 'Férias: ' + nome;
+      document.getElementById('ferias-data-retorno').value = '';
+      document.getElementById('ferias-modal').classList.remove('hidden');
+    }}
+
+    function fecharModalFeriasRapido() {{
+      document.getElementById('ferias-modal').classList.add('hidden');
+    }}
+
+    document.getElementById('ferias-form').addEventListener('submit', async (e) => {{
+      e.preventDefault();
+      const id = document.getElementById('ferias-user-id').value;
+      const dataRetorno = document.getElementById('ferias-data-retorno').value || null;
+
+      const res = await fetch(`/api/admin/users/${{id}}`, {{
+        method: 'PATCH',
+        headers: {{ 'Content-Type': 'application/json' }},
+        body: JSON.stringify({{ em_ferias: true, ferias_retorno: dataRetorno }})
+      }});
+      if (!res.ok) {{
+        const d = await res.json().catch(() => ({{}}));
+        alert(d.detail || 'Não foi possível marcar as férias.');
+        return;
+      }}
+      fecharModalFeriasRapido();
+      await carregarUsuarios();
+      await carregarAuditoria();
+    }});
+
+    async function encerrarFeriasRapido(id, nome) {{
+      if (!confirm(`Deseja encerrar as férias de ${{nome}} e reincorporá-lo à roleta de leads imediatamente?`)) return;
+      const res = await fetch(`/api/admin/users/${{id}}`, {{
+        method: 'PATCH',
+        headers: {{ 'Content-Type': 'application/json' }},
+        body: JSON.stringify({{ em_ferias: false, ferias_retorno: null }})
+      }});
+      if (!res.ok) {{
+        const d = await res.json().catch(() => ({{}}));
+        alert(d.detail || 'Não foi possível encerrar as férias.');
+        return;
+      }}
+      await carregarUsuarios();
+      await carregarAuditoria();
+    }}
   </script>
 </body>
 </html>"""
@@ -1220,6 +1314,18 @@ def get_admin_html(
           <input id="u-perms" type="text" placeholder="Ex: leads.delete, relatorios.export" class="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs font-mono text-navy-900 focus:outline-none focus:border-gold-500" />
         </div>
 
+        <!-- Férias & Ausência da Roleta -->
+        <div class="bg-amber-50/60 border border-amber-200 rounded-xl p-3 space-y-2">
+          <label class="inline-flex items-center gap-2 text-xs font-bold text-navy-900 cursor-pointer">
+            <input id="u-ferias" type="checkbox" onchange="alternarCamposFeriasNoModal()" class="w-4 h-4 rounded text-amber-600" />
+            <span>🏖️ Vendedor em Férias (Pausar recebimento automático na roleta)</span>
+          </label>
+          <div id="u-ferias-wrap" class="hidden flex items-center gap-2 pl-6">
+            <label for="u-ferias-retorno" class="text-xs font-semibold text-slate-700">Data de Retorno:</label>
+            <input id="u-ferias-retorno" type="date" class="h-9 rounded-lg border border-slate-300 px-2 text-xs font-bold text-navy-900 bg-white" />
+          </div>
+        </div>
+
         <div id="user-form-error" class="hidden text-xs font-bold text-red-600 bg-red-50 border border-red-200 rounded-xl p-2.5"></div>
 
         <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-200">
@@ -1597,6 +1703,11 @@ def get_admin_html(
                   Derrubar sessões
                 </button>
               ` : ''}}
+              ${{u.em_ferias ? `
+                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-900 border border-amber-300">
+                  🏖️ Em Férias ${{u.ferias_retorno ? `(Volta: ${{fmtDataSoDia(u.ferias_retorno)}})` : ''}}
+                </span>
+              ` : ''}}
             </div>
           </td>
           <td class="py-3.5 px-4 text-xs text-slate-600 tabular-nums">
@@ -1618,6 +1729,16 @@ def get_admin_html(
             >
               Editar / E-mail
             </button>
+            ${{(u.cargo === 'VENDEDOR' || u.cargo === 'SUPERVISOR') ? `
+              <button
+                type="button"
+                onclick="${{u.em_ferias ? `encerrarFeriasRapido(${{u.id}}, '${{u.nome.replace(/'/g, "\\'")}}')` : `abrirModalFeriasRapido(${{u.id}}, '${{u.nome.replace(/'/g, "\\'")}}')`}}"
+                class="btn-tactile px-2.5 py-1.5 rounded-lg text-xs font-bold ${{u.em_ferias ? 'bg-blue-50 text-blue-800 hover:bg-blue-100 border border-blue-200' : 'bg-amber-50 text-amber-900 hover:bg-amber-100 border border-amber-200'}}"
+                title="${{u.em_ferias ? 'Retornar vendedor para a roleta de leads imediatamente' : 'Marcar férias do vendedor'}}"
+              >
+                ${{u.em_ferias ? 'Voltar Férias' : '🏖️ Férias'}}
+              </button>
+            ` : ''}}
             ${{!isSelf ? `
               <button
                 type="button"
@@ -1861,6 +1982,9 @@ def get_admin_html(
       document.getElementById('u-force-change').checked = Boolean(u.precisa_trocar_senha);
       document.getElementById('u-send-email-wrap').classList.add('hidden');
       document.getElementById('u-perms').value = (u.permissoes_extras || []).join(', ');
+      document.getElementById('u-ferias').checked = Boolean(u.em_ferias);
+      document.getElementById('u-ferias-retorno').value = u.ferias_retorno || '';
+      alternarCamposFeriasNoModal();
       document.getElementById('user-form-error').classList.add('hidden');
 
       const apps = u.apps_permitidos || [];
@@ -1887,6 +2011,10 @@ def get_admin_html(
       const perms = document.getElementById('u-perms').value.split(',').map(s => s.trim()).filter(Boolean);
 
       const payload = {{ nome, email, cargo, apps_permitidos: apps, permissoes_extras: perms, precisa_trocar_senha }};
+      if (id) {{
+        payload.em_ferias = document.getElementById('u-ferias').checked;
+        payload.ferias_retorno = payload.em_ferias ? (document.getElementById('u-ferias-retorno').value || null) : null;
+      }}
       if (senha) payload.senha = senha;
       if (!id) payload.enviar_por_email = enviar_por_email;
 
