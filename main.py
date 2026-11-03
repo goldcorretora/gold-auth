@@ -208,7 +208,12 @@ async def login_page(
             support_email=support_email,
             must_change_password=bool(user and user.get("precisa_trocar_senha")),
             logged_user_email=user.get("email") if user else ""
-        )
+        ),
+        headers={
+            "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+            "Pragma": "no-cache",
+            "Expires": "0"
+        }
     )
 
 @app.get("/admin", response_class=HTMLResponse, include_in_schema=False)
@@ -546,6 +551,8 @@ async def api_logout(request: Request, response: Response, rd: Optional[str] = Q
     if request.method == "GET":
         redir = RedirectResponse(url=rd or "/login", status_code=302)
         clear_sso_cookie(redir, request)
+        redir.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        redir.headers["Pragma"] = "no-cache"
         return redir
 
     clear_sso_cookie(response, request)
