@@ -129,7 +129,12 @@ SHARED_HEAD = """
 """
 
 
-def get_login_html(default_redirect: str = "https://vendas.goldcorretora.com.br") -> str:
+def get_login_html(
+    default_redirect: str = "https://vendas.goldcorretora.com.br",
+    support_email: str = "acesso@goldcorretora.com.br",
+    must_change_password: bool = False,
+    logged_user_email: str = ""
+) -> str:
     return f"""<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -441,14 +446,89 @@ def get_login_html(default_redirect: str = "https://vendas.goldcorretora.com.br"
       </form>
 
       <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600">
-        <span>Urgência no plantão comercial?</span>
+        <span>Contato direto com a gestão:</span>
         <a
-          href="mailto:gold.gabrielrodrigues@gmail.com?subject=Suporte%20Acesso%20Portal%20Gold"
-          class="font-bold text-navy-900 hover:underline"
+          href="mailto:{support_email}?subject=Suporte%20Acesso%20Portal%20Gold"
+          class="font-bold text-navy-900 hover:underline font-mono"
         >
-          Enviar e-mail direto à TI
+          {support_email}
         </a>
       </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL OBRIGATÓRIO: TROCA DA SENHA TEMPORÁRIA NO PRIMEIRO ACESSO       -->
+  <!-- ===================================================================== -->
+  <div
+    id="force-pw-modal"
+    class="{"flex" if must_change_password else "hidden"} fixed inset-0 z-50 bg-navy-950/75 backdrop-blur-xs items-center justify-center p-4"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="force-pw-title"
+  >
+    <div class="modal-panel bg-white rounded-3xl border border-slate-200 max-w-md w-full p-6 sm:p-7 shadow-2xl space-y-4">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 border border-amber-200 text-[11px] font-extrabold text-amber-900 mb-2">
+            Primeiro Acesso com Senha Temporária
+          </span>
+          <h2 id="force-pw-title" class="text-lg font-extrabold text-navy-900">
+            Crie sua nova senha pessoal
+          </h2>
+          <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+            Para proteger sua conta (<span id="force-pw-email" class="font-mono font-bold text-navy-900">{logged_user_email}</span>), escolha uma senha definitiva que só você conheça antes de continuar.
+          </p>
+        </div>
+      </div>
+
+      <form id="force-pw-form" class="space-y-4">
+        <div>
+          <label for="new-password" class="block text-xs font-extrabold text-slate-700 mb-1.5">
+            Nova senha definitiva
+          </label>
+          <input
+            id="new-password"
+            type="password"
+            required
+            minlength="4"
+            placeholder="Mínimo 4 caracteres"
+            class="input-corporate w-full h-11 rounded-xl bg-slate-50 border border-slate-300 px-3.5 text-sm font-semibold text-navy-900"
+          />
+        </div>
+
+        <div>
+          <label for="confirm-password" class="block text-xs font-extrabold text-slate-700 mb-1.5">
+            Confirme a nova senha
+          </label>
+          <input
+            id="confirm-password"
+            type="password"
+            required
+            minlength="4"
+            placeholder="Repita a nova senha"
+            class="input-corporate w-full h-11 rounded-xl bg-slate-50 border border-slate-300 px-3.5 text-sm font-semibold text-navy-900"
+          />
+        </div>
+
+        <div id="force-pw-feedback" class="hidden rounded-xl p-3 text-xs font-bold"></div>
+
+        <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-200">
+          <a
+            href="/api/auth/logout"
+            class="btn-tactile px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100"
+          >
+            Sair da conta
+          </a>
+          <button
+            type="submit"
+            id="force-pw-submit"
+            class="btn-tactile btn-gold-primary px-5 py-2.5 rounded-xl text-xs font-extrabold"
+          >
+            Salvar Nova Senha e Entrar
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -466,6 +546,73 @@ def get_login_html(default_redirect: str = "https://vendas.goldcorretora.com.br"
     const togglePw = document.getElementById('toggle-pw');
     const eyeOpen = document.getElementById('eye-open');
     const eyeClosed = document.getElementById('eye-closed');
+
+    function concluirRedirecionamentoPosLogin() {{
+      const params = new URLSearchParams(window.location.search);
+      const rd = params.get('rd');
+      if (rd && !rd.includes('auth.goldcorretora.com.br')) {{
+        window.location.href = rd;
+      }} else if ('{default_redirect}' && '{default_redirect}' !== 'https://goldcorretora.com.br') {{
+        window.location.href = '{default_redirect}';
+      }} else {{
+        window.location.href = 'https://vendas.goldcorretora.com.br';
+      }}
+    }}
+
+    function abrirModalTrocaSenhaObrigatoria(emailUsuario) {{
+      const modal = document.getElementById('force-pw-modal');
+      const emailSpan = document.getElementById('force-pw-email');
+      if (emailUsuario && emailSpan) emailSpan.textContent = emailUsuario;
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      setTimeout(() => document.getElementById('new-password').focus(), 60);
+    }}
+
+    document.getElementById('force-pw-form').addEventListener('submit', async (e) => {{
+      e.preventDefault();
+      const nova_senha = document.getElementById('new-password').value.trim();
+      const confirmar_senha = document.getElementById('confirm-password').value.trim();
+      const fb = document.getElementById('force-pw-feedback');
+      const btn = document.getElementById('force-pw-submit');
+
+      fb.classList.add('hidden');
+      if (nova_senha.length < 4) {{
+        fb.className = 'rounded-xl p-3 text-xs font-bold bg-red-50 text-red-800 border border-red-200';
+        fb.textContent = 'A nova senha deve ter pelo menos 4 caracteres.';
+        fb.classList.remove('hidden');
+        return;
+      }}
+      if (nova_senha !== confirmar_senha) {{
+        fb.className = 'rounded-xl p-3 text-xs font-bold bg-red-50 text-red-800 border border-red-200';
+        fb.textContent = 'A confirmação de senha não confere.';
+        fb.classList.remove('hidden');
+        return;
+      }}
+
+      btn.disabled = true;
+      btn.textContent = 'Salvando...';
+      try {{
+        const res = await fetch('/api/auth/change-password', {{
+          method: 'POST',
+          headers: {{ 'Content-Type': 'application/json' }},
+          body: JSON.stringify({{ nova_senha, confirmar_senha }})
+        }});
+        const data = await res.json();
+        if (!res.ok) {{
+          throw new Error(data.detail || 'Não foi possível atualizar sua senha.');
+        }}
+        fb.className = 'rounded-xl p-3 text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200';
+        fb.textContent = 'Senha atualizada! Redirecionando para o portal...';
+        fb.classList.remove('hidden');
+        setTimeout(() => concluirRedirecionamentoPosLogin(), 500);
+      }} catch (err) {{
+        fb.className = 'rounded-xl p-3 text-xs font-bold bg-red-50 text-red-800 border border-red-200';
+        fb.textContent = err.message;
+        fb.classList.remove('hidden');
+        btn.disabled = false;
+        btn.textContent = 'Salvar Nova Senha e Entrar';
+      }}
+    }});
 
     // Carrega e-mail salvo caso o usuário tenha marcado 'Lembrar meu e-mail'
     try {{
@@ -570,15 +717,16 @@ def get_login_html(default_redirect: str = "https://vendas.goldcorretora.com.br"
           throw new Error(data.detail || 'E-mail ou senha incorretos.');
         }}
 
-        const params = new URLSearchParams(window.location.search);
-        const rd = params.get('rd');
-        if (rd && !rd.includes('auth.goldcorretora.com.br')) {{
-          window.location.href = rd;
-        }} else if ('{default_redirect}' && '{default_redirect}' !== 'https://goldcorretora.com.br') {{
-          window.location.href = '{default_redirect}';
-        }} else {{
-          window.location.href = 'https://vendas.goldcorretora.com.br';
+        if (data.must_change_password) {{
+          submitBtn.disabled = false;
+          submitLabel.textContent = 'Entrar no Portal Gold';
+          submitArrow.classList.remove('hidden');
+          submitSpinner.classList.add('hidden');
+          abrirModalTrocaSenhaObrigatoria(data.user?.email || email);
+          return;
         }}
+
+        concluirRedirecionamentoPosLogin();
       }} catch (err) {{
         errorText.textContent = err.message || 'Não foi possível conectar ao servidor.';
         errorBanner.classList.remove('hidden');

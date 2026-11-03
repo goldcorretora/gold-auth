@@ -12,7 +12,16 @@ from dotenv import load_dotenv
 
 from database import (
     init_db,
+    verificar_conexao,
+    BancoIndisponivelError,
     autenticar_usuario,
+    buscar_usuario_por_email,
+    buscar_usuario_por_id,
+    definir_senha_temporaria_usuario,
+    trocar_propria_senha,
+    obter_configuracoes_email,
+    salvar_configuracoes_email,
+    enviar_email_recuperacao_senha,
     criar_sessao,
     validar_sessao_token,
     revogar_sessao,
@@ -20,6 +29,7 @@ from database import (
     listar_usuarios,
     criar_usuario,
     atualizar_usuario,
+    excluir_usuario,
     listar_cargos,
     salvar_cargo,
     excluir_cargo,
@@ -61,7 +71,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Gold Auth Gateway",
     description="SSO, Traefik ForwardAuth, Controle de Cargos/Permissões e Auditoria Central da Gold Corretora.",
-    version="1.0.0",
+    version="1.1.0",
     lifespan=lifespan
 )
 
@@ -165,6 +175,9 @@ async def root_redirect(request: Request, rd: Optional[str] = Query(None)):
     if not user:
         target = f"/login?rd={quote(rd)}" if rd else "/login"
         return RedirectResponse(url=target, status_code=302)
+    if user.get("precisa_trocar_senha"):
+        target = f"/login?force_pw_change=1&rd={quote(rd)}" if rd else "/login?force_pw_change=1"
+        return RedirectResponse(url=target, status_code=302)
     if rd and "auth.goldcorretora.com.br" not in rd:
         return RedirectResponse(url=rd, status_code=302)
     if user.get("cargo") == "ADMIN" or "auditoria.view" in (user.get("permissoes") or []):
@@ -172,26 +185,49 @@ async def root_redirect(request: Request, rd: Optional[str] = Query(None)):
     return RedirectResponse(url=DEFAULT_REDIRECT_URL, status_code=302)
 
 @app.get("/login", response_class=HTMLResponse, include_in_schema=False)
-async def login_page(request: Request, rd: Optional[str] = Query(None)):
+async def login_page(
+    request: Request,
+    rd: Optional[str] = Query(None),
+    force_pw_change: Optional[str] = Query(None)
+):
     clean_rd = rd if (rd and "auth.goldcorretora.com.br" not in rd) else None
     user = get_current_user(request)
-    if user:
+    cfg = obter_configuracoes_email(ocultar_senha=True)
+    support_email = cfg.get("support_email") or "acesso@goldcorretora.com.br"
+
+    if user and not user.get("precisa_trocar_senha") and not force_pw_change:
         if clean_rd:
             return RedirectResponse(url=clean_rd, status_code=302)
         if user.get("cargo") == "ADMIN":
             return RedirectResponse(url="/admin", status_code=302)
         return RedirectResponse(url=DEFAULT_REDIRECT_URL, status_code=302)
-    return HTMLResponse(content=get_login_html(default_redirect=DEFAULT_REDIRECT_URL))
+
+    return HTMLResponse(
+        content=get_login_html(
+            default_redirect=DEFAULT_REDIRECT_URL,
+            support_email=support_email,
+            must_change_password=bool(user and user.get("precisa_trocar_senha")),
+            logged_user_email=user.get("email") if user else ""
+        )
+    )
 
 @app.get("/admin", response_class=HTMLResponse, include_in_schema=False)
 async def admin_page(request: Request):
     user = get_current_user(request)
     if not user:
         return RedirectResponse(url="/login?rd=/admin", status_code=302)
+    if user.get("precisa_trocar_senha"):
+        return RedirectResponse(url="/login?force_pw_change=1&rd=/admin", status_code=302)
     perms = user.get("permissoes") or []
     if user.get("cargo") != "ADMIN" and "*" not in perms and "auditoria.view" not in perms:
         return RedirectResponse(url=DEFAULT_REDIRECT_URL, status_code=302)
-    return HTMLResponse(content=get_admin_html(default_redirect=DEFAULT_REDIRECT_URL))
+    cfg = obter_configuracoes_email(ocultar_senha=True)
+    return HTMLResponse(
+        content=get_admin_html(
+            default_redirect=DEFAULT_REDIRECT_URL,
+            support_email=cfg.get("support_email") or "acesso@goldcorretora.com.br"
+        )
+    )
 
 # ==========================================================
 # TRAEFIK FORWARDAUTH ENDPOINT (/api/auth/verify)
@@ -200,17 +236,10 @@ async def admin_page(request: Request):
 async def traefik_forward_auth(request: Request, target: Optional[str] = Query(None)):
     """
     Endpoint consultado pelo Traefik no Coolify antes de liberar qualquer requisição para os apps protegidos.
-    - Se for requisição OPTIONS (CORS preflight), retorna 200 OK para o navegador prosseguir.
-    - Se autenticado e autorizado, retorna 200 OK com cabeçalhos X-Gold-User-* para o app destino.
-    - Se não autenticado:
-        * Se for chamada de API/JSON (Accept: application/json ou /api/*), retorna 401 JSON.
-        * Se for acesso via navegador, redireciona (302) para https://auth.goldcorretora.com.br/login?rd=<URL_ORIGINAL>
     """
     forwarded_method = request.headers.get("x-forwarded-method", request.method).upper()
     forwarded_proto = request.headers.get("x-forwarded-proto", "https").split(",")[0].strip()
 
-    # Quando passa por Cloudflare ou proxy externo, X-Forwarded-Host pode vir como "vendas.goldcorretora.com.br, auth.goldcorretora.com.br"
-    # ou ser sobrescrito se não vier por rede interna. Priorizamos ?target= se informado, depois o primeiro host de X-Forwarded-Host.
     raw_f_host = request.headers.get("x-forwarded-host") or ""
     first_f_host = raw_f_host.split(",")[0].strip() if raw_f_host else ""
     if target:
@@ -218,7 +247,6 @@ async def traefik_forward_auth(request: Request, target: Optional[str] = Query(N
     elif first_f_host and "auth.goldcorretora.com.br" not in first_f_host:
         forwarded_host = first_f_host
     else:
-        # Se o Traefik/Cloudflare sobrescreveu para auth.goldcorretora.com.br, usa o host do DEFAULT_REDIRECT_URL
         forwarded_host = DEFAULT_REDIRECT_URL.replace("https://", "").replace("http://", "").rstrip("/")
 
     raw_f_uri = request.headers.get("x-forwarded-uri", "/")
@@ -246,6 +274,20 @@ async def traefik_forward_auth(request: Request, target: Optional[str] = Query(N
         login_target = f"{PUBLIC_AUTH_URL}/login?rd={quote(original_url)}"
         return RedirectResponse(url=login_target, status_code=302)
 
+    # Se o usuário está usando uma senha temporária, obriga a trocar antes de liberar outros apps
+    if user.get("precisa_trocar_senha"):
+        if is_api_call:
+            return JSONResponse(
+                status_code=403,
+                content={
+                    "detail": "É necessário definir uma nova senha pessoal antes de continuar.",
+                    "must_change_password": True,
+                    "login_url": f"{PUBLIC_AUTH_URL}/login?force_pw_change=1&rd={quote(original_url)}"
+                }
+            )
+        change_target = f"{PUBLIC_AUTH_URL}/login?force_pw_change=1&rd={quote(original_url)}"
+        return RedirectResponse(url=change_target, status_code=302)
+
     app_slug = resolve_app_slug_from_host(forwarded_host)
     if not user_can_access_app(user, app_slug):
         registrar_auditoria(
@@ -271,7 +313,7 @@ async def traefik_forward_auth(request: Request, target: Optional[str] = Query(N
             """
         )
 
-    # Registra auditoria inteligente (todas as mutações POST/PATCH/PUT/DELETE ou primeiro acesso a página a cada 5 min)
+    # Registra auditoria inteligente
     is_static_asset = any(forwarded_uri.endswith(ext) for ext in (".js", ".css", ".svg", ".png", ".ico", ".woff2", ".map"))
     if not is_static_asset:
         import time
@@ -293,7 +335,6 @@ async def traefik_forward_auth(request: Request, target: Optional[str] = Query(N
                 ip=get_client_ip(request)
             )
 
-    # Injeta headers seguros para o backend/app destino (URL-encoded para evitar erro de acentuação em HTTP headers)
     headers = {
         "X-Gold-User-Id": str(user["id"]),
         "X-Gold-User-Name": quote(user["nome"]),
@@ -315,6 +356,11 @@ class ForgotPasswordIn(BaseModel):
     email: str
     observacao: Optional[str] = ""
 
+class ChangePasswordIn(BaseModel):
+    nova_senha: str
+    confirmar_senha: Optional[str] = None
+    senha_atual: Optional[str] = None
+
 class AuditEventIn(BaseModel):
     app: str = Field(default="painel-vendedor")
     acao: str
@@ -322,10 +368,31 @@ class AuditEventIn(BaseModel):
     rota: str = Field(default="/")
     detalhes: Dict[str, Any] = Field(default_factory=dict)
 
+@app.exception_handler(BancoIndisponivelError)
+async def banco_indisponivel_handler(request: Request, exc: BancoIndisponivelError):
+    logger.error(f"[DB] {request.method} {request.url.path} falhou: {exc}")
+    return JSONResponse(
+        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+        content={"detail": "Serviço de autenticação temporariamente indisponível. Tente novamente em instantes."},
+    )
+
 @app.get("/api/health")
 @app.get("/healthz")
 async def health():
-    return {"status": "healthy", "service": "gold-auth-gateway"}
+    """Healthcheck do Coolify: só responde 200 se o PostgreSQL estiver acessível."""
+    try:
+        banco = verificar_conexao()
+    except Exception as e:
+        logger.error(f"[HEALTH] Banco indisponível: {e}")
+        return JSONResponse(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            content={"status": "unhealthy", "service": "gold-auth-gateway", "database": "indisponivel"},
+        )
+    return {
+        "status": "healthy",
+        "service": "gold-auth-gateway",
+        "database": banco
+    }
 
 @app.post("/api/auth/login")
 async def api_login(payload: LoginIn, request: Request, response: Response):
@@ -355,36 +422,104 @@ async def api_login(payload: LoginIn, request: Request, response: Response):
         app="gold-auth",
         metodo="POST",
         rota="/api/auth/login",
-        detalhes={"user_agent": ua[:120], "permanecer_conectado": payload.lembrar},
+        detalhes={
+            "user_agent": ua[:120],
+            "permanecer_conectado": payload.lembrar,
+            "senha_temporaria": bool(user.get("precisa_trocar_senha"))
+        },
         ip=ip
     )
 
     return {
         "ok": True,
         "token": token,
-        "user": user
+        "user": user,
+        "must_change_password": bool(user.get("precisa_trocar_senha"))
     }
+
+@app.post("/api/auth/change-password")
+async def api_change_password(payload: ChangePasswordIn, request: Request):
+    user = get_current_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Sessão expirada. Faça login novamente.")
+
+    nova = (payload.nova_senha or "").strip()
+    if payload.confirmar_senha is not None and nova != payload.confirmar_senha.strip():
+        raise HTTPException(status_code=400, detail="A confirmação de senha não confere.")
+
+    ok, msg = trocar_propria_senha(user["id"], nova, payload.senha_atual)
+    if not ok:
+        raise HTTPException(status_code=400, detail=msg)
+
+    registrar_auditoria(
+        acao="SENHA_ALTERADA_PELO_USUARIO",
+        usuario=user,
+        app="gold-auth",
+        metodo="POST",
+        rota="/api/auth/change-password",
+        detalhes={"resumo": f"{user['nome']} definiu sua nova senha pessoal de acesso."},
+        ip=get_client_ip(request)
+    )
+    return {"ok": True, "message": msg}
 
 @app.post("/api/auth/forgot-password")
 async def api_forgot_password(payload: ForgotPasswordIn, request: Request):
     email_limpo = payload.email.strip().lower()
     if not email_limpo:
         raise HTTPException(status_code=400, detail="Informe seu e-mail corporativo.")
+
+    cfg = obter_configuracoes_email(ocultar_senha=False)
+    support_email = cfg.get("support_email") or "acesso@goldcorretora.com.br"
+    alvo = buscar_usuario_por_email(email_limpo)
+    email_enviado = False
+    detalhe_envio = ""
+
+    # Se o usuário existe, está ativo e o SMTP da Gold está configurado, gera e envia a senha temporária na hora
+    if alvo and alvo.get("ativo") and cfg.get("smtp_configurado"):
+        _, senha_temp = definir_senha_temporaria_usuario(alvo["id"])
+        ok_smtp, msg_smtp = enviar_email_recuperacao_senha(
+            destinatario_email=alvo["email"],
+            destinatario_nome=alvo["nome"],
+            senha_temporaria=senha_temp,
+            portal_url=PUBLIC_AUTH_URL
+        )
+        email_enviado = ok_smtp
+        detalhe_envio = msg_smtp
+
+    resumo_auditoria = (
+        f"Senha temporária enviada automaticamente por e-mail para {email_limpo}."
+        if email_enviado
+        else f"Solicitação de redefinição de senha para {email_limpo}. {payload.observacao or ''}".strip()
+    )
+
     registrar_auditoria(
-        acao="SOLICITACAO_REDEFINICAO_SENHA",
-        usuario={"nome": email_limpo, "email": email_limpo, "cargo": "RECUPERACAO"},
+        acao="SENHA_TEMPORARIA_ENVIADA" if email_enviado else "SOLICITACAO_REDEFINICAO_SENHA",
+        usuario={"nome": alvo["nome"] if alvo else email_limpo, "email": email_limpo, "cargo": alvo["cargo"] if alvo else "RECUPERACAO"},
         app="gold-auth",
         metodo="POST",
         rota="/api/auth/forgot-password",
         detalhes={
             "alvo_email": email_limpo,
-            "resumo": f"Solicitação de redefinição de senha para {email_limpo}. {payload.observacao or ''}".strip()
+            "email_enviado": email_enviado,
+            "detalhe_smtp": detalhe_envio,
+            "resumo": resumo_auditoria
         },
         ip=get_client_ip(request)
     )
+
+    if email_enviado:
+        return {
+            "ok": True,
+            "email_sent": True,
+            "support_email": support_email,
+            "message": f"Enviamos uma senha temporária para {email_limpo}! Verifique sua caixa de entrada e troque a senha no primeiro acesso."
+        }
+
     return {
         "ok": True,
-        "message": "Solicitação registrada! A gestão da Gold Corretora foi notificada no painel para redefinir sua senha."
+        "email_sent": False,
+        "support_email": support_email,
+        "message": f"Solicitação registrada! A gestão da Gold Corretora foi notificada no painel para enviar sua senha temporária (contato oficial: {support_email})."
     }
 
 @app.post("/api/auth/logout")
@@ -427,7 +562,6 @@ async def api_me(request: Request):
 async def api_record_audit(payload: AuditEventIn, request: Request):
     """Permite que o Painel do Vendedor ou a Gold DB API registrem eventos de negócio detalhados."""
     user = get_current_user(request)
-    # Também aceita identificação via headers internos se vier da gold-db-api
     if not user and request.headers.get("x-gold-user-email"):
         user = {
             "id": int(request.headers.get("x-gold-user-id", "0") or 0) or None,
@@ -447,7 +581,7 @@ async def api_record_audit(payload: AuditEventIn, request: Request):
     return {"ok": True}
 
 # ==========================================================
-# API ADMINISTRATIVA (USUÁRIOS, CARGOS & AUDITORIA)
+# API ADMINISTRATIVA (USUÁRIOS, CARGOS, E-MAIL & AUDITORIA)
 # ==========================================================
 class UsuarioCreateIn(BaseModel):
     nome: str
@@ -456,6 +590,8 @@ class UsuarioCreateIn(BaseModel):
     cargo: str = "VENDEDOR"
     apps_permitidos: List[str] = ["painel-vendedor", "gold-db-api", "cotador-web"]
     permissoes_extras: List[str] = []
+    precisa_trocar_senha: bool = False
+    enviar_por_email: bool = False
 
 class UsuarioUpdateIn(BaseModel):
     nome: Optional[str] = None
@@ -465,13 +601,32 @@ class UsuarioUpdateIn(BaseModel):
     apps_permitidos: Optional[List[str]] = None
     permissoes_extras: Optional[List[str]] = None
     ativo: Optional[bool] = None
+    precisa_trocar_senha: Optional[bool] = None
+
+class SendTempPasswordIn(BaseModel):
+    senha_personalizada: Optional[str] = None
+    enviar_email: bool = True
 
 class CargoIn(BaseModel):
     codigo: str
     nome: str
     descricao: Optional[str] = ""
     permissoes: List[str] = []
-    apps_padrao: List[str] = ["painel-vendedor"]
+    apps_padrao: List[str] = ["painel-vendedor", "gold-db-api", "cotador-web"]
+
+class EmailSettingsIn(BaseModel):
+    support_email: str
+    smtp_host: Optional[str] = ""
+    smtp_port: int = 587
+    smtp_user: Optional[str] = ""
+    smtp_password: Optional[str] = ""
+    smtp_from_name: Optional[str] = "Gold Corretora de Seguros"
+    smtp_from_email: Optional[str] = ""
+    smtp_use_tls: bool = True
+    limpar_senha_smtp: bool = False
+
+class TestEmailIn(BaseModel):
+    destinatario: Optional[str] = None
 
 @app.get("/api/admin/users")
 async def admin_list_users(request: Request):
@@ -483,29 +638,63 @@ async def admin_create_user(payload: UsuarioCreateIn, request: Request):
     admin = require_admin(request)
     try:
         novo = criar_usuario(payload.model_dump())
+        email_enviado = False
+        msg_email = ""
+        if payload.enviar_por_email:
+            ok_smtp, msg_smtp = enviar_email_recuperacao_senha(
+                destinatario_email=novo["email"],
+                destinatario_nome=novo["nome"],
+                senha_temporaria=payload.senha,
+                portal_url=PUBLIC_AUTH_URL
+            )
+            email_enviado = ok_smtp
+            msg_email = msg_smtp
+
         registrar_auditoria(
             acao="USUARIO_CRIADO",
             usuario=admin,
             app="gold-auth",
             metodo="POST",
             rota="/api/admin/users",
-            detalhes={"alvo_email": novo["email"], "alvo_nome": novo["nome"], "cargo": novo["cargo"]},
+            detalhes={
+                "alvo_email": novo["email"],
+                "alvo_nome": novo["nome"],
+                "cargo": novo["cargo"],
+                "precisa_trocar_senha": novo.get("precisa_trocar_senha", False),
+                "email_enviado": email_enviado
+            },
             ip=get_client_ip(request)
         )
+        novo["email_enviado"] = email_enviado
+        novo["mensagem_email"] = msg_email
         return novo
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Erro ao criar usuário (verifique se o e-mail já existe): {e}")
+        raise HTTPException(status_code=400, detail=f"Erro ao criar usuário (verifique se o e-mail já está em uso): {e}")
 
 @app.patch("/api/admin/users/{user_id}")
 async def admin_update_user(user_id: int, payload: UsuarioUpdateIn, request: Request):
     admin = require_admin(request)
     updates = payload.model_dump(exclude_unset=True)
-    atualizado = atualizar_usuario(user_id, updates)
+
+    # Proteção contra auto-bloqueio ou remoção do próprio cargo ADMIN
+    if user_id == admin["id"]:
+        if "ativo" in updates and not updates["ativo"]:
+            raise HTTPException(status_code=400, detail="Você não pode bloquear sua própria conta de administrador.")
+        if "cargo" in updates and updates["cargo"] and updates["cargo"].upper() != "ADMIN":
+            raise HTTPException(status_code=400, detail="Você não pode remover o cargo ADMIN da sua própria conta.")
+
+    try:
+        atualizado = atualizar_usuario(user_id, updates)
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Erro ao atualizar usuário: {e}")
+
     if not atualizado:
         raise HTTPException(status_code=404, detail="Usuário não encontrado.")
 
     acao = "USUARIO_ATUALIZADO"
-    if "ativo" in updates:
+    if "ativo" in updates and len(updates) == 1:
         acao = "USUARIO_ATIVADO" if updates["ativo"] else "USUARIO_BLOQUEADO"
 
     registrar_auditoria(
@@ -519,9 +708,75 @@ async def admin_update_user(user_id: int, payload: UsuarioUpdateIn, request: Req
     )
     return atualizado
 
+@app.delete("/api/admin/users/{user_id}")
+async def admin_delete_user(user_id: int, request: Request):
+    admin = require_admin(request)
+    if user_id == admin["id"]:
+        raise HTTPException(status_code=400, detail="Você não pode excluir sua própria conta de administrador.")
+
+    excluido = excluir_usuario(user_id)
+    if not excluido:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado.")
+
+    registrar_auditoria(
+        acao="USUARIO_EXCLUIDO",
+        usuario=admin,
+        app="gold-auth",
+        metodo="DELETE",
+        rota=f"/api/admin/users/{user_id}",
+        detalhes={"alvo_email": excluido["email"], "alvo_nome": excluido["nome"]},
+        ip=get_client_ip(request)
+    )
+    return {"ok": True, "deleted": excluido}
+
+@app.post("/api/admin/users/{user_id}/send-temp-password")
+async def admin_send_temp_password(user_id: int, payload: SendTempPasswordIn, request: Request):
+    admin = require_admin(request)
+    alvo = buscar_usuario_por_id(user_id)
+    if not alvo:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado.")
+
+    atualizado, senha_temp = definir_senha_temporaria_usuario(user_id, payload.senha_personalizada)
+    email_enviado = False
+    msg_smtp = "Envio por e-mail não solicitado."
+
+    if payload.enviar_email:
+        email_enviado, msg_smtp = enviar_email_recuperacao_senha(
+            destinatario_email=alvo["email"],
+            destinatario_nome=alvo["nome"],
+            senha_temporaria=senha_temp,
+            portal_url=PUBLIC_AUTH_URL
+        )
+
+    cfg = obter_configuracoes_email(ocultar_senha=True)
+    registrar_auditoria(
+        acao="SENHA_TEMPORARIA_GERADA_ADMIN",
+        usuario=admin,
+        app="gold-auth",
+        metodo="POST",
+        rota=f"/api/admin/users/{user_id}/send-temp-password",
+        detalhes={
+            "alvo_email": alvo["email"],
+            "email_enviado": email_enviado,
+            "resumo": f"Senha temporária gerada para {alvo['nome']} ({alvo['email']}) • {'Enviada por e-mail' if email_enviado else 'Gerada para envio manual'}"
+        },
+        ip=get_client_ip(request)
+    )
+
+    return {
+        "ok": True,
+        "usuario": atualizado,
+        "senha_temporaria": senha_temp,
+        "email_enviado": email_enviado,
+        "mensagem_smtp": msg_smtp,
+        "support_email": cfg.get("support_email") or "acesso@goldcorretora.com.br",
+        "portal_url": f"{PUBLIC_AUTH_URL}/login"
+    }
+
 @app.post("/api/admin/users/{user_id}/revoke-sessions")
 async def admin_revoke_user_sessions(user_id: int, request: Request):
     admin = require_admin(request)
+    alvo = buscar_usuario_por_id(user_id)
     revogar_todas_sessoes_usuario(user_id)
     registrar_auditoria(
         acao="SESSOES_REVOGADAS",
@@ -529,10 +784,51 @@ async def admin_revoke_user_sessions(user_id: int, request: Request):
         app="gold-auth",
         metodo="POST",
         rota=f"/api/admin/users/{user_id}/revoke-sessions",
-        detalhes={"alvo_id": user_id},
+        detalhes={"alvo_id": user_id, "alvo_email": alvo["email"] if alvo else str(user_id)},
         ip=get_client_ip(request)
     )
     return {"ok": True}
+
+@app.get("/api/admin/email-settings")
+async def admin_get_email_settings(request: Request):
+    require_admin(request)
+    return obter_configuracoes_email(ocultar_senha=True)
+
+@app.post("/api/admin/email-settings")
+async def admin_save_email_settings(payload: EmailSettingsIn, request: Request):
+    admin = require_admin(request)
+    salvo = salvar_configuracoes_email(payload.model_dump())
+    registrar_auditoria(
+        acao="CONFIG_EMAIL_ATUALIZADA",
+        usuario=admin,
+        app="gold-auth",
+        metodo="POST",
+        rota="/api/admin/email-settings",
+        detalhes={
+            "support_email": salvo.get("support_email"),
+            "smtp_host": salvo.get("smtp_host"),
+            "smtp_configurado": salvo.get("smtp_configurado")
+        },
+        ip=get_client_ip(request)
+    )
+    return salvo
+
+@app.post("/api/admin/email-settings/test")
+async def admin_test_email_settings(payload: TestEmailIn, request: Request):
+    admin = require_admin(request)
+    destino = (payload.destinatario or admin.get("email") or "").strip()
+    if not destino:
+        raise HTTPException(status_code=400, detail="Informe um e-mail destinatário para o teste.")
+
+    ok, msg = enviar_email_recuperacao_senha(
+        destinatario_email=destino,
+        destinatario_nome=admin.get("nome", "Administrador Gold"),
+        senha_temporaria="Gold@Teste2026",
+        portal_url=PUBLIC_AUTH_URL
+    )
+    if not ok:
+        raise HTTPException(status_code=400, detail=msg)
+    return {"ok": True, "message": f"E-mail de teste disparado com sucesso para {destino}!"}
 
 @app.get("/api/admin/roles")
 async def admin_list_roles(request: Request):
@@ -551,7 +847,12 @@ async def admin_save_role(payload: CargoIn, request: Request):
         app="gold-auth",
         metodo="POST",
         rota="/api/admin/roles",
-        detalhes={"codigo": role["codigo"], "nome": role["nome"], "permissoes": role["permissoes"]},
+        detalhes={
+            "codigo": role["codigo"],
+            "nome": role["nome"],
+            "permissoes": role["permissoes"],
+            "apps_padrao": role.get("apps_padrao", [])
+        },
         ip=get_client_ip(request)
     )
     return role
