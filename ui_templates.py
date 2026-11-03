@@ -141,73 +141,114 @@ def get_login_html(
   {SHARED_HEAD}
   <title>Portal Interno • Gold Corretora de Seguros</title>
 </head>
-<body class="bg-navy-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-gold-500 selection:text-white relative overflow-x-hidden font-sans">
-
-  <!-- Iluminação ambiente Apple/Boutique -->
-  <div class="pointer-events-none absolute -top-40 -left-40 w-[550px] h-[550px] rounded-full bg-gold-500/10 blur-[130px]"></div>
-  <div class="pointer-events-none absolute top-1/2 right-0 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-navy-800/40 blur-[140px]"></div>
+<body class="bg-navy-950 text-slate-100 min-h-screen selection:bg-gold-500 selection:text-white font-sans antialiased overflow-x-hidden">
 
   <!-- ===================================================================== -->
-  <!-- BARRA SUPERIOR INSTITUCIONAL (UNIFICADA)                             -->
+  <!-- CONTAINER SPLIT-SCREEN (PAINEL INSTITUCIONAL ESQUERDO + LOGIN DIREITO) -->
   <!-- ===================================================================== -->
-  <header class="w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 pt-6 sm:pt-8 flex items-center justify-between relative z-20">
-    <a href="https://goldcorretora.com.br" class="inline-block focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 rounded-lg">
-      {GOLD_LOGO_LIGHT}
-    </a>
-    <a
-      href="https://goldcorretora.com.br"
-      target="_blank"
-      rel="noopener noreferrer"
-      class="text-xs font-bold text-slate-300 hover:text-white flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-white/5 transition"
-    >
-      <span>Site Institucional</span>
-      <svg class="w-3.5 h-3.5 text-gold-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-      </svg>
-    </a>
-  </header>
+  <div class="min-h-screen w-full flex flex-col lg:flex-row relative">
 
-  <!-- ===================================================================== -->
-  <!-- CONTEÚDO PRINCIPAL (LAYOUT HERO EDITORIAL + ILHA ORGÂNICA BRANCA)     -->
-  <!-- ===================================================================== -->
-  <main class="w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 py-8 sm:py-12 my-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-16 items-center relative z-10">
+    <!-- ------------------------------------------------------------------- -->
+    <!-- LADO ESQUERDO: PAINEL INSTITUCIONAL DEEP NAVY                       -->
+    <!-- ------------------------------------------------------------------- -->
+    <aside class="w-full lg:w-[48%] xl:w-[50%] bg-navy-950 flex flex-col justify-between p-6 sm:p-10 lg:p-14 xl:p-16 relative overflow-hidden z-10 shrink-0 min-h-[380px] lg:min-h-screen">
+      
+      <!-- Iluminação ambiente Apple/Boutique -->
+      <div class="pointer-events-none absolute -top-32 -left-32 w-96 h-96 rounded-full bg-gold-500/10 blur-[110px]"></div>
+      <div class="pointer-events-none absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-navy-800/40 blur-[110px]"></div>
 
-    <!-- Coluna Esquerda: Mensagem Editorial e de Confiança -->
-    <div class="lg:col-span-6 xl:col-span-7 space-y-4 sm:space-y-6 text-left">
-      <div class="hidden sm:inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-gold-500/15 border border-gold-400/30 text-gold-300 text-xs font-bold tracking-wide">
-        Tradição em Proteção Familiar e Patrimonial
+      <!-- Topo: Logotipo e Link Mobile -->
+      <header class="flex items-center justify-between relative z-10">
+        <a href="https://goldcorretora.com.br" class="inline-block focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 rounded-lg" aria-label="Gold Corretora de Seguros">
+          {GOLD_LOGO_LIGHT}
+        </a>
+        <a
+          href="https://goldcorretora.com.br"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="lg:hidden text-xs font-bold text-slate-300 hover:text-white flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-white/5 transition"
+        >
+          <span>Site Institucional</span>
+          <svg class="w-3.5 h-3.5 text-gold-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        </a>
+      </header>
+
+      <!-- Conteúdo Editorial Institucional -->
+      <div class="my-auto py-8 sm:py-12 space-y-4 sm:space-y-6 relative z-10 max-w-lg">
+        <div class="hidden sm:inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-gold-500/15 border border-gold-400/30 text-gold-300 text-xs font-bold tracking-wide">
+          Tradição em Proteção Familiar e Patrimonial
+        </div>
+
+        <h1 class="text-2xl sm:text-3xl xl:text-4xl 2xl:text-5xl font-black text-white tracking-tight leading-[1.15]">
+          Cuidando do futuro de quem confia na Gold Corretora.
+        </h1>
+
+        <p class="hidden sm:block text-sm sm:text-base text-slate-300 font-normal leading-relaxed">
+          Central integrada de autenticação e ferramentas corporativas. Acompanhe cotações, clientes e emissões com agilidade e segurança institucional.
+        </p>
+
+        <!-- Indicadores sutis de segurança -->
+        <div class="hidden sm:flex pt-4 flex-wrap items-center gap-6 text-xs text-slate-400 font-medium border-t border-white/10">
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-gold-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            <span>Criptografia de Ponta a Ponta</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-gold-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>Sessão Corporativa Segura</span>
+          </div>
+        </div>
       </div>
 
-      <h1 class="text-2xl sm:text-4xl xl:text-5xl font-black text-white tracking-tight leading-[1.15]">
-        Cuidando do futuro de quem confia na Gold Corretora.
-      </h1>
+      <!-- Rodapé Institucional (Desktop) -->
+      <footer class="hidden lg:block relative z-10 pt-4 text-xs text-slate-400 font-medium">
+        <span>© 2026 Gold Corretora de Seguros. Todos os direitos reservados.</span>
+      </footer>
+    </aside>
 
-      <p class="hidden sm:block text-sm sm:text-base text-slate-300 font-normal leading-relaxed max-w-lg">
-        Central integrada de autenticação e ferramentas operacionais. Acompanhe cotações, clientes e emissões com velocidade e segurança institucional.
-      </p>
-
-      <!-- Indicadores sutis de segurança -->
-      <div class="hidden sm:flex pt-4 flex-wrap items-center gap-6 text-xs text-slate-400 font-medium border-t border-white/10">
-        <div class="flex items-center gap-2">
-          <svg class="w-4 h-4 text-gold-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-          </svg>
-          <span>Criptografia de Ponta a Ponta</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <svg class="w-4 h-4 text-gold-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <span>Sessão Corporativa Segura</span>
-        </div>
+    <!-- ------------------------------------------------------------------- -->
+    <!-- LADO DIREITO: SUPERFÍCIE BRANCA COM CURVA ORGÂNICA DIVISÓRIA        -->
+    <!-- ------------------------------------------------------------------- -->
+    <main class="w-full lg:w-[52%] xl:w-[50%] bg-white text-navy-950 flex flex-col justify-between p-6 sm:p-10 lg:p-14 xl:p-16 relative z-20 min-h-screen">
+      
+      <!-- CURVA ORGÂNICA DIVISÓRIA (DESKTOP) -->
+      <div class="hidden lg:block absolute -left-24 xl:-left-36 2xl:-left-44 top-0 bottom-0 h-full w-24 xl:w-36 2xl:w-44 pointer-events-none z-20">
+        <svg class="h-full w-full fill-white" viewBox="0 0 100 1000" preserveAspectRatio="none">
+          <path d="M 100 0 C 100 200, 0 320, 0 500 C 0 680, 100 800, 100 1000 Z" />
+        </svg>
       </div>
-    </div>
 
-    <!-- Coluna Direita: A Ilha Orgânica Branca de Login (Inspirada na foto de referência) -->
-    <div class="lg:col-span-6 xl:col-span-5 flex justify-center lg:justify-end w-full">
-      <div class="w-full max-w-[440px] bg-white rounded-[28px] sm:rounded-[36px] lg:rounded-[44px] shadow-[0_30px_90px_-15px_rgba(0,0,0,0.65)] p-7 sm:p-9 border border-white/20 relative">
+      <!-- CURVA ORGÂNICA HORIZONTAL (MOBILE) -->
+      <div class="lg:hidden absolute -top-8 left-0 right-0 w-full h-8 pointer-events-none z-20">
+        <svg class="w-full h-full fill-white" viewBox="0 0 1000 100" preserveAspectRatio="none">
+          <path d="M 0 100 C 250 100, 350 0, 500 0 C 650 0, 750 100, 1000 100 Z" />
+        </svg>
+      </div>
 
-        <!-- Cabeçalho da Ilha de Login (Referência minimalista com bons textos) -->
+      <!-- Topo Direito (Desktop): Site Institucional -->
+      <div class="hidden lg:flex items-center justify-end relative z-10">
+        <a
+          href="https://goldcorretora.com.br"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-xs font-bold text-slate-600 hover:text-navy-900 flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-slate-100 transition"
+        >
+          <span>Site Institucional</span>
+          <svg class="w-3.5 h-3.5 text-gold-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        </a>
+      </div>
+
+      <!-- Centro Direito: Formulário de Login -->
+      <div class="my-auto w-full max-w-[400px] mx-auto py-6 relative z-10">
+        
         <div class="mb-6 sm:mb-8">
           <h2 class="text-3xl sm:text-4xl font-extrabold text-navy-900 tracking-tight">
             Login
@@ -246,18 +287,9 @@ def get_login_html(
 
           <!-- Senha -->
           <div class="field-group">
-            <div class="flex items-center justify-between mb-2">
-              <label for="senha" class="block text-xs font-bold text-slate-700 transition-colors">
-                Senha
-              </label>
-              <button
-                type="button"
-                onclick="abrirModalRecuperacao()"
-                class="text-xs font-semibold text-gold-700 hover:text-navy-900 underline decoration-gold-400 underline-offset-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-navy-900 rounded px-1 transition-colors cursor-pointer"
-              >
-                Esqueceu a senha?
-              </button>
-            </div>
+            <label for="senha" class="block text-xs font-bold text-slate-700 mb-2 transition-colors">
+              Senha
+            </label>
             <div class="relative">
               <input
                 id="senha"
@@ -317,7 +349,7 @@ def get_login_html(
           </button>
         </form>
 
-        <!-- Suporte -->
+        <!-- Suporte / Redefinição de Senha -->
         <div class="mt-6 pt-5 border-t border-slate-100 text-center">
           <p class="text-xs font-medium text-slate-500">
             Problemas para acessar?
@@ -326,20 +358,28 @@ def get_login_html(
               onclick="abrirModalRecuperacao()"
               class="font-bold text-navy-900 hover:text-gold-700 underline decoration-slate-300 hover:decoration-gold-500 underline-offset-4 ml-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-navy-900 rounded cursor-pointer"
             >
-              Falar com o suporte
+              Redefinir minha senha
             </button>
           </p>
         </div>
       </div>
-    </div>
-  </main>
 
-  <!-- ===================================================================== -->
-  <!-- RODAPÉ                                                               -->
-  <!-- ===================================================================== -->
-  <footer class="w-full max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-16 py-6 flex items-center justify-center sm:justify-start text-xs text-slate-400 font-medium relative z-10 border-t border-white/10">
-    <span>© 2026 Gold Corretora de Seguros. Todos os direitos reservados.</span>
-  </footer>
+      <!-- Rodapé Mobile: Copyright -->
+      <footer class="lg:hidden relative z-10 pt-6 text-center text-xs text-slate-400 font-medium border-t border-slate-100">
+        <span>© 2026 Gold Corretora de Seguros. Todos os direitos reservados.</span>
+      </footer>
+
+      <!-- Rodapé Desktop sutil à direita: Conexão Segura -->
+      <div class="hidden lg:flex items-center justify-between pt-4 text-[11px] text-slate-400 font-medium border-t border-slate-100 relative z-10">
+        <span class="inline-flex items-center gap-1.5 text-slate-500">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+          Conexão Segura SSO
+        </span>
+        <span class="text-slate-400">Gold Corretora</span>
+      </div>
+    </main>
+
+  </div>
 
   <!-- Modais -->
   <!-- 1. Modal de Troca de Senha Obrigatória -->
@@ -697,6 +737,7 @@ def get_login_html(
   </script>
 </body>
 </html>"""
+
 
 
 def get_admin_html(
