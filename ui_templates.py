@@ -1239,118 +1239,71 @@ def get_admin_html(
       <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-6">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-4">
           <div>
-            <h2 class="text-lg font-extrabold text-navy-900">E-mail Oficial da Gold Corretora para Recuperação de Senha</h2>
+            <h2 class="text-lg font-extrabold text-navy-900">Envio de E-mail Institucional (Resend / SMTP)</h2>
             <p class="text-xs sm:text-sm text-slate-600 mt-0.5">
-              Defina o endereço de e-mail oficial da Gold para contato de suporte e configure o servidor SMTP para enviar senhas temporárias automaticamente.
+              O envio de e-mails de acesso e senhas temporárias é gerenciado exclusivamente via variáveis de ambiente (.env).
             </p>
           </div>
-          <span id="smtp-status-badge" class="px-3 py-1 rounded-full text-xs font-extrabold bg-slate-100 text-slate-700 border border-slate-200 self-start sm:self-auto">
+          <span id="smtp-status-badge" class="px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-slate-100 text-slate-700 border border-slate-200 self-start sm:self-auto">
             Verificando SMTP...
           </span>
         </div>
 
-        <form id="email-settings-form" class="space-y-5">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label for="cfg-support-email" class="block text-xs font-extrabold text-slate-700 mb-1">
-                E-mail Oficial de Contato / Suporte Gold
-              </label>
-              <input
-                id="cfg-support-email"
-                type="email"
-                required
-                placeholder="Ex: acesso@goldcorretora.com.br"
-                class="w-full h-10 rounded-xl border border-slate-300 px-3 text-sm font-mono font-semibold text-navy-900 focus:outline-none focus:border-gold-500"
-              />
-              <span class="text-[11px] text-slate-500 mt-1 block">Exibido na tela de login ("Esqueceu sua senha?") e no rodapé dos e-mails enviados.</span>
-            </div>
-
-            <div>
-              <label for="cfg-from-name" class="block text-xs font-extrabold text-slate-700 mb-1">
-                Nome do Remetente nos E-mails
-              </label>
-              <input
-                id="cfg-from-name"
-                type="text"
-                placeholder="Gold Corretora de Seguros"
-                class="w-full h-10 rounded-xl border border-slate-300 px-3 text-sm font-medium text-navy-900 focus:outline-none focus:border-gold-500"
-              />
-            </div>
-
-            <div>
-              <label for="cfg-from-email" class="block text-xs font-extrabold text-slate-700 mb-1">
-                E-mail Remetente (Disparo SMTP)
-              </label>
-              <input
-                id="cfg-from-email"
-                type="email"
-                placeholder="Ex: acesso@goldcorretora.com.br"
-                class="w-full h-10 rounded-xl border border-slate-300 px-3 text-sm font-mono text-navy-900 focus:outline-none focus:border-gold-500"
-              />
-            </div>
+        <!-- Cards informativos sobre a configuração via .env -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+            <span class="text-[11px] font-bold uppercase text-slate-500 block mb-1">Provedor SMTP</span>
+            <div id="info-smtp-host" class="text-sm font-mono font-bold text-navy-900">smtp.resend.com</div>
+            <span class="text-[11px] text-slate-500">Porta 587 (TLS Ativo)</span>
           </div>
 
-          <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
-            <div class="flex items-center justify-between">
-              <h3 class="text-xs font-extrabold uppercase tracking-wider text-navy-900">Credenciais do Servidor SMTP (Envio Automático de Senha Temporária)</h3>
-              <span class="text-[11px] text-slate-500">Compatível com Google Workspace, Titan/Hostinger, Zoho, Brevo ou Outlook</span>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-              <div class="md:col-span-2">
-                <label for="cfg-smtp-host" class="block text-xs font-bold text-slate-700 mb-1">Servidor SMTP (Host)</label>
-                <input id="cfg-smtp-host" type="text" placeholder="Ex: smtp.gmail.com ou smtp.titan.email" class="w-full h-10 rounded-xl border border-slate-300 bg-white px-3 text-xs font-mono text-navy-900 focus:outline-none focus:border-gold-500" />
-              </div>
-              <div>
-                <label for="cfg-smtp-port" class="block text-xs font-bold text-slate-700 mb-1">Porta SMTP</label>
-                <input id="cfg-smtp-port" type="number" value="587" class="w-full h-10 rounded-xl border border-slate-300 bg-white px-3 text-xs font-mono text-navy-900 focus:outline-none focus:border-gold-500" />
-              </div>
-              <div class="flex items-end pb-2">
-                <label class="inline-flex items-center gap-2 text-xs font-bold text-navy-900 cursor-pointer">
-                  <input id="cfg-smtp-tls" type="checkbox" checked class="w-4 h-4 rounded text-gold-600" />
-                  <span>Usar criptografia STARTTLS</span>
-                </label>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label for="cfg-smtp-user" class="block text-xs font-bold text-slate-700 mb-1">Usuário / Login SMTP</label>
-                <input id="cfg-smtp-user" type="text" placeholder="Ex: acesso@goldcorretora.com.br" class="w-full h-10 rounded-xl border border-slate-300 bg-white px-3 text-xs font-mono text-navy-900 focus:outline-none focus:border-gold-500" />
-              </div>
-              <div>
-                <label for="cfg-smtp-pass" class="block text-xs font-bold text-slate-700 mb-1">
-                  Senha do E-mail / Senha de App <span id="cfg-pass-hint" class="font-normal text-slate-500"></span>
-                </label>
-                <input id="cfg-smtp-pass" type="password" placeholder="Digite para definir ou alterar a senha SMTP" class="w-full h-10 rounded-xl border border-slate-300 bg-white px-3 text-xs font-mono text-navy-900 focus:outline-none focus:border-gold-500" />
-              </div>
-            </div>
+          <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+            <span class="text-[11px] font-bold uppercase text-slate-500 block mb-1">Remetente Oficial</span>
+            <div id="info-from-email" class="text-sm font-bold text-navy-900 truncate">acesso@goldcorretora.com.br</div>
+            <span id="info-from-name" class="text-[11px] text-slate-500 truncate block">Gold Corretora de Seguros</span>
           </div>
 
-          <div id="email-settings-feedback" class="hidden rounded-xl p-3 text-xs font-bold"></div>
+          <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+            <span class="text-[11px] font-bold uppercase text-slate-500 block mb-1">E-mail de Suporte</span>
+            <div id="info-support-email" class="text-sm font-bold text-navy-900 truncate">suporte@goldcorretora.com.br</div>
+            <span class="text-[11px] text-slate-500">Exibido na recuperação de senha</span>
+          </div>
+        </div>
 
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-slate-200">
-            <div class="flex items-center gap-2">
-              <input id="test-email-dest" type="email" placeholder="E-mail para receber teste..." class="h-10 rounded-xl border border-slate-300 px-3 text-xs font-mono text-navy-900 w-60" />
-              <button
-                type="button"
-                id="btn-test-smtp"
-                onclick="dispararTesteEmail()"
-                class="btn-tactile h-10 px-3.5 rounded-xl border border-slate-300 hover:bg-slate-100 text-xs font-bold text-navy-900"
-              >
-                Testar Disparo de E-mail
-              </button>
-            </div>
+        <div class="bg-amber-50/70 border border-amber-200 rounded-xl p-4 text-xs text-amber-950 space-y-1">
+          <div class="font-extrabold flex items-center gap-1.5 text-amber-900">
+            <span>🔒 Segurança & Zero-Knowledge:</span>
+          </div>
+          <p>
+            As credenciais do Resend ficam salvas exclusivamente no arquivo <code>.env</code> do servidor. 
+            Ao enviar uma senha temporária, ela é gerada em memória, enviada diretamente para a caixa postal do colaborador e nunca é exibida na tela do administrador.
+          </p>
+        </div>
 
+        <!-- Bloco de Teste de Disparo -->
+        <div class="pt-4 border-t border-slate-200 space-y-3">
+          <h3 class="text-xs font-extrabold uppercase tracking-wider text-navy-900">Testar Disparo de E-mail com Resend</h3>
+          <p class="text-xs text-slate-600">
+            Insira qualquer e-mail para enviar uma mensagem de verificação e validar se o Resend está autorizado a disparar mensagens:
+          </p>
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-w-lg">
+            <input
+              id="test-email-dest"
+              type="email"
+              placeholder="Digite seu e-mail pessoal para testar..."
+              class="h-10 rounded-xl border border-slate-300 px-3 text-xs font-mono text-navy-900 flex-1 focus:outline-none focus:border-gold-500"
+            />
             <button
-              type="submit"
-              id="btn-save-email-cfg"
-              class="btn-tactile h-10 px-5 rounded-xl bg-navy-900 hover:bg-navy-800 text-gold-400 text-xs font-extrabold"
+              type="button"
+              id="btn-test-smtp"
+              onclick="dispararTesteEmail()"
+              class="btn-tactile h-10 px-4 rounded-xl bg-navy-900 hover:bg-navy-800 text-gold-400 font-extrabold text-xs shrink-0"
             >
-              Salvar Configuração de E-mail
+              Testar Disparo de E-mail
             </button>
           </div>
-        </form>
+          <div id="email-settings-feedback" class="hidden rounded-xl p-3 text-xs font-bold max-w-lg"></div>
+        </div>
       </div>
     </section>
   </main>
@@ -1423,9 +1376,15 @@ def get_admin_html(
             <input id="u-ferias" type="checkbox" onchange="alternarCamposFeriasNoModal()" class="w-4 h-4 rounded text-amber-600" />
             <span>🏖️ Vendedor em Férias (Pausar recebimento automático na roleta)</span>
           </label>
-          <div id="u-ferias-wrap" class="hidden flex items-center gap-2 pl-6">
-            <label for="u-ferias-retorno" class="text-xs font-semibold text-slate-700">Data de Retorno:</label>
-            <input id="u-ferias-retorno" type="date" class="h-9 rounded-lg border border-slate-300 px-2 text-xs font-bold text-navy-900 bg-white" />
+          <div id="u-ferias-wrap" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-3 pl-6 pt-1">
+            <div>
+              <label for="u-ferias-inicio" class="text-xs font-semibold text-slate-700 block mb-1">Data de Início:</label>
+              <input id="u-ferias-inicio" type="date" class="w-full h-9 rounded-lg border border-slate-300 px-2 text-xs font-bold text-navy-900 bg-white focus:outline-none focus:border-gold-500" />
+            </div>
+            <div>
+              <label for="u-ferias-retorno" class="text-xs font-semibold text-slate-700 block mb-1">Data de Retorno (opcional):</label>
+              <input id="u-ferias-retorno" type="date" class="w-full h-9 rounded-lg border border-slate-300 px-2 text-xs font-bold text-navy-900 bg-white focus:outline-none focus:border-gold-500" />
+            </div>
           </div>
         </div>
 
@@ -1534,13 +1493,13 @@ def get_admin_html(
     </div>
   </div>
 
-  <!-- MODAL: MARCAR FÉRIAS / AUSÊNCIA -->
+  <!-- MODAL: MARCAR / GERENCIAR FÉRIAS -->
   <div id="ferias-modal" class="hidden fixed inset-0 z-50 bg-navy-950/70 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden animate-scale-up">
       <div class="p-5 border-b border-slate-200 flex items-center justify-between bg-amber-50/60">
         <div class="flex items-center gap-2">
           <span class="text-xl">🏖️</span>
-          <h3 class="text-base font-extrabold text-navy-900" id="ferias-modal-title">Marcar Férias</h3>
+          <h3 class="text-base font-extrabold text-navy-900" id="ferias-modal-title">Configurar Férias</h3>
         </div>
         <button type="button" onclick="fecharModalFeriasRapido()" class="w-8 h-8 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-white flex items-center justify-center font-bold">✕</button>
       </div>
@@ -1548,18 +1507,31 @@ def get_admin_html(
       <form id="ferias-form" class="p-5 space-y-4">
         <input type="hidden" id="ferias-user-id" />
         <p class="text-xs text-slate-600 leading-relaxed">
-          Enquanto o vendedor estiver de férias, a <strong>Roleta de Leads</strong> pula o perfil dele automaticamente. Na data de retorno, ele volta a receber novas cotações sozinho.
+          Defina o período de ausência. Durante as férias ativas, a <strong>Roleta de Leads</strong> pula o consultor automaticamente, reativando-o na data de retorno. Férias com data futura ficam agendadas.
         </p>
 
-        <div>
-          <label for="ferias-data-retorno" class="block text-xs font-bold text-slate-700 mb-1">Data Prevista de Retorno (opcional):</label>
-          <input id="ferias-data-retorno" type="date" class="w-full h-10 rounded-xl border border-slate-300 px-3 text-sm font-bold text-navy-900 bg-white focus:outline-none focus:border-gold-500" />
-          <span class="text-[11px] text-slate-500 mt-1 block">Deixe em branco para retorno indeterminado.</span>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label for="ferias-data-inicio" class="block text-xs font-bold text-slate-700 mb-1">Data de Início:</label>
+            <input id="ferias-data-inicio" type="date" required class="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs sm:text-sm font-bold text-navy-900 bg-white focus:outline-none focus:border-gold-500" />
+            <span class="text-[11px] text-slate-500 mt-1 block">Quando as férias começam.</span>
+          </div>
+
+          <div>
+            <label for="ferias-data-retorno" class="block text-xs font-bold text-slate-700 mb-1">Data de Retorno (opcional):</label>
+            <input id="ferias-data-retorno" type="date" class="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs sm:text-sm font-bold text-navy-900 bg-white focus:outline-none focus:border-gold-500" />
+            <span class="text-[11px] text-slate-500 mt-1 block">Dia do retorno à roleta.</span>
+          </div>
         </div>
 
-        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-200">
-          <button type="button" onclick="fecharModalFeriasRapido()" class="btn-tactile px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100">Cancelar</button>
-          <button type="submit" class="btn-tactile px-5 py-2 rounded-xl text-xs font-extrabold bg-amber-500 hover:bg-amber-600 text-white shadow-xs">Salvar Férias</button>
+        <div id="ferias-form-error" class="hidden text-xs font-bold text-red-600 bg-red-50 border border-red-200 rounded-xl p-2.5"></div>
+
+        <div class="flex items-center justify-between gap-2 pt-3 border-t border-slate-200">
+          <button type="button" id="ferias-btn-encerrar" onclick="acionarEncerramentoModal()" class="hidden btn-tactile px-3 py-2 rounded-xl text-xs font-bold text-red-700 bg-red-50 hover:bg-red-100 border border-red-200">Encerrar Férias Agora</button>
+          <div class="flex items-center gap-2 ml-auto">
+            <button type="button" onclick="fecharModalFeriasRapido()" class="btn-tactile px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100">Cancelar</button>
+            <button type="submit" id="ferias-btn-salvar" class="btn-tactile px-5 py-2 rounded-xl text-xs font-extrabold bg-amber-500 hover:bg-amber-600 text-white shadow-xs">Salvar Férias</button>
+          </div>
         </div>
       </form>
     </div>
@@ -1656,74 +1628,46 @@ def get_admin_html(
         const res = await fetch('/api/admin/email-settings');
         if (!res.ok) return;
         stateEmailCfg = await res.json();
-        document.getElementById('kpi-support-email').textContent = stateEmailCfg.support_email || 'acesso@goldcorretora.com.br';
-        document.getElementById('cfg-support-email').value = stateEmailCfg.support_email || '';
-        document.getElementById('cfg-from-name').value = stateEmailCfg.smtp_from_name || 'Gold Corretora de Seguros';
-        document.getElementById('cfg-from-email').value = stateEmailCfg.smtp_from_email || '';
-        document.getElementById('cfg-smtp-host').value = stateEmailCfg.smtp_host || '';
-        document.getElementById('cfg-smtp-port').value = stateEmailCfg.smtp_port || 587;
-        document.getElementById('cfg-smtp-user').value = stateEmailCfg.smtp_user || '';
-        document.getElementById('cfg-smtp-tls').checked = stateEmailCfg.smtp_use_tls !== false;
-        document.getElementById('cfg-smtp-pass').value = '';
-        document.getElementById('cfg-pass-hint').textContent = stateEmailCfg.tem_senha_salva ? '(já salva • deixe em branco para manter)' : '(ainda não definida)';
+
+        const kpiSupport = document.getElementById('kpi-support-email');
+        if (kpiSupport) kpiSupport.textContent = stateEmailCfg.support_email || 'suporte@goldcorretora.com.br';
+
+        const elHost = document.getElementById('info-smtp-host');
+        if (elHost) elHost.textContent = stateEmailCfg.smtp_host ? `${{stateEmailCfg.smtp_host}}:${{stateEmailCfg.smtp_port}}` : 'smtp.resend.com:587';
+
+        const elFromEmail = document.getElementById('info-from-email');
+        if (elFromEmail) elFromEmail.textContent = stateEmailCfg.smtp_from_email || 'notificacoes@goldcorretora.com.br';
+
+        const elFromName = document.getElementById('info-from-name');
+        if (elFromName) elFromName.textContent = stateEmailCfg.smtp_from_name || 'Gold Corretora de Seguros';
+
+        const elSupport = document.getElementById('info-support-email');
+        if (elSupport) elSupport.textContent = stateEmailCfg.support_email || 'suporte@goldcorretora.com.br';
 
         const badge = document.getElementById('smtp-status-badge');
-        if (stateEmailCfg.smtp_configurado) {{
-          badge.className = 'px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200 self-start sm:self-auto';
-          badge.textContent = 'Disparo Automático SMTP Ativo';
-        }} else {{
-          badge.className = 'px-3 py-1 rounded-full text-xs font-extrabold bg-amber-50 text-amber-800 border border-amber-200 self-start sm:self-auto';
-          badge.textContent = 'Modo Manual (Configure o SMTP para envio automático)';
+        if (badge) {{
+          if (stateEmailCfg.smtp_configurado) {{
+            badge.className = 'px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200 self-start sm:self-auto';
+            badge.textContent = '● Disparo Automático Ativo via .env';
+          }} else {{
+            badge.className = 'px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-amber-50 text-amber-800 border border-amber-200 self-start sm:self-auto';
+            badge.textContent = '● SMTP Pendente de Configuração no .env';
+          }}
         }}
-      }} catch {{}}
+      }} catch (e) {{}}
     }}
-
-    document.getElementById('email-settings-form').addEventListener('submit', async (e) => {{
-      e.preventDefault();
-      const fb = document.getElementById('email-settings-feedback');
-      const btn = document.getElementById('btn-save-email-cfg');
-      fb.classList.add('hidden');
-      btn.disabled = true;
-      btn.textContent = 'Salvando...';
-
-      const payload = {{
-        support_email: document.getElementById('cfg-support-email').value.trim(),
-        smtp_from_name: document.getElementById('cfg-from-name').value.trim(),
-        smtp_from_email: document.getElementById('cfg-from-email').value.trim(),
-        smtp_host: document.getElementById('cfg-smtp-host').value.trim(),
-        smtp_port: parseInt(document.getElementById('cfg-smtp-port').value || '587', 10),
-        smtp_user: document.getElementById('cfg-smtp-user').value.trim(),
-        smtp_password: document.getElementById('cfg-smtp-pass').value,
-        smtp_use_tls: document.getElementById('cfg-smtp-tls').checked
-      }};
-
-      try {{
-        const res = await fetch('/api/admin/email-settings', {{
-          method: 'POST',
-          headers: {{ 'Content-Type': 'application/json' }},
-          body: JSON.stringify(payload)
-        }});
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.detail || 'Erro ao salvar configurações.');
-        await carregarConfigEmail();
-        fb.className = 'rounded-xl p-3 text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200';
-        fb.textContent = 'Configurações de e-mail oficial da Gold salvas com sucesso!';
-        fb.classList.remove('hidden');
-      }} catch (err) {{
-        fb.className = 'rounded-xl p-3 text-xs font-bold bg-red-50 text-red-800 border border-red-200';
-        fb.textContent = err.message;
-        fb.classList.remove('hidden');
-      }} finally {{
-        btn.disabled = false;
-        btn.textContent = 'Salvar Configuração de E-mail';
-      }}
-    }});
 
     async function dispararTesteEmail() {{
       const fb = document.getElementById('email-settings-feedback');
       const btn = document.getElementById('btn-test-smtp');
       const destinatario = document.getElementById('test-email-dest').value.trim();
       fb.classList.add('hidden');
+      if (!destinatario) {{
+        fb.className = 'rounded-xl p-3 text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200';
+        fb.textContent = 'Informe um e-mail de destino para realizar o teste.';
+        fb.classList.remove('hidden');
+        return;
+      }}
       btn.disabled = true;
       btn.textContent = 'Enviando teste...';
       try {{
@@ -1744,6 +1688,59 @@ def get_admin_html(
       }} finally {{
         btn.disabled = false;
         btn.textContent = 'Testar Disparo de E-mail';
+      }}
+    }}
+
+    async function gerarEEnviarSenhaTemporaria(userId) {{
+      const u = stateUsers.find(x => x.id === userId);
+      if (!u) return;
+
+      const confirmMsg =
+        `Deseja gerar uma nova senha temporária e enviá-la para o e-mail de ${{u.nome}} (${{u.email}})?\n\n` +
+        `• A senha é enviada exclusivamente para a caixa postal do colaborador.\n` +
+        `• Por motivos de segurança (Zero-Knowledge), você não precisará ver nem copiar a senha.\n` +
+        `• O colaborador será obrigado a criar uma nova senha pessoal no primeiro acesso.`;
+
+      if (!confirm(confirmMsg)) return;
+
+      try {{
+        const res = await fetch(`/api/admin/users/${{userId}}/send-temp-password`, {{
+          method: 'POST',
+          headers: {{ 'Content-Type': 'application/json' }},
+          body: JSON.stringify({{ enviar_email: true }})
+        }});
+        const data = await res.json().catch(() => ({{}}));
+        if (!res.ok) {{
+          alert(`Falha no envio: ${{data.detail || 'Verifique as configurações SMTP no .env'}}`);
+          return;
+        }}
+        alert(`✅ Sucesso!\n\nUma nova senha temporária foi gerada e enviada para o e-mail:\n${{u.email}}\n\nO colaborador já pode fazer login e cadastrar sua senha definitiva.`);
+        await carregarUsuarios();
+        await carregarAuditoria();
+      }} catch (err) {{
+        alert(`Erro ao solicitar redefinição: ${{err.message}}`);
+      }}
+    }}
+
+    async function resolverRecuperacaoPorEmail(email) {{
+      const u = stateUsers.find(x => x.email.toLowerCase() === email.toLowerCase());
+      if (u) {{
+        await gerarEEnviarSenhaTemporaria(u.id);
+      }} else {{
+        alert(`Usuário ${{email}} não encontrado.`);
+      }}
+    }}
+
+    function fecharModalSenhaTemp() {{
+      const el = document.getElementById('temp-pw-modal');
+      if (el) el.classList.add('hidden');
+    }}
+
+    function copiarSenhaTemporaria() {{
+      const val = document.getElementById('tp-password-val');
+      if (val && val.textContent) {{
+        navigator.clipboard.writeText(val.textContent);
+        alert('Senha copiada para a área de transferência.');
       }}
     }}
 
@@ -1965,11 +1962,22 @@ def get_admin_html(
                     Derrubar sessões
                   </button>
                 ` : ''}}
-                ${{u.em_ferias ? `
-                  <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-900 border border-amber-300">
-                    🏖️ Em Férias ${{u.ferias_retorno ? `(Volta: ${{fmtDataSoDia(u.ferias_retorno)}})` : ''}}
-                  </span>
-                ` : ''}}
+                ${{u.em_ferias ? (() => {{
+                  const hoje = new Date().toISOString().split('T')[0];
+                  const isAgendada = u.ferias_inicio && u.ferias_inicio > hoje;
+                  if (isAgendada) {{
+                    return `
+                      <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-100 text-blue-900 border border-blue-300" title="Férias agendadas a partir de ${{fmtDataSoDia(u.ferias_inicio)}}">
+                        📅 Agendadas: ${{fmtDataSoDia(u.ferias_inicio)}}${{u.ferias_retorno ? ` a ${{fmtDataSoDia(u.ferias_retorno)}}` : ''}}
+                      </span>
+                    `;
+                  }}
+                  return `
+                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-900 border border-amber-300">
+                      🏖️ Em Férias ${{u.ferias_retorno ? `(Volta: ${{fmtDataSoDia(u.ferias_retorno)}})` : (u.ferias_inicio ? `(Desde: ${{fmtDataSoDia(u.ferias_inicio)}})` : '')}}
+                    </span>
+                  `;
+                }})() : ''}}
               </div>
             </td>
             <td class="py-3.5 px-4 text-xs text-slate-600 tabular-nums">
@@ -1979,10 +1987,10 @@ def get_admin_html(
               <button
                 type="button"
                 onclick="gerarEEnviarSenhaTemporaria(${{u.id}})"
-                title="Gera uma senha temporária e envia por e-mail"
+                title="Gera uma nova senha temporária e envia diretamente por e-mail para o usuário (Zero-Knowledge)"
                 class="btn-tactile px-2.5 py-1.5 rounded-lg bg-gold-50 hover:bg-gold-100 border border-gold-300 text-xs font-extrabold text-navy-900"
               >
-                Senha Temp.
+                ✉️ Enviar Senha
               </button>
               <button
                 type="button"
@@ -1995,10 +2003,10 @@ def get_admin_html(
                 <button
                   type="button"
                   onclick="handleFeriasRapido(${{u.id}})"
-                  class="btn-tactile px-2.5 py-1.5 rounded-lg text-xs font-bold ${{u.em_ferias ? 'bg-blue-50 text-blue-800 hover:bg-blue-100 border border-blue-200' : 'bg-amber-50 text-amber-900 hover:bg-amber-100 border border-amber-200'}}"
-                  title="${{u.em_ferias ? 'Retornar vendedor à roleta de leads' : 'Marcar férias do vendedor'}}"
+                  class="btn-tactile px-2.5 py-1.5 rounded-lg text-xs font-bold ${{u.em_ferias ? 'bg-amber-100 text-amber-900 hover:bg-amber-200 border border-amber-300' : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-300'}}"
+                  title="${{u.em_ferias ? 'Gerenciar ou encerrar férias deste consultor' : 'Configurar período de férias'}}"
                 >
-                  ${{u.em_ferias ? 'Voltar Férias' : '🏖️ Férias'}}
+                  ${{u.em_ferias ? '🏖️ Férias (Ativas)' : '🏖️ Férias'}}
                 </button>
               ` : ''}}
               ${{!isSelf ? `
@@ -2052,11 +2060,22 @@ def get_admin_html(
                 ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Ativo (${{u.sessoes_ativas || 0}} sessões)</span>`
                 : `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-red-50 text-red-700 border border-red-200">Bloqueado</span>`
               }}
-              ${{u.em_ferias ? `
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-900 border border-amber-300">
-                  🏖️ Férias
-                </span>
-              ` : ''}}
+              ${{u.em_ferias ? (() => {{
+                const hoje = new Date().toISOString().split('T')[0];
+                const isAgendada = u.ferias_inicio && u.ferias_inicio > hoje;
+                if (isAgendada) {{
+                  return `
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-100 text-blue-900 border border-blue-300">
+                      📅 Agendadas: ${{fmtDataSoDia(u.ferias_inicio)}}
+                    </span>
+                  `;
+                }}
+                return `
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-900 border border-amber-300">
+                    🏖️ Em Férias
+                  </span>
+                `;
+              }})() : ''}}
               <span class="text-[11px] text-slate-400 ml-auto tabular-nums">Login: ${{fmtData(u.ultimo_login)}}</span>
             </div>
 
@@ -2066,7 +2085,7 @@ def get_admin_html(
                 onclick="gerarEEnviarSenhaTemporaria(${{u.id}})"
                 class="btn-tactile py-2 rounded-xl bg-gold-50 hover:bg-gold-100 border border-gold-300 text-xs font-extrabold text-navy-900 text-center"
               >
-                Senha Temp.
+                ✉️ Enviar Senha
               </button>
               <button
                 type="button"
@@ -2079,9 +2098,9 @@ def get_admin_html(
                 <button
                   type="button"
                   onclick="handleFeriasRapido(${{u.id}})"
-                  class="btn-tactile py-2 rounded-xl text-xs font-bold ${{u.em_ferias ? 'bg-blue-50 text-blue-800 border border-blue-200' : 'bg-amber-50 text-amber-900 border border-amber-200'}} text-center"
+                  class="btn-tactile py-2 rounded-xl text-xs font-bold ${{u.em_ferias ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-slate-50 text-slate-700 border border-slate-300'}} text-center"
                 >
-                  ${{u.em_ferias ? 'Voltar de Férias' : '🏖️ Marcar Férias'}}
+                  ${{u.em_ferias ? '🏖️ Gerenciar Férias' : '🏖️ Configurar Férias'}}
                 </button>
               ` : ''}}
               ${{!isSelf ? `
@@ -2318,6 +2337,7 @@ def get_admin_html(
       document.getElementById('u-send-email-wrap').classList.add('hidden');
       document.getElementById('u-perms').value = (u.permissoes_extras || []).join(', ');
       document.getElementById('u-ferias').checked = Boolean(u.em_ferias);
+      document.getElementById('u-ferias-inicio').value = u.ferias_inicio || '';
       document.getElementById('u-ferias-retorno').value = u.ferias_retorno || '';
       alternarCamposFeriasNoModal();
       document.getElementById('user-form-error').classList.add('hidden');
@@ -2348,7 +2368,14 @@ def get_admin_html(
       const payload = {{ nome, email, cargo, apps_permitidos: apps, permissoes_extras: perms, precisa_trocar_senha }};
       if (id) {{
         payload.em_ferias = document.getElementById('u-ferias').checked;
+        payload.ferias_inicio = payload.em_ferias ? (document.getElementById('u-ferias-inicio').value || null) : null;
         payload.ferias_retorno = payload.em_ferias ? (document.getElementById('u-ferias-retorno').value || null) : null;
+        if (payload.em_ferias && payload.ferias_inicio && payload.ferias_retorno && payload.ferias_retorno <= payload.ferias_inicio) {{
+          const errBox = document.getElementById('user-form-error');
+          errBox.textContent = 'A data de retorno deve ser posterior à data de início das férias.';
+          errBox.classList.remove('hidden');
+          return;
+        }}
       }}
       if (senha) payload.senha = senha;
       if (!id) payload.enviar_por_email = enviar_por_email;
@@ -2519,15 +2546,43 @@ def get_admin_html(
       const wrap = document.getElementById('u-ferias-wrap');
       if (checked) {{
         wrap.classList.remove('hidden');
+        const inputInicio = document.getElementById('u-ferias-inicio');
+        if (!inputInicio.value) {{
+          inputInicio.value = new Date().toISOString().split('T')[0];
+        }}
       }} else {{
         wrap.classList.add('hidden');
       }}
     }}
 
+    function handleFeriasRapido(id) {{
+      const u = stateUsers.find(x => x.id === id);
+      if (!u) return;
+      abrirModalFeriasRapido(u.id, u.nome);
+    }}
+
     function abrirModalFeriasRapido(id, nome) {{
+      const u = stateUsers.find(x => x.id === id);
       document.getElementById('ferias-user-id').value = id;
-      document.getElementById('ferias-modal-title').textContent = 'Férias: ' + nome;
-      document.getElementById('ferias-data-retorno').value = '';
+      document.getElementById('ferias-modal-title').textContent = (u && u.em_ferias) ? ('Gerenciar Férias: ' + nome) : ('Configurar Férias: ' + nome);
+      
+      const hoje = new Date().toISOString().split('T')[0];
+      document.getElementById('ferias-data-inicio').value = (u && u.ferias_inicio) ? u.ferias_inicio : hoje;
+      document.getElementById('ferias-data-retorno').value = (u && u.ferias_retorno) ? u.ferias_retorno : '';
+      
+      const btnEncerrar = document.getElementById('ferias-btn-encerrar');
+      const btnSalvar = document.getElementById('ferias-btn-salvar');
+      if (u && u.em_ferias) {{
+        btnEncerrar.classList.remove('hidden');
+        btnSalvar.textContent = 'Salvar Alterações';
+      }} else {{
+        btnEncerrar.classList.add('hidden');
+        btnSalvar.textContent = 'Salvar Férias';
+      }}
+
+      const errBox = document.getElementById('ferias-form-error');
+      if (errBox) errBox.classList.add('hidden');
+
       document.getElementById('ferias-modal').classList.remove('hidden');
     }}
 
@@ -2535,19 +2590,44 @@ def get_admin_html(
       document.getElementById('ferias-modal').classList.add('hidden');
     }}
 
+    async function acionarEncerramentoModal() {{
+      const id = Number(document.getElementById('ferias-user-id').value);
+      const u = stateUsers.find(x => x.id === id);
+      const nome = u ? u.nome : 'consultor';
+      fecharModalFeriasRapido();
+      await encerrarFeriasRapido(id, nome);
+    }}
+
     document.getElementById('ferias-form').addEventListener('submit', async (e) => {{
       e.preventDefault();
       const id = document.getElementById('ferias-user-id').value;
+      const dataInicio = document.getElementById('ferias-data-inicio').value || null;
       const dataRetorno = document.getElementById('ferias-data-retorno').value || null;
+      const errBox = document.getElementById('ferias-form-error');
+
+      if (dataInicio && dataRetorno && dataRetorno <= dataInicio) {{
+        if (errBox) {{
+          errBox.textContent = 'A data de retorno deve ser posterior à data de início das férias.';
+          errBox.classList.remove('hidden');
+        }} else {{
+          alert('A data de retorno deve ser posterior à data de início das férias.');
+        }}
+        return;
+      }}
 
       const res = await fetch(`/api/admin/users/${{id}}`, {{
         method: 'PATCH',
         headers: {{ 'Content-Type': 'application/json' }},
-        body: JSON.stringify({{ em_ferias: true, ferias_retorno: dataRetorno }})
+        body: JSON.stringify({{ em_ferias: true, ferias_inicio: dataInicio, ferias_retorno: dataRetorno }})
       }});
       if (!res.ok) {{
         const d = await res.json().catch(() => ({{}}));
-        alert(d.detail || 'Não foi possível marcar as férias.');
+        if (errBox) {{
+          errBox.textContent = d.detail || 'Não foi possível salvar as férias.';
+          errBox.classList.remove('hidden');
+        }} else {{
+          alert(d.detail || 'Não foi possível salvar as férias.');
+        }}
         return;
       }}
       fecharModalFeriasRapido();
@@ -2560,7 +2640,7 @@ def get_admin_html(
       const res = await fetch(`/api/admin/users/${{id}}`, {{
         method: 'PATCH',
         headers: {{ 'Content-Type': 'application/json' }},
-        body: JSON.stringify({{ em_ferias: false, ferias_retorno: null }})
+        body: JSON.stringify({{ em_ferias: false, ferias_inicio: null, ferias_retorno: null }})
       }});
       if (!res.ok) {{
         const d = await res.json().catch(() => ({{}}));

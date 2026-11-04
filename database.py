@@ -168,6 +168,9 @@ def init_db():
             ADD COLUMN IF NOT EXISTS em_ferias BOOLEAN DEFAULT FALSE;
 
             ALTER TABLE schema_auth.usuarios
+            ADD COLUMN IF NOT EXISTS ferias_inicio DATE;
+
+            ALTER TABLE schema_auth.usuarios
             ADD COLUMN IF NOT EXISTS ferias_retorno DATE;
 
             ALTER TABLE schema_auth.usuarios
@@ -274,6 +277,14 @@ def init_db():
             cur.execute("ALTER TABLE auth_usuarios ADD COLUMN precisa_trocar_senha INTEGER DEFAULT 0;")
         except Exception:
             pass
+        try:
+            cur.execute("ALTER TABLE auth_usuarios ADD COLUMN ferias_inicio TEXT;")
+        except Exception:
+            pass
+        try:
+            cur.execute("ALTER TABLE auth_usuarios ADD COLUMN ferias_retorno TEXT;")
+        except Exception:
+            pass
 
     conn.commit()
 
@@ -352,6 +363,7 @@ def _normalize_user(row: Any, is_pg: bool) -> Dict[str, Any]:
     d["ativo"] = bool(d.get("ativo", True))
     d["precisa_trocar_senha"] = bool(d.get("precisa_trocar_senha", False))
     d["em_ferias"] = bool(d.get("em_ferias", False))
+    d["ferias_inicio"] = str(d["ferias_inicio"]) if d.get("ferias_inicio") else None
     d["ferias_retorno"] = str(d["ferias_retorno"]) if d.get("ferias_retorno") else None
     d["ultimo_lead_em"] = d["ultimo_lead_em"].isoformat() if d.get("ultimo_lead_em") else None
     return d
@@ -378,40 +390,20 @@ DEFAULT_EMAIL_SETTINGS = {
 }
 
 def obter_configuracoes_email(ocultar_senha: bool = False) -> Dict[str, Any]:
-    cfg = dict(DEFAULT_EMAIL_SETTINGS)
-    try:
-        ensure_db_initialized()
-        conn, is_pg = get_connection()
-        cur = conn.cursor()
-        cur.execute("""
-            CREATE TABLE IF NOT EXISTS schema_auth.configuracoes (
-                chave VARCHAR(100) PRIMARY KEY,
-                valor TEXT,
-                updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
-            );
-        """)
-        conn.commit()
-        tb_cfg = "schema_auth.configuracoes" if is_pg else "auth_configuracoes"
-        cur.execute(f"SELECT chave, valor FROM {tb_cfg};")
-        rows = cur.fetchall()
-        conn.close()
-
-        stored = {r["chave"]: r["valor"] for r in rows}
-        for k in ("support_email", "smtp_host", "smtp_user", "smtp_password", "smtp_from_name", "smtp_from_email"):
-            if k in stored and stored[k] is not None:
-                cfg[k] = stored[k]
-
-        if "smtp_port" in stored and stored["smtp_port"]:
-            try:
-                cfg["smtp_port"] = int(stored["smtp_port"])
-            except Exception:
-                pass
-
-        if "smtp_use_tls" in stored and stored["smtp_use_tls"] is not None:
-            cfg["smtp_use_tls"] = str(stored["smtp_use_tls"]).lower() in ("true", "1", "yes")
-    except Exception as e:
-        logger.warning(f"Aviso ao carregar configuracoes de email: {e}")
-
+    """
+    Retorna as credenciais de SMTP configuradas exclusivamente nas variaveis de ambiente (.env).
+    Mantido 100% no .env para maxima seguranca e sem gravacao em banco de dados.
+    """
+    cfg = {
+        "support_email": os.getenv("SUPPORT_EMAIL", "acesso@goldcorretora.com.br").strip(),
+        "smtp_host": os.getenv("SMTP_HOST", "").strip(),
+        "smtp_port": int(os.getenv("SMTP_PORT", "587") or 587),
+        "smtp_user": os.getenv("SMTP_USER", "").strip(),
+        "smtp_password": os.getenv("SMTP_PASSWORD", ""),
+        "smtp_from_name": os.getenv("SMTP_FROM_NAME", "Gold Corretora de Seguros").strip(),
+        "smtp_from_email": os.getenv("SMTP_FROM_EMAIL", "acesso@goldcorretora.com.br").strip(),
+        "smtp_use_tls": os.getenv("SMTP_USE_TLS", "true").lower() == "true"
+    }
     cfg["smtp_configurado"] = bool(cfg.get("smtp_host") and cfg.get("smtp_user") and cfg.get("smtp_password"))
     if ocultar_senha:
         cfg["tem_senha_salva"] = bool(cfg.get("smtp_password"))
@@ -419,45 +411,10 @@ def obter_configuracoes_email(ocultar_senha: bool = False) -> Dict[str, Any]:
     return cfg
 
 def salvar_configuracoes_email(novos_dados: Dict[str, Any]) -> Dict[str, Any]:
-    ensure_db_initialized()
-    atual = obter_configuracoes_email(ocultar_senha=False)
-    conn, is_pg = get_connection()
-    cur = conn.cursor()
-    tb_cfg = "schema_auth.configuracoes" if is_pg else "auth_configuracoes"
-
-    campos = ["support_email", "smtp_host", "smtp_port", "smtp_user", "smtp_from_name", "smtp_from_email", "smtp_use_tls"]
-    if nuevos_pw := novos_dados.get("smtp_password"):
-        if nuevos_pw.strip():
-            campos.append("smtp_password")
-    elif novos_dados.get("limpar_senha_smtp"):
-        campos.append("smtp_password")
-        novos_dados["smtp_password"] = ""
-
-    for k in campos:
-        if k not in novos_dados or novos_dados[k] is None:
-            continue
-        val_str = str(novos_dados[k]).strip() if k != "smtp_password" else str(novos_dados[k])
-        if is_pg:
-            cur.execute(
-                f"""
-                INSERT INTO {tb_cfg} (chave, valor, updated_at)
-                VALUES (%s, %s, CURRENT_TIMESTAMP)
-                ON CONFLICT (chave) DO UPDATE SET valor = EXCLUDED.valor, updated_at = CURRENT_TIMESTAMP;
-                """,
-                (k, val_str)
-            )
-        else:
-            cur.execute(
-                f"""
-                INSERT INTO {tb_cfg} (chave, valor, updated_at)
-                VALUES (?, ?, CURRENT_TIMESTAMP)
-                ON CONFLICT(chave) DO UPDATE SET valor = excluded.valor, updated_at = CURRENT_TIMESTAMP;
-                """,
-                (k, val_str)
-            )
-
-    conn.commit()
-    conn.close()
+    """
+    As configuracoes agora sao geridas exclusivamente pelo .env.
+    Retorna a configuracao atual das variaveis de ambiente.
+    """
     return obter_configuracoes_email(ocultar_senha=True)
 
 def enviar_email_recuperacao_senha(
@@ -921,6 +878,10 @@ def atualizar_usuario(usuario_id: int, dados: Dict[str, Any]) -> Optional[Dict[s
     if "em_ferias" in dados and dados["em_ferias"] is not None:
         sets.append(f"em_ferias = {ph}")
         params.append(bool(dados["em_ferias"]) if is_pg else (1 if dados["em_ferias"] else 0))
+
+    if "ferias_inicio" in dados:
+        sets.append(f"ferias_inicio = {ph}")
+        params.append(dados["ferias_inicio"] or None)
 
     if "ferias_retorno" in dados:
         sets.append(f"ferias_retorno = {ph}")
