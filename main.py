@@ -597,7 +597,7 @@ async def api_record_audit(payload: AuditEventIn, request: Request):
 class UsuarioCreateIn(BaseModel):
     nome: str
     email: str
-    senha: str
+    senha: Optional[str] = None
     cargo: str = "VENDEDOR"
     apps_permitidos: List[str] = ["painel-vendedor", "gold-db-api", "cotador-web"]
     permissoes_extras: List[str] = []
@@ -614,6 +614,7 @@ class UsuarioUpdateIn(BaseModel):
     ativo: Optional[bool] = None
     precisa_trocar_senha: Optional[bool] = None
     em_ferias: Optional[bool] = None
+    ferias_inicio: Optional[str] = None
     ferias_retorno: Optional[str] = None
 
 class SendTempPasswordIn(BaseModel):
@@ -649,15 +650,29 @@ async def admin_list_users(request: Request):
 @app.post("/api/admin/users", status_code=201)
 async def admin_create_user(payload: UsuarioCreateIn, request: Request):
     admin = require_admin(request)
+    dados = payload.model_dump()
+    senha_informada = (dados.get("senha") or "").strip()
+
+    # Se marcou envio por email e nao digitou senha manual, gera automaticamente temporaria
+    if payload.enviar_por_email and not senha_informada:
+        from database import gerar_senha_temporaria
+        senha_temp = gerar_senha_temporaria()
+        dados["senha"] = senha_temp
+        dados["precisa_trocar_senha"] = True
+    elif not senha_informada:
+        raise HTTPException(status_code=400, detail="Defina uma senha ou marque para enviar a senha temporária por e-mail.")
+    else:
+        senha_temp = senha_informada
+
     try:
-        novo = criar_usuario(payload.model_dump())
+        novo = criar_usuario(dados)
         email_enviado = False
         msg_email = ""
         if payload.enviar_por_email:
             ok_smtp, msg_smtp = enviar_email_recuperacao_senha(
                 destinatario_email=novo["email"],
                 destinatario_nome=novo["nome"],
-                senha_temporaria=payload.senha,
+                senha_temporaria=senha_temp,
                 portal_url=PUBLIC_AUTH_URL
             )
             email_enviado = ok_smtp
@@ -680,6 +695,9 @@ async def admin_create_user(payload: UsuarioCreateIn, request: Request):
         )
         novo["email_enviado"] = email_enviado
         novo["mensagem_email"] = msg_email
+        # Zero-Knowledge: se foi enviado por email, nunca expoe a senha de volta ao admin
+        if email_enviado:
+            novo["senha_temporaria"] = None
         return novo
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Erro ao criar usuário (verifique se o e-mail já está em uso): {e}")
@@ -688,6 +706,11 @@ async def admin_create_user(payload: UsuarioCreateIn, request: Request):
 async def admin_update_user(user_id: int, payload: UsuarioUpdateIn, request: Request):
     admin = require_admin(request)
     updates = payload.model_dump(exclude_unset=True)
+
+    # Validação de intervalo de férias
+    if updates.get("ferias_inicio") and updates.get("ferias_retorno"):
+        if updates["ferias_retorno"] <= updates["ferias_inicio"]:
+            raise HTTPException(status_code=400, detail="A data de retorno deve ser posterior à data de início das férias.")
 
     # Proteção contra auto-bloqueio ou remoção do próprio cargo ADMIN
     if user_id == admin["id"]:
@@ -762,6 +785,8 @@ async def admin_send_temp_password(user_id: int, payload: SendTempPasswordIn, re
             senha_temporaria=senha_temp,
             portal_url=PUBLIC_AUTH_URL
         )
+        if not email_enviado:
+            raise HTTPException(status_code=400, detail=f"Falha ao enviar e-mail: {msg_smtp}")
 
     cfg = obter_configuracoes_email(ocultar_senha=True)
     registrar_auditoria(
@@ -773,7 +798,7 @@ async def admin_send_temp_password(user_id: int, payload: SendTempPasswordIn, re
         detalhes={
             "alvo_email": alvo["email"],
             "email_enviado": email_enviado,
-            "resumo": f"Senha temporária gerada para {alvo['nome']} ({alvo['email']}) • {'Enviada por e-mail' if email_enviado else 'Gerada para envio manual'}"
+            "resumo": f"Senha temporária gerada para {alvo['nome']} ({alvo['email']}) • {'Enviada por e-mail (Zero-Knowledge)' if email_enviado else 'Gerada para envio manual'}"
         },
         ip=get_client_ip(request)
     )
@@ -781,9 +806,10 @@ async def admin_send_temp_password(user_id: int, payload: SendTempPasswordIn, re
     return {
         "ok": True,
         "usuario": atualizado,
-        "senha_temporaria": senha_temp,
+        # Zero-Knowledge: se o email foi enviado com sucesso, nunca exibe a senha para o administrador
+        "senha_temporaria": None if email_enviado else senha_temp,
         "email_enviado": email_enviado,
-        "mensagem_smtp": msg_smtp,
+        "mensagem_smtp": msg_smtp if email_enviado else "Senha gerada para envio manual.",
         "support_email": cfg.get("support_email") or "acesso@goldcorretora.com.br",
         "portal_url": f"{PUBLIC_AUTH_URL}/login"
     }
