@@ -121,6 +121,20 @@ SHARED_HEAD = """
   .modal-panel {
     transition: transform 200ms var(--ease-out-strong), opacity 200ms var(--ease-out-strong);
   }
+  @keyframes menuPopIn {
+    from {
+      opacity: 0;
+      transform: scale(0.96) translateY(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+  .menu-pop-in {
+    animation: menuPopIn 160ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    transform-origin: top right;
+  }
   .scrollbar-none::-webkit-scrollbar {
     display: none;
   }
@@ -836,24 +850,25 @@ def get_admin_html(
             </svg>
           </button>
 
-          <!-- Dropdown Popover -->
+          <!-- Dropdown Popover (Idêntico ao Painel do Consultor) -->
           <div
             id="user-dropdown-menu"
             role="menu"
             aria-orientation="vertical"
-            class="hidden absolute right-0 top-full mt-2 w-64 sm:w-72 rounded-2xl bg-navy-950/98 backdrop-blur-md border border-slate-700/80 shadow-2xl p-2 z-50 origin-top-right transition-all duration-150"
+            class="hidden absolute right-0 top-full mt-2 w-72 sm:w-80 rounded-2xl p-2.5 z-50 origin-top-right menu-pop-in text-slate-100"
+            style="background-color: #0A121E !important; border: 1px solid rgba(51, 65, 85, 0.8) !important; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.06) !important;"
           >
             <!-- Cabeçalho do Perfil -->
-            <div class="p-3 bg-navy-900/80 rounded-xl border border-slate-800/80 flex items-center gap-3">
-              <div id="dropdown-avatar-initials" class="w-9 h-9 rounded-xl bg-navy-800 border border-slate-700 text-gold-400 flex items-center justify-center font-bold text-xs shrink-0">
+            <div class="p-3 rounded-xl border border-slate-800/80 flex items-center gap-3" style="background-color: rgba(15, 26, 42, 0.85); border-color: #1E293B;">
+              <div id="dropdown-avatar-initials" class="w-9 h-9 rounded-xl border border-slate-700 text-gold-400 flex items-center justify-center font-bold text-xs shrink-0" style="background-color: #162235; border-color: #334155;">
                 AD
               </div>
               <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-1.5">
+                <div class="flex items-center justify-between gap-1.5">
                   <span id="dropdown-user-name" class="font-bold text-xs text-white truncate block">
                     Admin
                   </span>
-                  <span id="dropdown-user-role" class="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold uppercase tracking-wider bg-gold-500/20 text-gold-400 border border-gold-500/30">
+                  <span id="dropdown-user-role" class="px-1.5 py-0.5 rounded text-[9px] font-mono font-extrabold uppercase tracking-wider bg-gold-500/20 text-gold-400 border border-gold-500/30 shrink-0">
                     ADMIN
                   </span>
                 </div>
@@ -872,7 +887,7 @@ def get_admin_html(
                 rel="noopener noreferrer"
                 role="menuitem"
                 onclick="fecharMenuUsuario()"
-                class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-colors group"
+                class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-colors group cursor-pointer"
               >
                 <div class="flex items-center gap-2.5">
                   <svg class="w-4 h-4 text-slate-400 group-hover:text-gold-400 group-hover:scale-105 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -892,7 +907,7 @@ def get_admin_html(
                 rel="noopener noreferrer"
                 role="menuitem"
                 onclick="fecharMenuUsuario()"
-                class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-colors group"
+                class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-colors group cursor-pointer"
               >
                 <div class="flex items-center gap-2.5">
                   <svg class="w-4 h-4 text-slate-400 group-hover:text-gold-400 group-hover:scale-105 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -904,16 +919,37 @@ def get_admin_html(
                   <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>
               </a>
+
+              <!-- Preencher Apólice (Clicksign) -->
+              <a
+                href="https://app.clicksign.com/fluxia/dcf94a94-ba23-4e06-98af-29057948d6e6"
+                target="_blank"
+                rel="noopener noreferrer"
+                role="menuitem"
+                onclick="fecharMenuUsuario()"
+                class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-colors group cursor-pointer"
+                title="Preencher formulário de apólice de seguro via Clicksign"
+              >
+                <div class="flex items-center gap-2.5">
+                  <svg class="w-4 h-4 text-slate-400 group-hover:text-gold-400 group-hover:scale-105 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  <span class="truncate">Preencher Apólice (Clicksign)</span>
+                </div>
+                <svg class="w-3.5 h-3.5 text-slate-500 group-hover:text-slate-300 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
             </div>
 
             <!-- Divisor -->
-            <div class="my-1.5 border-t border-slate-800"></div>
+            <div class="my-1.5 border-t border-slate-800/90" style="border-color: #1E293B;"></div>
 
             <!-- Sair -->
             <a
               href="/api/auth/logout"
               role="menuitem"
-              class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-red-300 hover:text-red-200 hover:bg-red-500/15 border border-transparent hover:border-red-500/30 transition-all duration-150"
+              class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-red-300 hover:text-red-200 hover:bg-red-500/15 border border-transparent hover:border-red-500/30 transition-all duration-150 cursor-pointer"
             >
               <svg class="w-4 h-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -2513,8 +2549,15 @@ def get_admin_html(
       const isHidden = menu.classList.contains('hidden');
       if (isHidden) {{
         menu.classList.remove('hidden');
-        chevron.classList.add('rotate-180', 'text-gold-400');
-        btn.classList.add('bg-navy-950', 'border-gold-500/50', 'shadow-inner');
+        if (chevron) {{
+          chevron.classList.add('rotate-180', 'text-gold-400');
+          chevron.classList.remove('text-slate-400');
+        }}
+        if (btn) {{
+          btn.classList.add('border-gold-500/50', 'bg-navy-950', 'shadow-inner');
+          btn.classList.remove('border-slate-700/70', 'bg-navy-950/80');
+          btn.setAttribute('aria-expanded', 'true');
+        }}
       }} else {{
         fecharMenuUsuario();
       }}
@@ -2524,9 +2567,16 @@ def get_admin_html(
       const menu = document.getElementById('user-dropdown-menu');
       const chevron = document.getElementById('header-chevron');
       if (menu) menu.classList.add('hidden');
-      if (chevron) chevron.classList.remove('rotate-180', 'text-gold-400');
+      if (chevron) {{
+        chevron.classList.remove('rotate-180', 'text-gold-400');
+        chevron.classList.add('text-slate-400');
+      }}
       const btn = document.getElementById('user-menu-btn');
-      if (btn) btn.classList.remove('bg-navy-950', 'border-gold-500/50', 'shadow-inner');
+      if (btn) {{
+        btn.classList.remove('border-gold-500/50', 'bg-navy-950', 'shadow-inner');
+        btn.classList.add('border-slate-700/70', 'bg-navy-950/80');
+        btn.setAttribute('aria-expanded', 'false');
+      }}
     }}
 
     document.addEventListener('pointerdown', (e) => {{
