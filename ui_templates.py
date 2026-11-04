@@ -1337,9 +1337,9 @@ def get_admin_html(
           <div>
             <div class="flex items-center justify-between mb-1">
               <label for="u-senha" class="block text-xs font-bold text-slate-700">Senha <span id="u-senha-hint" class="text-[11px] font-normal text-slate-500"></span></label>
-              <button type="button" onclick="preencherSenhaTemporariaNoModal()" class="text-[11px] font-extrabold text-gold-700 hover:underline">Gerar temporária</button>
+              <button type="button" onclick="preencherSenhaTemporariaNoModal()" class="text-[11px] font-extrabold text-gold-700 hover:underline">Gerar manual</button>
             </div>
-            <input id="u-senha" type="text" placeholder="Mínimo 4 caracteres" class="w-full h-10 rounded-xl border border-slate-300 px-3 text-sm font-mono font-semibold text-navy-900 focus:outline-none focus:border-gold-500" />
+            <input id="u-senha" type="text" placeholder="Automática por e-mail (Zero-Knowledge)" class="w-full h-10 rounded-xl border border-slate-300 px-3 text-sm font-mono font-semibold text-navy-900 focus:outline-none focus:border-gold-500" />
           </div>
         </div>
 
@@ -1349,7 +1349,7 @@ def get_admin_html(
             <span>Exigir que a pessoa troque esta senha no primeiro acesso (Senha Temporária)</span>
           </label>
           <label id="u-send-email-wrap" class="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
-            <input id="u-send-email" type="checkbox" checked class="w-4 h-4 rounded text-gold-600" />
+            <input id="u-send-email" type="checkbox" checked onchange="aoAlternarEnvioEmailNoModal()" class="w-4 h-4 rounded text-gold-600" />
             <span>Enviar credenciais por e-mail automaticamente ao salvar (se o SMTP estiver ativo)</span>
           </label>
         </div>
@@ -1584,6 +1584,24 @@ def get_admin_html(
     function preencherSenhaTemporariaNoModal() {{
       document.getElementById('u-senha').value = gerarCodigoSenhaTemporariaLocal();
       document.getElementById('u-force-change').checked = true;
+      document.getElementById('u-senha-hint').textContent = '(temporária manual)';
+    }}
+
+    function aoAlternarEnvioEmailNoModal() {{
+      const sendEmail = document.getElementById('u-send-email').checked;
+      const hint = document.getElementById('u-senha-hint');
+      const input = document.getElementById('u-senha');
+      if (sendEmail) {{
+        if (!input.value) {{
+          hint.textContent = '(automática por e-mail)';
+          input.placeholder = 'Automática por e-mail (Zero-Knowledge)';
+        }}
+      }} else {{
+        if (!input.value) {{
+          hint.textContent = '(obrigatória sem e-mail)';
+          input.placeholder = 'Digite uma senha inicial';
+        }}
+      }}
     }}
 
     function aoMudarCargoNoModal() {{
@@ -2310,9 +2328,10 @@ def get_admin_html(
       document.getElementById('user-modal-title').textContent = 'Novo Vendedor / Usuário';
       document.getElementById('u-nome').value = '';
       document.getElementById('u-email').value = '';
-      document.getElementById('u-senha').value = gerarCodigoSenhaTemporariaLocal();
-      document.getElementById('u-senha').required = true;
-      document.getElementById('u-senha-hint').textContent = '(temporária sugerida)';
+      document.getElementById('u-senha').value = '';
+      document.getElementById('u-senha').required = false;
+      document.getElementById('u-senha').placeholder = 'Automática por e-mail (Zero-Knowledge)';
+      document.getElementById('u-senha-hint').textContent = '(automática por e-mail)';
       document.getElementById('u-force-change').checked = true;
       document.getElementById('u-send-email').checked = true;
       document.getElementById('u-send-email-wrap').classList.remove('hidden');
@@ -2382,6 +2401,12 @@ def get_admin_html(
 
       const errEl = document.getElementById('user-form-error');
       errEl.classList.add('hidden');
+
+      if (!id && !senha && !enviar_por_email) {{
+        errEl.textContent = 'Informe uma senha inicial ou marque o envio automático por e-mail.';
+        errEl.classList.remove('hidden');
+        return;
+      }}
 
       const url = id ? `/api/admin/users/${{id}}` : '/api/admin/users';
       const method = id ? 'PATCH' : 'POST';
