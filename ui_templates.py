@@ -407,58 +407,96 @@ def get_login_html(
   </div>
 
   <!-- Modais -->
-  <!-- 1. Modal de Troca de Senha Obrigatória -->
+  <!-- 1. Modal de Primeiro Acesso & Ativação de Perfil (Zero-Friction Onboarding) -->
   <div
     id="force-pw-modal"
     role="dialog"
     aria-modal="true"
     class="fixed inset-0 z-50 bg-navy-950/80 backdrop-blur-sm hidden items-center justify-center p-4"
   >
-    <div class="modal-panel bg-white w-full max-w-md rounded-3xl p-7 sm:p-8 shadow-2xl border border-slate-200 space-y-5">
+    <div class="modal-panel bg-white w-full max-w-lg rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-5 animate-in fade-in zoom-in-95 duration-200">
       <div>
-        <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gold-100 text-gold-700 text-[11px] font-extrabold uppercase tracking-wider mb-2">
-          Atualização de Segurança
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold-100 text-gold-800 text-[11px] font-extrabold uppercase tracking-wider mb-2">
+          ✨ Primeiro Acesso — Ativação de Conta
         </div>
-        <h3 class="text-xl font-extrabold text-navy-900">
-          Defina sua senha definitiva
+        <h3 class="text-xl sm:text-2xl font-black text-navy-900 tracking-tight">
+          Bem-vindo(a) à Gold Corretora!
         </h3>
-        <p class="text-xs text-slate-600 mt-1">
-          Olá, <span id="force-pw-email" class="font-bold text-navy-900">{logged_user_email}</span>. Você recebeu uma senha provisória da gestão e deve definir uma senha pessoal para prosseguir.
+        <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+          Para concluir sua ativação na conta <strong id="force-pw-email" class="text-navy-900 font-mono font-bold">{logged_user_email}</strong>, preencha seus dados oficiais e crie sua senha definitiva.
         </p>
       </div>
 
-      <form id="force-pw-form" class="space-y-4">
+      <form id="force-pw-form" class="space-y-3.5">
         <div>
-          <label for="new-password" class="block text-xs font-extrabold text-slate-700 mb-1.5">
-            Nova senha pessoal
+          <label for="onboarding-nome" class="block text-xs font-extrabold text-slate-700 mb-1">
+            Seu Nome Completo
           </label>
           <input
-            id="new-password"
-            type="password"
+            id="onboarding-nome"
+            type="text"
             required
-            minlength="4"
-            placeholder="Mínimo 4 caracteres"
-            class="input-corporate w-full h-11 rounded-xl bg-slate-50 border border-slate-300 px-3.5 text-sm font-semibold text-navy-900"
+            placeholder="Ex: Gabriel Rodrigues de Souza"
+            class="input-corporate w-full h-11 rounded-xl bg-slate-50 border border-slate-300 px-3.5 text-sm font-semibold text-navy-900 focus:outline-none focus:border-gold-500"
           />
         </div>
 
-        <div>
-          <label for="confirm-password" class="block text-xs font-extrabold text-slate-700 mb-1.5">
-            Confirme a nova senha
-          </label>
-          <input
-            id="confirm-password"
-            type="password"
-            required
-            minlength="4"
-            placeholder="Repita a nova senha"
-            class="input-corporate w-full h-11 rounded-xl bg-slate-50 border border-slate-300 px-3.5 text-sm font-semibold text-navy-900"
-          />
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label for="onboarding-tel" class="block text-xs font-extrabold text-slate-700 mb-1">
+              WhatsApp / Celular
+            </label>
+            <input
+              id="onboarding-tel"
+              type="tel"
+              placeholder="(11) 98765-4321"
+              class="input-corporate w-full h-11 rounded-xl bg-slate-50 border border-slate-300 px-3.5 text-sm font-semibold text-navy-900 focus:outline-none focus:border-gold-500"
+            />
+          </div>
+          <div>
+            <label for="onboarding-nasc" class="block text-xs font-extrabold text-slate-700 mb-1">
+              Data de Nascimento
+            </label>
+            <input
+              id="onboarding-nasc"
+              type="date"
+              class="input-corporate w-full h-11 rounded-xl bg-slate-50 border border-slate-300 px-3.5 text-sm font-semibold text-navy-900 focus:outline-none focus:border-gold-500"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-slate-100">
+          <div>
+            <label for="new-password" class="block text-xs font-extrabold text-slate-700 mb-1">
+              Nova Senha Pessoal
+            </label>
+            <input
+              id="new-password"
+              type="password"
+              required
+              minlength="4"
+              placeholder="Mínimo 4 caracteres"
+              class="input-corporate w-full h-11 rounded-xl bg-slate-50 border border-slate-300 px-3.5 text-sm font-semibold text-navy-900 focus:outline-none focus:border-gold-500"
+            />
+          </div>
+          <div>
+            <label for="confirm-password" class="block text-xs font-extrabold text-slate-700 mb-1">
+              Confirme a Senha
+            </label>
+            <input
+              id="confirm-password"
+              type="password"
+              required
+              minlength="4"
+              placeholder="Repita a nova senha"
+              class="input-corporate w-full h-11 rounded-xl bg-slate-50 border border-slate-300 px-3.5 text-sm font-semibold text-navy-900 focus:outline-none focus:border-gold-500"
+            />
+          </div>
         </div>
 
         <div id="force-pw-feedback" class="hidden rounded-xl p-3 text-xs font-bold"></div>
 
-        <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-200">
+        <div class="flex items-center justify-between gap-2 pt-3 border-t border-slate-200">
           <a
             href="/api/auth/logout"
             class="btn-tactile px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100"
@@ -468,9 +506,9 @@ def get_login_html(
           <button
             type="submit"
             id="force-pw-submit"
-            class="btn-tactile btn-gold-primary px-5 py-2.5 rounded-xl text-xs font-extrabold"
+            class="btn-tactile btn-gold-primary px-5 py-2.5 rounded-xl text-xs font-extrabold shadow-sm active:scale-98 transition"
           >
-            Salvar Nova Senha e Entrar
+            Ativar Minha Conta & Acessar
           </button>
         </div>
       </form>
@@ -597,23 +635,39 @@ def get_login_html(
       window.location.href = destination;
     }}
 
-    function abrirModalTrocaSenhaObrigatoria(emailUsuario) {{
+    function abrirModalTrocaSenhaObrigatoria(emailUsuario, nomeUsuario) {{
       const modal = document.getElementById('force-pw-modal');
       const emailSpan = document.getElementById('force-pw-email');
+      const nomeInput = document.getElementById('onboarding-nome');
       if (emailUsuario && emailSpan) emailSpan.textContent = emailUsuario;
+      if (nomeInput && nomeUsuario && !nomeUsuario.includes('Novo Colaborador')) {{
+        nomeInput.value = nomeUsuario;
+      }}
       modal.classList.remove('hidden');
       modal.classList.add('flex');
-      setTimeout(() => document.getElementById('new-password').focus(), 60);
+      setTimeout(() => {{
+        if (nomeInput && !nomeInput.value) nomeInput.focus();
+        else document.getElementById('new-password').focus();
+      }}, 80);
     }}
 
     document.getElementById('force-pw-form').addEventListener('submit', async (e) => {{
       e.preventDefault();
+      const nome = document.getElementById('onboarding-nome').value.trim();
+      const telefone = document.getElementById('onboarding-tel').value.trim();
+      const data_nascimento = document.getElementById('onboarding-nasc').value.trim();
       const nova_senha = document.getElementById('new-password').value.trim();
       const confirmar_senha = document.getElementById('confirm-password').value.trim();
       const fb = document.getElementById('force-pw-feedback');
       const btn = document.getElementById('force-pw-submit');
 
       fb.classList.add('hidden');
+      if (!nome) {{
+        fb.className = 'rounded-xl p-3 text-xs font-bold bg-red-50 text-red-800 border border-red-200';
+        fb.textContent = 'Por favor, informe seu nome completo.';
+        fb.classList.remove('hidden');
+        return;
+      }}
       if (nova_senha.length < 4) {{
         fb.className = 'rounded-xl p-3 text-xs font-bold bg-red-50 text-red-800 border border-red-200';
         fb.textContent = 'A nova senha deve ter pelo menos 4 caracteres.';
@@ -628,27 +682,33 @@ def get_login_html(
       }}
 
       btn.disabled = true;
-      btn.textContent = 'Salvando...';
+      btn.textContent = 'Ativando sua conta...';
       try {{
         const res = await fetch('/api/auth/change-password', {{
           method: 'POST',
           headers: {{ 'Content-Type': 'application/json' }},
-          body: JSON.stringify({{ nova_senha, confirmar_senha }})
+          body: JSON.stringify({{
+            nova_senha,
+            confirmar_senha,
+            nome,
+            telefone,
+            data_nascimento
+          }})
         }});
         const data = await res.json();
         if (!res.ok) {{
-          throw new Error(data.detail || 'Não foi possível atualizar sua senha.');
+          throw new Error(data.detail || 'Não foi possível concluir a ativação.');
         }}
         fb.className = 'rounded-xl p-3 text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200';
-        fb.textContent = 'Senha atualizada! Redirecionando para o portal...';
+        fb.textContent = 'Conta ativada com sucesso! Redirecionando...';
         fb.classList.remove('hidden');
-        setTimeout(() => concluirRedirecionamentoPosLogin(), 500);
+        setTimeout(() => concluirRedirecionamentoPosLogin(), 600);
       }} catch (err) {{
         fb.className = 'rounded-xl p-3 text-xs font-bold bg-red-50 text-red-800 border border-red-200';
         fb.textContent = err.message;
         fb.classList.remove('hidden');
         btn.disabled = false;
-        btn.textContent = 'Salvar Nova Senha e Entrar';
+        btn.textContent = 'Ativar Minha Conta & Acessar';
       }}
     }});
 
@@ -760,7 +820,7 @@ def get_login_html(
           submitLabel.textContent = 'Entrar';
           submitArrow.classList.remove('hidden');
           submitSpinner.classList.add('hidden');
-          abrirModalTrocaSenhaObrigatoria(data.user?.email || email);
+          abrirModalTrocaSenhaObrigatoria(data.user?.email || email, data.user?.nome || '');
           return;
         }}
 
@@ -812,19 +872,7 @@ def get_admin_html(
 
       <!-- Lado Direito: Controles Compactos & Menu do Usuário -->
       <div class="flex items-center gap-2 sm:gap-2.5">
-        <!-- Atalho Painel de Vendas -->
-        <a
-          href="{default_redirect}"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-navy-950/80 hover:bg-navy-950 text-slate-300 hover:text-white border border-slate-700/70 transition-all duration-150 active:scale-95 cursor-pointer"
-          title="Abrir Painel de Vendas em nova aba"
-        >
-          <span>Painel de Vendas</span>
-          <svg class="w-3.5 h-3.5 text-gold-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-          </svg>
-        </a>
+        <!-- Acesso aos aplicativos centralizado no menu dropdown -->
 
         <!-- Usuário & Menu Dropdown (Idêntico ao do Painel do Consultor) -->
         <div class="relative" id="user-dropdown-container">
@@ -872,7 +920,7 @@ def get_admin_html(
                     Admin
                   </span>
                   <span id="dropdown-user-role" class="px-1.5 py-0.5 rounded text-[9px] font-mono font-extrabold uppercase tracking-wider bg-gold-500/20 text-gold-400 border border-gold-500/30 shrink-0">
-                    ADMIN
+                    TI
                   </span>
                 </div>
                 <span id="dropdown-user-email" class="text-[11px] text-slate-400 truncate block mt-0.5">
@@ -994,7 +1042,7 @@ def get_admin_html(
           onclick="switchTab('usuarios')"
           class="tab-btn btn-tactile px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-100"
         >
-          Vendedores & Equipe
+          Gestão da Equipe
         </button>
         <button
           type="button"
@@ -1205,7 +1253,7 @@ def get_admin_html(
     <section id="tab-usuarios" class="hidden space-y-4">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white rounded-2xl border border-slate-200 p-4">
         <div>
-          <h2 class="text-base font-extrabold text-navy-900">Consultores, Supervisores e Administradores</h2>
+          <h2 class="text-base font-extrabold text-navy-900">Gestão da Equipe & Colaboradores</h2>
           <p class="text-xs text-slate-600">Altere nome ou e-mail de login, envie senhas temporárias (com troca obrigatória no 1º acesso), encerre sessões abertas ou bloqueie contas.</p>
         </div>
         <button
@@ -1213,7 +1261,7 @@ def get_admin_html(
           onclick="abrirModalUsuario()"
           class="btn-tactile h-10 px-4 rounded-xl bg-navy-900 hover:bg-navy-800 text-gold-400 font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 shrink-0"
         >
-          <span>+ Novo Usuário / Vendedor</span>
+          <span>+ Novo Colaborador</span>
         </button>
       </div>
 
@@ -1360,7 +1408,7 @@ def get_admin_html(
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label for="u-nome" class="block text-xs font-bold text-slate-700 mb-1">Nome Completo</label>
-            <input id="u-nome" type="text" required placeholder="Ex: João Silva" class="w-full h-10 rounded-xl border border-slate-300 px-3 text-sm font-medium text-navy-900 focus:outline-none focus:border-gold-500" />
+            <input id="u-nome" type="text" placeholder="Nome completo (opcional: preenchido no 1º login)" class="w-full h-10 rounded-xl border border-slate-300 px-3 text-sm font-medium text-navy-900 focus:outline-none focus:border-gold-500" />
           </div>
           <div>
             <label for="u-email" class="block text-xs font-bold text-slate-700 mb-1">E-mail de Login</label>
@@ -1488,45 +1536,100 @@ def get_admin_html(
     </div>
   </div>
 
-  <!-- MODAL: CRIAR / EDITAR CARGO -->
-  <div id="role-modal" class="hidden fixed inset-0 z-50 bg-navy-950/70 backdrop-blur-xs flex items-center justify-center p-4" role="dialog" aria-modal="true">
-    <div class="modal-panel bg-white rounded-2xl border border-slate-200 max-w-md w-full p-6 shadow-2xl space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
-        <h3 class="text-lg font-extrabold text-navy-900">Configurar Cargo & Permissões</h3>
-        <button type="button" onclick="fecharModalCargo()" class="w-8 h-8 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 flex items-center justify-center font-bold">✕</button>
+  <!-- MODAL: CRIAR / EDITAR CARGO COM CATÁLOGO VISUAL DE PERMISSÕES -->
+  <div id="role-modal" class="hidden fixed inset-0 z-50 bg-navy-950/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true">
+    <div class="modal-panel bg-white rounded-3xl border border-slate-200 max-w-2xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- Cabeçalho do Modal -->
+      <div class="flex items-center justify-between border-b border-slate-200 px-6 py-4 bg-slate-50/70 shrink-0">
+        <div>
+          <h3 id="role-modal-title" class="text-base sm:text-lg font-black text-navy-900">Configurar Cargo & Permissões</h3>
+          <p class="text-[11px] text-slate-500 mt-0.5">Defina os acessos por módulo de forma visual sem precisar adivinhar comandos técnicos.</p>
+        </div>
+        <button type="button" onclick="fecharModalCargo()" class="w-8 h-8 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-200/60 flex items-center justify-center font-bold text-sm transition">✕</button>
       </div>
 
-      <form id="role-form" class="space-y-3.5">
-        <div>
-          <label for="r-codigo" class="block text-xs font-bold text-slate-700 mb-1">Código Identificador (Ex: FINANCEIRO, POS_VENDA)</label>
-          <input id="r-codigo" type="text" required placeholder="FINANCEIRO" class="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs font-mono uppercase text-navy-900 focus:outline-none focus:border-gold-500" />
-        </div>
-        <div>
-          <label for="r-nome" class="block text-xs font-bold text-slate-700 mb-1">Nome de Exibição</label>
-          <input id="r-nome" type="text" required placeholder="Analista Financeiro" class="w-full h-10 rounded-xl border border-slate-300 px-3 text-sm font-medium text-navy-900 focus:outline-none focus:border-gold-500" />
-        </div>
-        <div>
-          <label for="r-desc" class="block text-xs font-bold text-slate-700 mb-1">Descrição da Função</label>
-          <input id="r-desc" type="text" placeholder="Acesso a relatórios de boletos e comissões" class="w-full h-10 rounded-xl border border-slate-300 px-3 text-sm text-navy-900 focus:outline-none focus:border-gold-500" />
-        </div>
-        <div>
-          <span class="block text-xs font-bold text-slate-700 mb-1.5">Aplicativos Padrão deste Cargo</span>
-          <div class="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs font-semibold text-navy-900">
-            <label class="flex items-center gap-2"><input type="checkbox" name="r-app" value="painel-vendedor" checked class="rounded text-gold-600" /> Painel de Vendas</label>
-            <label class="flex items-center gap-2"><input type="checkbox" name="r-app" value="gold-db-api" checked class="rounded text-gold-600" /> API de Leads</label>
-            <label class="flex items-center gap-2"><input type="checkbox" name="r-app" value="cotador-web" checked class="rounded text-gold-600" /> Simulador</label>
-            <label class="flex items-center gap-2"><input type="checkbox" name="r-app" value="carteira" class="rounded text-gold-600" /> Carteira Geral</label>
-            <label class="flex items-center gap-2 col-span-2"><input type="checkbox" name="r-app" value="*" class="rounded text-gold-600" /> Todos os Aplicativos (*)</label>
+      <form id="role-form" class="flex flex-col flex-1 overflow-hidden">
+        <div class="p-6 space-y-4 overflow-y-auto flex-1">
+          <!-- Dados Básicos -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div>
+              <label for="r-codigo" class="block text-xs font-bold text-slate-700 mb-1">Código Identificador (Ex: TI, ADMINISTRATIVO, VENDAS)</label>
+              <input id="r-codigo" type="text" required placeholder="ADMINISTRATIVO" class="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs font-mono font-bold uppercase text-navy-900 focus:outline-none focus:border-gold-500 bg-white" />
+            </div>
+            <div>
+              <label for="r-nome" class="block text-xs font-bold text-slate-700 mb-1">Nome de Exibição do Cargo</label>
+              <input id="r-nome" type="text" required placeholder="Administrativo" class="w-full h-10 rounded-xl border border-slate-300 px-3 text-sm font-semibold text-navy-900 focus:outline-none focus:border-gold-500 bg-white" />
+            </div>
+          </div>
+
+          <div>
+            <label for="r-desc" class="block text-xs font-bold text-slate-700 mb-1">Descrição e Responsabilidades</label>
+            <input id="r-desc" type="text" placeholder="Visualização operacional ampla, relatórios de carteira e gestão de leads" class="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs sm:text-sm text-navy-900 focus:outline-none focus:border-gold-500 bg-white" />
+          </div>
+
+          <!-- Aplicativos Liberados -->
+          <div>
+            <span class="block text-xs font-extrabold text-slate-700 mb-1.5 uppercase tracking-wider text-[10px]">1. Aplicativos Padrão Liberados</span>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 bg-slate-50 p-3 rounded-2xl border border-slate-200 text-xs font-bold text-navy-900">
+              <label class="flex items-center gap-2 cursor-pointer hover:text-gold-700 transition">
+                <input type="checkbox" name="r-app" value="painel-vendedor" checked class="w-4 h-4 rounded text-gold-600 cursor-pointer" />
+                <span>Painel de Vendas</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer hover:text-gold-700 transition">
+                <input type="checkbox" name="r-app" value="cotador-web" checked class="w-4 h-4 rounded text-gold-600 cursor-pointer" />
+                <span>Simulador / Cotador</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer hover:text-gold-700 transition">
+                <input type="checkbox" name="r-app" value="carteira" class="w-4 h-4 rounded text-gold-600 cursor-pointer" />
+                <span>Carteira Geral</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer hover:text-gold-700 transition">
+                <input type="checkbox" name="r-app" value="gold-db-api" checked class="w-4 h-4 rounded text-gold-600 cursor-pointer" />
+                <span>API de Dados & Leads</span>
+              </label>
+              <label class="flex items-center gap-2 col-span-2 sm:col-span-2 cursor-pointer text-gold-700 font-extrabold">
+                <input type="checkbox" name="r-app" value="*" class="w-4 h-4 rounded text-gold-600 cursor-pointer" />
+                <span>Todos os Aplicativos da Corretora (*)</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Matriz Visual de Permissões -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider text-[10px]">2. Matriz de Permissões do Cargo</span>
+              <span class="text-[11px] text-slate-500 font-medium">Selecione os módulos autorizados:</span>
+            </div>
+
+            <!-- Toggle Mestre (*) -->
+            <div class="p-3.5 rounded-2xl bg-gradient-to-r from-amber-50 to-gold-50 border border-gold-200/90 flex items-center justify-between shadow-2xs mb-3">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-xl bg-navy-900 text-gold-400 flex items-center justify-center font-black text-sm shrink-0 shadow-xs">★</div>
+                <div>
+                  <div class="text-xs font-black text-navy-900">Acesso Mestre Irrestrito (*)</div>
+                  <div class="text-[11px] text-slate-600 leading-tight">Libera absolutamente todas as ações e módulos sem restrições (padrão TI).</div>
+                </div>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                <input type="checkbox" id="perm-master-toggle" onchange="aoAlternarPermissaoMestre(this.checked)" class="sr-only peer" />
+                <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-navy-900"></div>
+              </label>
+            </div>
+
+            <!-- Grade de Módulos & Permissões -->
+            <div id="permissions-catalog-container" class="space-y-3">
+              <!-- Preenchido dinamicamente via renderizarCatalogoPermissoes() -->
+            </div>
           </div>
         </div>
-        <div>
-          <label for="r-perms" class="block text-xs font-bold text-slate-700 mb-1">Permissões do Cargo (separadas por vírgula)</label>
-          <input id="r-perms" type="text" placeholder="leads.view, carteira.view, financeiro.boletos" class="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs font-mono text-navy-900 focus:outline-none focus:border-gold-500" />
-        </div>
 
-        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-200">
-          <button type="button" onclick="fecharModalCargo()" class="btn-tactile px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100">Cancelar</button>
-          <button type="submit" class="btn-tactile px-5 py-2 rounded-xl text-xs font-extrabold bg-navy-900 hover:bg-navy-800 text-gold-400">Salvar Cargo</button>
+        <!-- Rodapé de Ações -->
+        <div class="flex items-center justify-between px-6 py-4 bg-slate-50/80 border-t border-slate-200 shrink-0">
+          <button type="button" onclick="fecharModalCargo()" class="btn-tactile px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-200/70 transition">Cancelar</button>
+          <button type="submit" class="btn-tactile px-6 py-2.5 rounded-xl text-xs font-black bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md active:scale-98 transition flex items-center gap-2">
+            <span>Salvar Cargo & Permissões</span>
+          </button>
         </div>
       </form>
     </div>
@@ -1801,46 +1904,205 @@ def get_admin_html(
       }}
     }}
 
+    // Catálogo oficial de permissões organizadas por módulo de negócio
+    const PERMISSIONS_CATALOG = [
+      {{
+        modulo: 'leads',
+        titulo: 'Leads & Oportunidades',
+        icone: '🎯',
+        itens: [
+          {{ key: 'leads.view', label: 'Ver Próprios Leads', desc: 'Acessa apenas os leads atribuídos à sua conta' }},
+          {{ key: 'leads.view_all', label: 'Ver Todos os Leads', desc: 'Acesso global a todo o funil comercial' }},
+          {{ key: 'leads.edit', label: 'Editar & Mover Funil', desc: 'Atualizar contatos, etapas e observações' }},
+          {{ key: 'leads.assign', label: 'Reatribuir Vendedor', desc: 'Transferir leads para outros consultores' }},
+          {{ key: 'leads.delete', label: 'Excluir Leads', desc: 'Remoção definitiva de cadastros de leads' }}
+        ]
+      }},
+      {{
+        modulo: 'cotador',
+        titulo: 'Cotações & Simulador',
+        icone: '🧮',
+        itens: [
+          {{ key: 'cotador.use', label: 'Usar Simulador', desc: 'Realizar simulações de seguro e cálculos' }},
+          {{ key: 'cotador.export', label: 'Exportar PDF', desc: 'Baixar propostas oficiais formatadas' }}
+        ]
+      }},
+      {{
+        modulo: 'carteira',
+        titulo: 'Carteira & Pós-Venda',
+        icone: '📁',
+        itens: [
+          {{ key: 'carteira.view', label: 'Consultar Carteira', desc: 'Ver apólices ativas e segurados da base' }},
+          {{ key: 'carteira.edit', label: 'Editar Apólices', desc: 'Alterar vigências, dados de segurados e boletos' }}
+        ]
+      }},
+      {{
+        modulo: 'equipe',
+        titulo: 'Gestão da Equipe',
+        icone: '👥',
+        itens: [
+          {{ key: 'equipe.view', label: 'Ver Lista da Equipe', desc: 'Visualizar colaboradores e contatos' }},
+          {{ key: 'equipe.manage', label: 'Cadastrar & Gerenciar', desc: 'Criar contas e redefinir acessos' }},
+          {{ key: 'equipe.ferias', label: 'Escala de Férias', desc: 'Marcar ausências e pausas na roleta' }}
+        ]
+      }},
+      {{
+        modulo: 'seguranca',
+        titulo: 'Segurança & Auditoria',
+        icone: '🛡️',
+        itens: [
+          {{ key: 'auditoria.view', label: 'Ver Atividade ao Vivo', desc: 'Acessar logs e auditoria da corretora' }},
+          {{ key: 'cargos.manage', label: 'Configurar Cargos', desc: 'Criar e ajustar matrizes de permissões' }}
+        ]
+      }}
+    ];
+
+    function renderizarCatalogoPermissoes(permissoesAtuais = []) {{
+      const container = document.getElementById('permissions-catalog-container');
+      if (!container) return;
+      const temMaster = permissoesAtuais.includes('*');
+      const masterToggle = document.getElementById('perm-master-toggle');
+      if (masterToggle) masterToggle.checked = temMaster;
+
+      container.innerHTML = PERMISSIONS_CATALOG.map(cat => {{
+        const todasDoGrupoMarcadas = cat.itens.every(it => permissoesAtuais.includes(it.key) || temMaster);
+        return `
+          <div class="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-2xs">
+            <div class="flex items-center justify-between px-3.5 py-2.5 bg-slate-50/80 border-b border-slate-100">
+              <div class="flex items-center gap-2">
+                <span class="text-base">${{cat.icone}}</span>
+                <span class="text-xs font-black text-navy-900">${{cat.titulo}}</span>
+              </div>
+              <button
+                type="button"
+                onclick="toggleGrupoPermissoes('${{cat.modulo}}')"
+                class="text-[11px] font-bold text-slate-500 hover:text-navy-900 transition underline decoration-slate-300"
+              >
+                ${{todasDoGrupoMarcadas ? 'Desmarcar módulo' : 'Marcar todas'}}
+              </button>
+            </div>
+            <div class="p-2.5 grid grid-cols-1 sm:grid-cols-2 gap-2">
+              ${{cat.itens.map(it => {{
+                const checked = temMaster || permissoesAtuais.includes(it.key);
+                return `
+                  <label class="flex items-start gap-2.5 p-2 rounded-xl border transition cursor-pointer select-none ${{checked ? 'bg-amber-50/50 border-amber-300' : 'bg-white border-slate-100 hover:border-slate-200 hover:bg-slate-50/50'}}">
+                    <input
+                      type="checkbox"
+                      name="r-perm-item"
+                      value="${{it.key}}"
+                      data-modulo="${{cat.modulo}}"
+                      ${{checked ? 'checked' : ''}}
+                      onchange="aoMudarPermissaoItem()"
+                      class="w-4 h-4 mt-0.5 rounded text-gold-600 shrink-0 cursor-pointer"
+                    />
+                    <div class="min-w-0">
+                      <div class="text-xs font-bold text-navy-900 leading-tight">${{it.label}}</div>
+                      <div class="text-[10px] text-slate-500 leading-normal mt-0.5">${{it.desc}}</div>
+                    </div>
+                  </label>
+                `;
+              }}).join('')}}
+            </div>
+          </div>
+        `;
+      }}).join('');
+    }}
+
+    function aoAlternarPermissaoMestre(marcado) {{
+      document.querySelectorAll('input[name="r-perm-item"]').forEach(cb => {{
+        cb.checked = marcado;
+      }});
+      // Atualiza visual dos cards
+      document.querySelectorAll('input[name="r-perm-item"]').forEach(cb => {{
+        const card = cb.closest('label');
+        if (card) {{
+          card.className = `flex items-start gap-2.5 p-2 rounded-xl border transition cursor-pointer select-none ${{cb.checked ? 'bg-amber-50/50 border-amber-300' : 'bg-white border-slate-100 hover:border-slate-200 hover:bg-slate-50/50'}}`;
+        }}
+      }});
+    }}
+
+    function toggleGrupoPermissoes(modulo) {{
+      const items = Array.from(document.querySelectorAll(`input[name="r-perm-item"][data-modulo="${{modulo}}"]`));
+      const todosMarcados = items.every(cb => cb.checked);
+      items.forEach(cb => {{
+        cb.checked = !todosMarcados;
+        const card = cb.closest('label');
+        if (card) {{
+          card.className = `flex items-start gap-2.5 p-2 rounded-xl border transition cursor-pointer select-none ${{cb.checked ? 'bg-amber-50/50 border-amber-300' : 'bg-white border-slate-100 hover:border-slate-200 hover:bg-slate-50/50'}}`;
+        }}
+      }});
+      aoMudarPermissaoItem();
+    }}
+
+    function aoMudarPermissaoItem() {{
+      const todos = Array.from(document.querySelectorAll('input[name="r-perm-item"]'));
+      const todosChecados = todos.length > 0 && todos.every(cb => cb.checked);
+      const masterToggle = document.getElementById('perm-master-toggle');
+      if (masterToggle) masterToggle.checked = todosChecados;
+
+      todos.forEach(cb => {{
+        const card = cb.closest('label');
+        if (card) {{
+          card.className = `flex items-start gap-2.5 p-2 rounded-xl border transition cursor-pointer select-none ${{cb.checked ? 'bg-amber-50/50 border-amber-300' : 'bg-white border-slate-100 hover:border-slate-200 hover:bg-slate-50/50'}}`;
+        }}
+      }});
+    }}
+
     async function carregarCargos() {{
       const res = await fetch('/api/admin/roles');
       if (!res.ok) return;
       stateRoles = await res.json();
 
       const sel = document.getElementById('u-cargo');
-      sel.innerHTML = stateRoles.map(r => `<option value="${{r.codigo}}">${{r.nome}} (${{r.codigo}})</option>`).join('');
+      if (sel) {{
+        sel.innerHTML = stateRoles.map(r => `<option value="${{r.codigo}}">${{r.nome}} (${{r.codigo}})</option>`).join('');
+      }}
 
       const grid = document.getElementById('roles-grid');
+      if (!grid) return;
+
       grid.innerHTML = stateRoles.map(r => `
-        <div class="bg-white rounded-2xl border border-slate-200 p-5 flex flex-col justify-between gap-4 shadow-xs">
+        <div class="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 flex flex-col justify-between gap-4 shadow-xs hover:border-slate-300 transition-all">
           <div>
             <div class="flex items-center justify-between gap-2">
-              <span class="font-mono text-xs font-bold px-2.5 py-1 rounded-lg bg-navy-900 text-gold-400">${{r.codigo}}</span>
-              ${{r.is_system ? '<span class="text-[11px] font-bold text-slate-500">Cargo Nativo</span>' : `
-                <button onclick="removerCargo('${{r.codigo}}')" class="text-xs font-bold text-red-600 hover:underline">Excluir</button>
+              <span class="font-mono text-xs font-black px-2.5 py-1 rounded-xl bg-navy-900 text-gold-400 tracking-wide">${{r.codigo}}</span>
+              ${{r.codigo === 'TI' ? `
+                <span class="text-[11px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-lg border border-slate-200">Protegido TI</span>
+              ` : `
+                <button
+                  type="button"
+                  onclick="removerCargo('${{r.codigo}}')"
+                  class="text-xs font-extrabold text-red-600 hover:text-red-700 hover:underline px-2 py-1 rounded-lg hover:bg-red-50 transition"
+                >
+                  Excluir
+                </button>
               `}}
             </div>
-            <h3 class="text-base font-extrabold text-navy-900 mt-3">${{r.nome}}</h3>
-            <p class="text-xs text-slate-600 mt-1">${{r.descricao || 'Sem descrição.'}}</p>
+            <h3 class="text-base font-black text-navy-900 mt-3 tracking-tight">${{r.nome}}</h3>
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed">${{r.descricao || 'Sem descrição cadastrada.'}}</p>
           </div>
+
           <div class="pt-3 border-t border-slate-100 space-y-2.5">
             <div>
-              <span class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Apps Padrão</span>
+              <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block mb-1">Apps Liberados</span>
               <div class="flex flex-wrap gap-1">
-                ${{(r.apps_padrao || []).map(a => `<span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-gold-50 text-gold-700 border border-gold-200">${{a === '*' ? 'Todos (*)' : a}}</span>`).join('')}}
+                ${{(r.apps_padrao || []).map(a => `<span class="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-gold-50 text-gold-800 border border-gold-200">${{a === '*' ? 'Todos (*)' : a}}</span>`).join('')}}
               </div>
             </div>
             <div>
-              <span class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Permissões Atribuídas</span>
-              <div class="flex flex-wrap gap-1.5">
-                ${{(r.permissoes || []).map(p => `<span class="font-mono text-[11px] px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">${{p}}</span>`).join('') || '<span class="text-xs text-slate-500">Básicas</span>'}}
+              <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block mb-1">Permissões do Cargo</span>
+              <div class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
+                ${{r.permissoes?.includes('*')
+                  ? '<span class="text-[11px] font-black px-2.5 py-0.5 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center gap-1">★ Acesso Mestre Irrestrito (*)</span>'
+                  : (r.permissoes || []).map(p => `<span class="font-mono text-[11px] px-2 py-0.5 rounded-lg bg-slate-100 text-slate-700 border border-slate-200">${{p}}</span>`).join('') || '<span class="text-xs text-slate-400 italic">Nenhuma permissão específica</span>'}}
               </div>
             </div>
             <button
               type="button"
               onclick='editarCargo(${{JSON.stringify(r)}})'
-              class="mt-2 w-full py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-bold text-navy-900"
+              class="mt-2 w-full py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-black text-navy-900 transition active:scale-98 shadow-2xs"
             >
-              Editar Cargo & Apps
+              Editar Cargo & Permissões
             </button>
           </div>
         </div>
@@ -1999,7 +2261,7 @@ def get_admin_html(
               ${{u.precisa_trocar_senha ? '<span class="inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200">Aguardando troca de senha</span>' : ''}}
             </td>
             <td class="py-3.5 px-4">
-              <span class="font-mono text-xs font-bold px-2.5 py-1 rounded-lg ${{u.cargo === 'ADMIN' ? 'bg-navy-900 text-gold-400' : 'bg-slate-100 text-navy-900 border border-slate-200'}}">
+              <span class="font-mono text-xs font-bold px-2.5 py-1 rounded-lg ${{['TI', 'ADMIN'].includes(u.cargo) ? 'bg-navy-900 text-gold-400 font-black' : u.cargo === 'ADMINISTRATIVO' ? 'bg-blue-50 text-blue-900 border border-blue-200 font-bold' : 'bg-slate-100 text-slate-800 border border-slate-200'}}">
                 ${{u.cargo}}
               </span>
             </td>
@@ -2107,7 +2369,7 @@ def get_admin_html(
                   <div class="text-[11px] text-slate-500 font-mono truncate">${{u.email}}</div>
                 </div>
               </div>
-              <span class="font-mono text-[11px] font-bold px-2 py-0.5 rounded-lg ${{u.cargo === 'ADMIN' ? 'bg-navy-900 text-gold-400' : 'bg-slate-100 text-navy-900 border border-slate-200'}} shrink-0">
+              <span class="font-mono text-[11px] font-bold px-2 py-0.5 rounded-lg ${{['TI', 'ADMIN'].includes(u.cargo) ? 'bg-navy-900 text-gold-400 font-black' : u.cargo === 'ADMINISTRATIVO' ? 'bg-blue-50 text-blue-900 border border-blue-200 font-bold' : 'bg-slate-100 text-slate-800 border border-slate-200'}} shrink-0">
                 ${{u.cargo}}
               </span>
             </div>
@@ -2482,27 +2744,39 @@ def get_admin_html(
     }}
 
     function abrirModalCargo() {{
-      document.getElementById('r-codigo').value = '';
-      document.getElementById('r-codigo').readOnly = false;
+      const title = document.getElementById('role-modal-title');
+      if (title) title.textContent = 'Novo Cargo & Permissões';
+      const codInput = document.getElementById('r-codigo');
+      codInput.value = '';
+      codInput.readOnly = false;
+      codInput.className = 'w-full h-10 rounded-xl border border-slate-300 px-3 text-xs font-mono font-bold uppercase text-navy-900 focus:outline-none focus:border-gold-500 bg-white';
       document.getElementById('r-nome').value = '';
       document.getElementById('r-desc').value = '';
-      document.getElementById('r-perms').value = '';
+
       document.querySelectorAll('input[name="r-app"]').forEach(cb => {{
         cb.checked = ['painel-vendedor', 'gold-db-api', 'cotador-web'].includes(cb.value);
       }});
+
+      renderizarCatalogoPermissoes(['leads.view', 'leads.edit', 'cotador.use']);
       document.getElementById('role-modal').classList.remove('hidden');
     }}
 
     function editarCargo(r) {{
-      document.getElementById('r-codigo').value = r.codigo;
-      document.getElementById('r-codigo').readOnly = true;
+      const title = document.getElementById('role-modal-title');
+      if (title) title.textContent = `Editar Cargo: ${{r.nome}} (${{r.codigo}})`;
+      const codInput = document.getElementById('r-codigo');
+      codInput.value = r.codigo;
+      codInput.readOnly = true;
+      codInput.className = 'w-full h-10 rounded-xl border border-slate-200 px-3 text-xs font-mono font-bold uppercase text-slate-500 bg-slate-100 cursor-not-allowed';
       document.getElementById('r-nome').value = r.nome;
       document.getElementById('r-desc').value = r.descricao || '';
-      document.getElementById('r-perms').value = (r.permissoes || []).join(', ');
+
       const apps = r.apps_padrao || [];
       document.querySelectorAll('input[name="r-app"]').forEach(cb => {{
         cb.checked = apps.includes(cb.value);
       }});
+
+      renderizarCatalogoPermissoes(r.permissoes || []);
       document.getElementById('role-modal').classList.remove('hidden');
     }}
 
@@ -2516,25 +2790,48 @@ def get_admin_html(
       const nome = document.getElementById('r-nome').value.trim();
       const descricao = document.getElementById('r-desc').value.trim();
       const apps_padrao = Array.from(document.querySelectorAll('input[name="r-app"]:checked')).map(cb => cb.value);
-      const permissoes = document.getElementById('r-perms').value.split(',').map(s => s.trim()).filter(Boolean);
 
-      const res = await fetch('/api/admin/roles', {{
-        method: 'POST',
-        headers: {{ 'Content-Type': 'application/json' }},
-        body: JSON.stringify({{ codigo, nome, descricao, permissoes, apps_padrao }})
-      }});
-      if (res.ok) {{
+      const isMaster = document.getElementById('perm-master-toggle')?.checked;
+      let permissoes = [];
+      if (isMaster) {{
+        permissoes = ['*'];
+      }} else {{
+        permissoes = Array.from(document.querySelectorAll('input[name="r-perm-item"]:checked')).map(cb => cb.value);
+      }}
+
+      try {{
+        const res = await fetch('/api/admin/roles', {{
+          method: 'POST',
+          headers: {{ 'Content-Type': 'application/json' }},
+          body: JSON.stringify({{ codigo, nome, descricao, permissoes, apps_padrao }})
+        }});
+        if (!res.ok) {{
+          const errData = await res.json().catch(() => ({{}}));
+          alert(errData.detail || 'Não foi possível salvar o cargo.');
+          return;
+        }}
         fecharModalCargo();
         await carregarCargos();
         await carregarAuditoria();
+      }} catch (err) {{
+        alert('Erro ao conectar ao servidor para salvar cargo.');
       }}
     }});
 
     async function removerCargo(codigo) {{
-      if (!confirm(`Deseja realmente excluir o cargo ${{codigo}}?`)) return;
-      await fetch(`/api/admin/roles/${{codigo}}`, {{ method: 'DELETE' }});
-      await carregarCargos();
-      await carregarAuditoria();
+      if (!confirm(`Deseja realmente excluir o cargo ${{codigo}}? Esta ação só é permitida se nenhum colaborador estiver vinculado.`)) return;
+      try {{
+        const res = await fetch(`/api/admin/roles/${{codigo}}`, {{ method: 'DELETE' }});
+        if (!res.ok) {{
+          const errData = await res.json().catch(() => ({{}}));
+          alert(errData.detail || 'Não foi possível excluir o cargo.');
+          return;
+        }}
+        await carregarCargos();
+        await carregarAuditoria();
+      }} catch (err) {{
+        alert('Erro ao excluir cargo.');
+      }}
     }}
 
 

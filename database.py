@@ -33,7 +33,17 @@ def is_postgres_url(url: str) -> bool:
 
 
 def get_connection():
-    url = get_database_url()
+    url = (os.getenv("DATABASE_URL") or "").strip()
+    if not url.startswith(("postgresql://", "postgres://")):
+        if (os.getenv("ENV") or "").lower() == "production":
+            raise BancoIndisponivelError(
+                "DATABASE_URL não configurada ou inválida (esperado postgresql://...). "
+                "Defina a variável no Coolify apontando para o PostgreSQL."
+            )
+        import sqlite3
+        conn = sqlite3.connect("auth_local.db")
+        conn.row_factory = sqlite3.Row
+        return conn, False
     try:
         import psycopg
         from psycopg.rows import dict_row
@@ -41,7 +51,7 @@ def get_connection():
         return conn, True
     except psycopg.Error as e:
         logger.error(f"[DB] PostgreSQL inacessível: {e}")
-        raise BancoIndisponivelError(f"PostgreSQL inacessível: {e}") from e
+        raise BancoIndisponivelError(f"[DB] PostgreSQL inacessível: {e}") from e
 
 
 def verificar_conexao() -> Dict[str, Any]:
@@ -101,28 +111,40 @@ def ensure_db_initialized():
 
 DEFAULT_ROLES = [
     {
-        "codigo": "ADMIN",
-        "nome": "Administrador Geral",
-        "descricao": "Acesso total a todos os sistemas, gestão de equipe, cargos e auditoria.",
+        "codigo": "TI",
+        "nome": "TI",
+        "descricao": "Acesso total irrestrito a todos os sistemas, configurações, equipe e auditoria.",
         "permissoes": ["*"],
         "apps_padrao": ["*"],
         "is_system": True
     },
     {
-        "codigo": "SUPERVISOR",
-        "nome": "Supervisor Comercial",
-        "descricao": "Visão completa do funil de vendas, carteira de clientes e relatórios.",
-        "permissoes": ["leads.view_all", "leads.edit", "leads.assign", "carteira.view", "auditoria.view"],
+        "codigo": "ADMINISTRATIVO",
+        "nome": "Administrativo",
+        "descricao": "Gestão operacional ampla, visualização e edição de leads da equipe, carteira e cotações.",
+        "permissoes": [
+            "leads.view_all",
+            "leads.edit",
+            "cotador.use",
+            "cotador.export",
+            "carteira.view",
+            "carteira.edit"
+        ],
         "apps_padrao": ["painel-vendedor", "gold-db-api", "cotador-web", "carteira"],
-        "is_system": True
+        "is_system": False
     },
     {
-        "codigo": "VENDEDOR",
-        "nome": "Consultor de Seguros",
-        "descricao": "Atendimento de leads em tempo real, propostas e cotações.",
-        "permissoes": ["leads.view", "leads.edit", "cotador.use"],
+        "codigo": "VENDAS",
+        "nome": "Vendas",
+        "descricao": "Atendimento diário, negociação de leads próprios e emissão de cotações.",
+        "permissoes": [
+            "leads.view",
+            "leads.edit",
+            "cotador.use",
+            "cotador.export"
+        ],
         "apps_padrao": ["painel-vendedor", "gold-db-api", "cotador-web"],
-        "is_system": True
+        "is_system": False
     }
 ]
 
@@ -175,6 +197,15 @@ def init_db():
 
             ALTER TABLE schema_auth.usuarios
             ADD COLUMN IF NOT EXISTS ultimo_lead_em TIMESTAMPTZ;
+
+            ALTER TABLE schema_auth.usuarios
+            ADD COLUMN IF NOT EXISTS telefone VARCHAR(50);
+
+            ALTER TABLE schema_auth.usuarios
+            ADD COLUMN IF NOT EXISTS data_nascimento DATE;
+
+            ALTER TABLE schema_auth.usuarios
+            ADD COLUMN IF NOT EXISTS cpf VARCHAR(20);
 
             CREATE TABLE IF NOT EXISTS schema_auth.sessoes (
                 id SERIAL PRIMARY KEY,
@@ -285,10 +316,15 @@ def init_db():
             cur.execute("ALTER TABLE auth_usuarios ADD COLUMN ferias_retorno TEXT;")
         except Exception:
             pass
+        for col_name in ["telefone", "data_nascimento", "cpf"]:
+            try:
+                cur.execute(f"ALTER TABLE auth_usuarios ADD COLUMN {col_name} TEXT;")
+            except Exception:
+                pass
 
     conn.commit()
 
-    # Seed de cargos iniciais
+    # Seed e Upsert dos cargos padrão
     tb_cargos = "schema_auth.cargos" if is_pg else "auth_cargos"
     for r in DEFAULT_ROLES:
         if is_pg:
@@ -297,18 +333,47 @@ def init_db():
                 f"""
                 INSERT INTO {tb_cargos} (codigo, nome, descricao, permissoes, apps_padrao, is_system)
                 VALUES (%s, %s, %s, %s, %s, %s)
-                ON CONFLICT (codigo) DO NOTHING;
+                ON CONFLICT (codigo) DO UPDATE SET
+                    nome = EXCLUDED.nome,
+                    descricao = EXCLUDED.descricao,
+                    permissoes = EXCLUDED.permissoes,
+                    apps_padrao = EXCLUDED.apps_padrao;
                 """,
                 (r["codigo"], r["nome"], r["descricao"], Jsonb(r["permissoes"]), Jsonb(r["apps_padrao"]), r["is_system"])
             )
         else:
             cur.execute(
                 f"""
-                INSERT OR IGNORE INTO {tb_cargos} (codigo, nome, descricao, permissoes, apps_padrao, is_system)
-                VALUES (?, ?, ?, ?, ?, ?);
+                INSERT INTO {tb_cargos} (codigo, nome, descricao, permissoes, apps_padrao, is_system)
+                VALUES (?, ?, ?, ?, ?, ?)
+                ON CONFLICT(codigo) DO UPDATE SET
+                    nome = excluded.nome,
+                    descricao = excluded.descricao,
+                    permissoes = excluded.permissoes,
+                    apps_padrao = excluded.apps_padrao;
                 """,
                 (r["codigo"], r["nome"], r["descricao"], json.dumps(r["permissoes"]), json.dumps(r["apps_padrao"]), 1 if r["is_system"] else 0)
             )
+
+    # Migração automática dos 3 usuários existentes: Gabriel (TI), Airton (ADMINISTRATIVO), Rúbia (VENDAS)
+    tb_users = "schema_auth.usuarios" if is_pg else "auth_usuarios"
+    try:
+        # Gabriel -> TI
+        cur.execute(
+            f"UPDATE {tb_users} SET cargo = 'TI' WHERE cargo = 'ADMIN' OR LOWER(email) LIKE '%gabriel%';"
+        )
+        # Airton -> ADMINISTRATIVO
+        cur.execute(
+            f"UPDATE {tb_users} SET cargo = 'ADMINISTRATIVO' WHERE LOWER(email) LIKE '%airton%';"
+        )
+        # Rúbia -> VENDAS
+        cur.execute(
+            f"UPDATE {tb_users} SET cargo = 'VENDAS' WHERE cargo = 'VENDEDOR' OR LOWER(email) LIKE '%rubia%';"
+        )
+        # Remover cargos legados antigos da tabela se não tiver mais ninguém neles
+        cur.execute(f"DELETE FROM {tb_cargos} WHERE codigo IN ('ADMIN', 'SUPERVISOR', 'VENDEDOR');")
+    except Exception as e:
+        logger.warning(f"[DB] Aviso na sincronização de usuários/cargos legados: {e}")
 
     # Seed do usuário Admin Master caso não exista nenhum usuário
     tb_users = "schema_auth.usuarios" if is_pg else "auth_usuarios"
@@ -326,7 +391,7 @@ def init_db():
             cur.execute(
                 f"""
                 INSERT INTO {tb_users} (nome, email, senha_hash, cargo, apps_permitidos, permissoes_extras, ativo, precisa_trocar_senha)
-                VALUES (%s, %s, %s, 'ADMIN', %s, %s, TRUE, FALSE);
+                VALUES (%s, %s, %s, 'TI', %s, %s, TRUE, FALSE);
                 """,
                 (admin_name, admin_email, pw_hash, Jsonb(["*"]), Jsonb(["*"]))
             )
@@ -334,7 +399,7 @@ def init_db():
             cur.execute(
                 f"""
                 INSERT INTO {tb_users} (nome, email, senha_hash, cargo, apps_permitidos, permissoes_extras, ativo, precisa_trocar_senha)
-                VALUES (?, ?, ?, 'ADMIN', ?, ?, 1, 0);
+                VALUES (?, ?, ?, 'TI', ?, ?, 1, 0);
                 """,
                 (admin_name, admin_email, pw_hash, json.dumps(["*"]), json.dumps(["*"]))
             )
@@ -366,6 +431,9 @@ def _normalize_user(row: Any, is_pg: bool) -> Dict[str, Any]:
     d["ferias_inicio"] = str(d["ferias_inicio"]) if d.get("ferias_inicio") else None
     d["ferias_retorno"] = str(d["ferias_retorno"]) if d.get("ferias_retorno") else None
     d["ultimo_lead_em"] = d["ultimo_lead_em"].isoformat() if d.get("ultimo_lead_em") else None
+    d["telefone"] = str(d["telefone"]) if d.get("telefone") else ""
+    d["data_nascimento"] = str(d["data_nascimento"]) if d.get("data_nascimento") else ""
+    d["cpf"] = str(d["cpf"]) if d.get("cpf") else ""
     return d
 
 def _normalize_role(row: Any) -> Dict[str, Any]:
@@ -582,7 +650,14 @@ def definir_senha_temporaria_usuario(usuario_id: int, senha_temporaria: Optional
     )
     return atualizado, temp_pw
 
-def trocar_propria_senha(usuario_id: int, nova_senha: str, senha_atual: Optional[str] = None) -> Tuple[bool, str]:
+def trocar_propria_senha(
+    usuario_id: int,
+    nova_senha: str,
+    senha_atual: Optional[str] = None,
+    nome: Optional[str] = None,
+    telefone: Optional[str] = None,
+    data_nascimento: Optional[str] = None
+) -> Tuple[bool, str]:
     """
     Permite ao usuário logado definir sua nova senha definitiva e limpa precisa_trocar_senha = False.
     Se o usuário não estiver com precisa_trocar_senha=True e informar senha_atual, valida a senha atual.
@@ -616,10 +691,23 @@ def trocar_propria_senha(usuario_id: int, nova_senha: str, senha_atual: Optional
 
     pw_hash = hash_password(nova_senha)
     false_val = False if is_pg else 0
-    cur.execute(
-        f"UPDATE {tb_users} SET senha_hash = {ph}, precisa_trocar_senha = {ph}, updated_at = CURRENT_TIMESTAMP WHERE id = {ph};",
-        (pw_hash, false_val, usuario_id)
-    )
+
+    updates = [f"senha_hash = {ph}", f"precisa_trocar_senha = {ph}", "updated_at = CURRENT_TIMESTAMP"]
+    params = [pw_hash, false_val]
+
+    if nome and nome.strip():
+        updates.append(f"nome = {ph}")
+        params.append(nome.strip())
+    if telefone is not None and telefone.strip():
+        updates.append(f"telefone = {ph}")
+        params.append(telefone.strip())
+    if data_nascimento is not None and data_nascimento.strip():
+        updates.append(f"data_nascimento = {ph}")
+        params.append(data_nascimento.strip())
+
+    params.append(usuario_id)
+    sql_up = f"UPDATE {tb_users} SET {', '.join(updates)} WHERE id = {ph};"
+    cur.execute(sql_up, tuple(params))
     conn.commit()
     conn.close()
     return True, "Senha atualizada com sucesso!"
@@ -998,11 +1086,25 @@ def salvar_cargo(dados: Dict[str, Any]) -> Dict[str, Any]:
 
 def excluir_cargo(codigo: str) -> bool:
     ensure_db_initialized()
+    cod_upper = codigo.strip().upper()
+    if cod_upper in ("TI", "ADMIN"):
+        return False  # Cargo TI protegido por integridade de infraestrutura
+
     conn, is_pg = get_connection()
     cur = conn.cursor()
     tb_cargos = "schema_auth.cargos" if is_pg else "auth_cargos"
+    tb_users = "schema_auth.usuarios" if is_pg else "auth_usuarios"
     ph = "%s" if is_pg else "?"
-    cur.execute(f"DELETE FROM {tb_cargos} WHERE codigo = {ph} AND is_system = {'FALSE' if is_pg else '0'};", (codigo.upper(),))
+
+    # Impede exclusão se houver usuários usando o cargo
+    cur.execute(f"SELECT COUNT(*) as total FROM {tb_users} WHERE cargo = {ph};", (cod_upper,))
+    row = cur.fetchone()
+    total_com_cargo = row["total"] if isinstance(row, dict) else row[0]
+    if total_com_cargo > 0:
+        conn.close()
+        return False
+
+    cur.execute(f"DELETE FROM {tb_cargos} WHERE codigo = {ph};", (cod_upper,))
     deleted = cur.rowcount > 0
     conn.commit()
     conn.close()

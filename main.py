@@ -118,8 +118,8 @@ def require_admin(request: Request) -> Dict[str, Any]:
     if not user:
         raise HTTPException(status_code=401, detail="Não autenticado.")
     perms = user.get("permissoes", [])
-    if user.get("cargo") != "ADMIN" and "*" not in perms and "admin.manage" not in perms:
-        raise HTTPException(status_code=403, detail="Acesso restrito a administradores.")
+    if user.get("cargo") not in ("TI", "ADMIN") and "*" not in perms and "admin.manage" not in perms:
+        raise HTTPException(status_code=403, detail="Acesso restrito à equipe de TI.")
     return user
 
 def set_sso_cookie(response: Response, token: str, request: Request, dias_validade: int = 7):
@@ -235,7 +235,7 @@ async def root_redirect(request: Request, rd: Optional[str] = Query(None)):
         return RedirectResponse(url=target, status_code=302)
     if rd and "auth.goldcorretora.com.br" not in rd:
         return RedirectResponse(url=rd, status_code=302)
-    if user.get("cargo") == "ADMIN" or "auditoria.view" in (user.get("permissoes") or []):
+    if user.get("cargo") in ("TI", "ADMIN") or "*" in (user.get("permissoes") or []):
         return RedirectResponse(url="/admin", status_code=302)
     return RedirectResponse(url=DEFAULT_REDIRECT_URL, status_code=302)
 
@@ -279,7 +279,7 @@ async def admin_page(request: Request):
     if user.get("precisa_trocar_senha"):
         return RedirectResponse(url="/login?force_pw_change=1&rd=/admin", status_code=302)
     perms = user.get("permissoes") or []
-    if user.get("cargo") != "ADMIN" and "*" not in perms and "auditoria.view" not in perms:
+    if user.get("cargo") not in ("TI", "ADMIN") and "*" not in perms:
         return RedirectResponse(url=DEFAULT_REDIRECT_URL, status_code=302)
     try:
         cfg = obter_configuracoes_email(ocultar_senha=True)
@@ -424,6 +424,9 @@ class ChangePasswordIn(BaseModel):
     nova_senha: str
     confirmar_senha: Optional[str] = None
     senha_atual: Optional[str] = None
+    nome: Optional[str] = None
+    telefone: Optional[str] = None
+    data_nascimento: Optional[str] = None
 
 class AuditEventIn(BaseModel):
     app: str = Field(default="painel-vendedor")
@@ -511,17 +514,37 @@ async def api_change_password(payload: ChangePasswordIn, request: Request):
     if payload.confirmar_senha is not None and nova != payload.confirmar_senha.strip():
         raise HTTPException(status_code=400, detail="A confirmação de senha não confere.")
 
-    ok, msg = trocar_propria_senha(user["id"], nova, payload.senha_atual)
+    era_temporaria = bool(user.get("precisa_trocar_senha"))
+    ok, msg = trocar_propria_senha(
+        user["id"],
+        nova,
+        payload.senha_atual,
+        nome=payload.nome,
+        telefone=payload.telefone,
+        data_nascimento=payload.data_nascimento
+    )
     if not ok:
         raise HTTPException(status_code=400, detail=msg)
 
+    nome_final = (payload.nome or "").strip() or user.get("nome", "Usuário")
+    acao_audit = "PRIMEIRO_ACESSO_CONCLUIDO" if era_temporaria else "SENHA_ALTERADA_PELO_USUARIO"
+    resumo_audit = (
+        f"{nome_final} concluiu o primeiro acesso, preencheu perfil e definiu nova senha."
+        if era_temporaria
+        else f"{nome_final} definiu sua nova senha pessoal de acesso."
+    )
+
     registrar_auditoria(
-        acao="SENHA_ALTERADA_PELO_USUARIO",
+        acao=acao_audit,
         usuario=user,
         app="gold-auth",
         metodo="POST",
         rota="/api/auth/change-password",
-        detalhes={"resumo": f"{user['nome']} definiu sua nova senha pessoal de acesso."},
+        detalhes={
+            "resumo": resumo_audit,
+            "telefone_preenchido": bool(payload.telefone),
+            "data_nascimento_preenchida": bool(payload.data_nascimento)
+        },
         ip=get_client_ip(request)
     )
     return {"ok": True, "message": msg}
@@ -650,10 +673,10 @@ async def api_record_audit(payload: AuditEventIn, request: Request):
 # API ADMINISTRATIVA (USUÁRIOS, CARGOS, E-MAIL & AUDITORIA)
 # ==========================================================
 class UsuarioCreateIn(BaseModel):
-    nome: str
+    nome: Optional[str] = ""
     email: str
     senha: Optional[str] = None
-    cargo: str = "VENDEDOR"
+    cargo: str = "VENDAS"
     apps_permitidos: List[str] = ["painel-vendedor", "gold-db-api", "cotador-web"]
     permissoes_extras: List[str] = []
     precisa_trocar_senha: bool = False
@@ -706,6 +729,9 @@ async def admin_list_users(request: Request):
 async def admin_create_user(payload: UsuarioCreateIn, request: Request):
     admin = require_admin(request)
     dados = payload.model_dump()
+    if not (dados.get("nome") or "").strip():
+        prefixo = dados["email"].split("@")[0].replace(".", " ").title()
+        dados["nome"] = prefixo or "Novo Colaborador"
     senha_informada = (dados.get("senha") or "").strip()
 
     # Se marcou envio por email e nao digitou senha manual, gera automaticamente temporaria
@@ -771,8 +797,8 @@ async def admin_update_user(user_id: int, payload: UsuarioUpdateIn, request: Req
     if user_id == admin["id"]:
         if "ativo" in updates and not updates["ativo"]:
             raise HTTPException(status_code=400, detail="Você não pode bloquear sua própria conta de administrador.")
-        if "cargo" in updates and updates["cargo"] and updates["cargo"].upper() != "ADMIN":
-            raise HTTPException(status_code=400, detail="Você não pode remover o cargo ADMIN da sua própria conta.")
+        if "cargo" in updates and updates["cargo"] and updates["cargo"].upper() not in ("TI", "ADMIN"):
+            raise HTTPException(status_code=400, detail="Você não pode remover o cargo TI da sua própria conta.")
 
     try:
         atualizado = atualizar_usuario(user_id, updates)
@@ -958,7 +984,7 @@ async def admin_delete_role(codigo: str, request: Request):
     admin = require_admin(request)
     ok = excluir_cargo(codigo)
     if not ok:
-        raise HTTPException(status_code=400, detail="Não foi possível excluir este cargo (cargos de sistema são protegidos).")
+        raise HTTPException(status_code=400, detail="Não é possível excluir o cargo de TI ou cargos que ainda possuam usuários vinculados.")
     registrar_auditoria(
         acao="CARGO_EXCLUIDO",
         usuario=admin,
@@ -982,7 +1008,7 @@ async def admin_list_audit(
     if not user:
         raise HTTPException(status_code=401, detail="Não autenticado.")
     perms = user.get("permissoes") or []
-    if user.get("cargo") != "ADMIN" and "*" not in perms and "auditoria.view" not in perms:
+    if user.get("cargo") not in ("TI", "ADMIN") and "*" not in perms and "auditoria.view" not in perms:
         raise HTTPException(status_code=403, detail="Sem permissão para visualizar auditoria.")
     return listar_auditoria(busca=q, app=app, usuario_email=email, limite=limite)
 
