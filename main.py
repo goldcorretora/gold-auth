@@ -167,6 +167,61 @@ def user_can_access_app(user: Dict[str, Any], app_slug: str) -> bool:
     return False
 
 # ==========================================================
+# FAVICON & IDENTIDADE VISUAL
+# ==========================================================
+FAVICON_SVG = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="14" fill="#0A121E"/>
+  <rect x="0.75" y="0.75" width="62.5" height="62.5" rx="13.25" fill="none" stroke="#C59B27" stroke-width="1.5" stroke-opacity="0.4"/>
+  <text x="32" y="47" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-weight="bold" font-size="40" fill="#F5B82E">G</text>
+</svg>"""
+
+@app.get("/favicon.svg", include_in_schema=False)
+async def get_favicon_svg():
+    return Response(
+        content=FAVICON_SVG,
+        media_type="image/svg+xml",
+        headers={"Cache-Control": "public, max-age=86400, immutable"}
+    )
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def get_favicon_ico():
+    ico_path = os.path.join(os.path.dirname(__file__), "static", "favicon.ico")
+    if os.path.exists(ico_path):
+        try:
+            with open(ico_path, "rb") as f:
+                return Response(
+                    content=f.read(),
+                    media_type="image/x-icon",
+                    headers={"Cache-Control": "public, max-age=86400, immutable"}
+                )
+        except Exception:
+            pass
+    return Response(
+        content=FAVICON_SVG,
+        media_type="image/svg+xml",
+        headers={"Cache-Control": "public, max-age=86400, immutable"}
+    )
+
+@app.get("/favicon.png", include_in_schema=False)
+async def get_favicon_png():
+    png_path = os.path.join(os.path.dirname(__file__), "static", "favicon.png")
+    if os.path.exists(png_path):
+        try:
+            with open(png_path, "rb") as f:
+                return Response(
+                    content=f.read(),
+                    media_type="image/png",
+                    headers={"Cache-Control": "public, max-age=86400, immutable"}
+                )
+        except Exception:
+            pass
+    return Response(
+        content=FAVICON_SVG,
+        media_type="image/svg+xml",
+        headers={"Cache-Control": "public, max-age=86400, immutable"}
+    )
+
+# ==========================================================
 # ROTAS VISUAIS (LOGIN & PAINEL ADMIN)
 # ==========================================================
 @app.get("/", include_in_schema=False)
