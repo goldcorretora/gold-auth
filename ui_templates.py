@@ -1533,7 +1533,7 @@ def get_admin_html(
     <div class="modal-panel bg-white rounded-3xl border border-slate-200 max-w-2xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
       
       <!-- Cabeçalho do Modal -->
-      <div class="flex items-center justify-between border-b border-slate-200 px-6 py-4 bg-slate-50/70 shrink-0">
+      <div class="flex items-center justify-between border-b border-slate-200 px-5 sm:px-6 py-4 bg-slate-50/70 shrink-0">
         <div>
           <h3 id="role-modal-title" class="text-base sm:text-lg font-black text-navy-900">Configurar Cargo & Permissões</h3>
           <p class="text-[11px] text-slate-500 mt-0.5">Defina os acessos por módulo de forma visual sem precisar adivinhar comandos técnicos.</p>
@@ -1542,57 +1542,63 @@ def get_admin_html(
       </div>
 
       <form id="role-form" class="flex flex-col flex-1 overflow-hidden">
-        <div class="p-6 space-y-4 overflow-y-auto flex-1">
-          <!-- Dados Básicos -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-            <div>
-              <label for="r-codigo" class="block text-xs font-bold text-slate-700 mb-1">Código Identificador (Ex: TI, ADMINISTRATIVO, VENDAS)</label>
-              <input id="r-codigo" type="text" required placeholder="ADMINISTRATIVO" class="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs font-mono font-bold uppercase text-navy-900 focus:outline-none focus:border-gold-500 bg-white" />
+        <div class="p-5 sm:p-6 space-y-5 overflow-y-auto flex-1">
+          <!-- Dados Básicos com Labels e Inputs Perfeitamente Alinhados -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+            <div class="flex flex-col">
+              <label for="r-codigo" class="flex items-center justify-between text-xs font-bold text-slate-700 h-5 mb-1.5">
+                <span>Código Identificador</span>
+                <span class="text-[10px] font-normal text-slate-400 uppercase tracking-tight">Ex: TI, VENDAS</span>
+              </label>
+              <input id="r-codigo" type="text" required placeholder="ADMINISTRATIVO" class="w-full h-11 rounded-xl border border-slate-300 px-3.5 text-xs font-mono font-bold uppercase text-navy-900 placeholder:text-slate-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 bg-white transition shadow-2xs" />
             </div>
-            <div>
-              <label for="r-nome" class="block text-xs font-bold text-slate-700 mb-1">Nome de Exibição do Cargo</label>
-              <input id="r-nome" type="text" required placeholder="Administrativo" class="w-full h-10 rounded-xl border border-slate-300 px-3 text-sm font-semibold text-navy-900 focus:outline-none focus:border-gold-500 bg-white" />
+            <div class="flex flex-col">
+              <label for="r-nome" class="flex items-center justify-between text-xs font-bold text-slate-700 h-5 mb-1.5">
+                <span>Nome de Exibição</span>
+                <span class="text-[10px] font-normal text-slate-400">Título amigável</span>
+              </label>
+              <input id="r-nome" type="text" required placeholder="Administrativo" class="w-full h-11 rounded-xl border border-slate-300 px-3.5 text-xs sm:text-sm font-semibold text-navy-900 placeholder:text-slate-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 bg-white transition shadow-2xs" />
             </div>
           </div>
 
-          <div>
-            <label for="r-desc" class="block text-xs font-bold text-slate-700 mb-1">Descrição e Responsabilidades</label>
-            <input id="r-desc" type="text" placeholder="Visualização operacional ampla, relatórios de carteira e gestão de leads" class="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs sm:text-sm text-navy-900 focus:outline-none focus:border-gold-500 bg-white" />
+          <div class="flex flex-col">
+            <label for="r-desc" class="block text-xs font-bold text-slate-700 mb-1.5">Descrição e Responsabilidades</label>
+            <input id="r-desc" type="text" placeholder="Visualização operacional ampla, relatórios de carteira e gestão de leads" class="w-full h-11 rounded-xl border border-slate-300 px-3.5 text-xs sm:text-sm text-navy-900 placeholder:text-slate-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 bg-white transition shadow-2xs" />
           </div>
 
           <!-- Aplicativos Liberados -->
-          <div>
-            <span class="block text-xs font-extrabold text-slate-700 mb-1.5 uppercase tracking-wider text-[10px]">1. Aplicativos Padrão Liberados</span>
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 bg-slate-50 p-3 rounded-2xl border border-slate-200 text-xs font-bold text-navy-900">
-              <label class="flex items-center gap-2 cursor-pointer hover:text-gold-700 transition">
-                <input type="checkbox" name="r-app" value="painel-vendedor" checked class="w-4 h-4 rounded text-gold-600 cursor-pointer" />
-                <span>Painel de Vendas</span>
+          <div class="space-y-2">
+            <span class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider text-[10px]">1. Aplicativos Padrão Liberados</span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 bg-slate-50/90 p-3.5 rounded-2xl border border-slate-200 text-xs font-bold text-navy-900">
+              <label class="flex items-center gap-2.5 p-2 rounded-xl bg-white border border-slate-200/80 cursor-pointer hover:border-gold-400 hover:bg-gold-50/30 transition shadow-2xs">
+                <input type="checkbox" name="r-app" value="painel-vendedor" checked class="w-4 h-4 rounded text-gold-600 cursor-pointer focus:ring-gold-400" />
+                <span class="select-none">Painel de Vendas</span>
               </label>
-              <label class="flex items-center gap-2 cursor-pointer hover:text-gold-700 transition">
-                <input type="checkbox" name="r-app" value="cotador-web" checked class="w-4 h-4 rounded text-gold-600 cursor-pointer" />
-                <span>Simulador / Cotador</span>
+              <label class="flex items-center gap-2.5 p-2 rounded-xl bg-white border border-slate-200/80 cursor-pointer hover:border-gold-400 hover:bg-gold-50/30 transition shadow-2xs">
+                <input type="checkbox" name="r-app" value="cotador-web" checked class="w-4 h-4 rounded text-gold-600 cursor-pointer focus:ring-gold-400" />
+                <span class="select-none">Simulador / Cotador</span>
               </label>
-              <label class="flex items-center gap-2 cursor-pointer hover:text-gold-700 transition">
-                <input type="checkbox" name="r-app" value="carteira" class="w-4 h-4 rounded text-gold-600 cursor-pointer" />
-                <span>Carteira Geral</span>
+              <label class="flex items-center gap-2.5 p-2 rounded-xl bg-white border border-slate-200/80 cursor-pointer hover:border-gold-400 hover:bg-gold-50/30 transition shadow-2xs">
+                <input type="checkbox" name="r-app" value="carteira" class="w-4 h-4 rounded text-gold-600 cursor-pointer focus:ring-gold-400" />
+                <span class="select-none">Carteira Geral</span>
               </label>
               
-              <label class="flex items-center gap-2 col-span-2 sm:col-span-2 cursor-pointer text-gold-700 font-extrabold">
-                <input type="checkbox" name="r-app" value="*" class="w-4 h-4 rounded text-gold-600 cursor-pointer" />
-                <span>Todos os Aplicativos da Corretora (*)</span>
+              <label class="flex items-center gap-2.5 p-2 rounded-xl bg-gold-50/70 border border-gold-300 text-gold-900 cursor-pointer hover:bg-gold-100/70 transition shadow-2xs font-extrabold">
+                <input type="checkbox" name="r-app" value="*" class="w-4 h-4 rounded text-gold-600 cursor-pointer focus:ring-gold-400" />
+                <span class="select-none truncate">Todos os Aplicativos (*)</span>
               </label>
             </div>
           </div>
 
           <!-- Matriz Visual de Permissões -->
-          <div>
-            <div class="flex items-center justify-between mb-2">
+          <div class="space-y-2.5">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
               <span class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider text-[10px]">2. Matriz de Permissões do Cargo</span>
               <span class="text-[11px] text-slate-500 font-medium">Selecione os módulos autorizados:</span>
             </div>
 
             <!-- Toggle Acesso Completo (*) -->
-            <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between shadow-2xs mb-3">
+            <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between shadow-2xs">
               <div class="flex items-center gap-3">
                 <div class="w-8 h-8 rounded-xl bg-navy-900 text-emerald-400 flex items-center justify-center font-black text-sm shrink-0 shadow-xs">
                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -1604,7 +1610,7 @@ def get_admin_html(
                   <div class="text-[11px] text-slate-600 leading-tight">Acesso completo aos sistemas e visualização técnica (padrão TI).</div>
                 </div>
               </div>
-              <label class="relative inline-flex items-center cursor-pointer shrink-0">
+              <label class="relative inline-flex items-center cursor-pointer shrink-0 ml-3">
                 <input type="checkbox" id="perm-master-toggle" onchange="aoAlternarPermissaoMestre(this.checked)" class="sr-only peer" />
                 <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-navy-900"></div>
               </label>
@@ -1618,9 +1624,9 @@ def get_admin_html(
         </div>
 
         <!-- Rodapé de Ações -->
-        <div class="flex items-center justify-between px-6 py-4 bg-slate-50/80 border-t border-slate-200 shrink-0">
-          <button type="button" onclick="fecharModalCargo()" class="btn-tactile px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-200/70 transition">Cancelar</button>
-          <button type="submit" class="btn-tactile px-6 py-2.5 rounded-xl text-xs font-black bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md active:scale-98 transition flex items-center gap-2">
+        <div class="flex items-center justify-between px-5 sm:px-6 py-4 bg-slate-50/80 border-t border-slate-200 shrink-0">
+          <button type="button" onclick="fecharModalCargo()" class="btn-tactile px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-200/70 transition">Cancelar</button>
+          <button type="submit" class="btn-tactile px-6 py-2.5 rounded-xl text-xs sm:text-sm font-black bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md active:scale-98 transition flex items-center gap-2">
             <span>Salvar Cargo & Permissões</span>
           </button>
         </div>
@@ -1669,6 +1675,48 @@ def get_admin_html(
           </div>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- MODAL DE CONFIRMAÇÃO ELEGANTE (BLOQUEAR, REATIVAR E EXCLUIR) -->
+  <div id="confirm-action-modal" class="hidden fixed inset-0 z-50 bg-navy-950/75 backdrop-blur-xs flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="confirm-action-title">
+    <div class="modal-panel bg-white rounded-3xl border border-slate-200 max-w-md w-full p-6 sm:p-7 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200">
+      <div class="flex items-start gap-4">
+        <div id="confirm-action-icon-wrap" class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 text-xl font-bold shadow-xs">
+          <span id="confirm-action-icon">⚠️</span>
+        </div>
+        <div class="min-w-0 flex-1">
+          <h3 id="confirm-action-title" class="text-base sm:text-lg font-extrabold text-navy-950 leading-snug">Confirmar Ação</h3>
+          <p id="confirm-action-desc" class="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">Você tem certeza que deseja executar esta ação?</p>
+        </div>
+      </div>
+
+      <div id="confirm-action-target-card" class="bg-slate-50 rounded-2xl p-3.5 border border-slate-200/80 flex items-center gap-3">
+        <div id="confirm-action-avatar" class="w-9 h-9 rounded-xl bg-navy-900 text-gold-400 flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+          U
+        </div>
+        <div class="min-w-0 flex-1">
+          <div id="confirm-action-user-name" class="font-extrabold text-navy-950 text-xs sm:text-sm truncate">Nome do Usuário</div>
+          <div id="confirm-action-user-email" class="text-[11px] text-slate-500 font-mono truncate">email@goldcorretora.com.br</div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-100">
+        <button
+          type="button"
+          onclick="fecharModalConfirmacao()"
+          class="btn-tactile px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-100 transition"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          id="confirm-action-btn-exec"
+          class="btn-tactile px-5 py-2.5 rounded-xl text-xs sm:text-sm font-black shadow-md transition flex items-center gap-2"
+        >
+          <span id="confirm-action-btn-label">Confirmar</span>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -1997,11 +2045,11 @@ def get_admin_html(
                 ${{todasDoGrupoMarcadas ? 'Desmarcar módulo' : 'Marcar todas'}}
               </button>
             </div>
-            <div class="p-2.5 grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div class="p-2.5 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               ${{cat.itens.map(it => {{
                 const checked = temMaster || permissoesAtuais.includes(it.key);
                 return `
-                  <label class="flex items-start gap-2.5 p-2 rounded-xl border transition cursor-pointer select-none ${{checked ? 'bg-amber-50/50 border-amber-300' : 'bg-white border-slate-100 hover:border-slate-200 hover:bg-slate-50/50'}}">
+                  <label class="flex items-start gap-2.5 p-2.5 rounded-xl border transition cursor-pointer select-none h-full ${{checked ? 'bg-amber-50/60 border-amber-300 shadow-2xs' : 'bg-white border-slate-200/70 hover:border-slate-300 hover:bg-slate-50/50 shadow-2xs'}}">
                     <input
                       type="checkbox"
                       name="r-perm-item"
@@ -2009,9 +2057,9 @@ def get_admin_html(
                       data-modulo="${{cat.modulo}}"
                       ${{checked ? 'checked' : ''}}
                       onchange="aoMudarPermissaoItem()"
-                      class="w-4 h-4 mt-0.5 rounded text-gold-600 shrink-0 cursor-pointer"
+                      class="w-4 h-4 mt-0.5 rounded text-gold-600 shrink-0 cursor-pointer focus:ring-gold-400"
                     />
-                    <div class="min-w-0">
+                    <div class="min-w-0 flex-1">
                       <div class="text-xs font-bold text-navy-900 leading-tight">${{it.label}}</div>
                       <div class="text-[10px] text-slate-500 leading-normal mt-0.5">${{it.desc}}</div>
                     </div>
@@ -2032,7 +2080,7 @@ def get_admin_html(
       document.querySelectorAll('input[name="r-perm-item"]').forEach(cb => {{
         const card = cb.closest('label');
         if (card) {{
-          card.className = `flex items-start gap-2.5 p-2 rounded-xl border transition cursor-pointer select-none ${{cb.checked ? 'bg-amber-50/50 border-amber-300' : 'bg-white border-slate-100 hover:border-slate-200 hover:bg-slate-50/50'}}`;
+          card.className = `flex items-start gap-2.5 p-2.5 rounded-xl border transition cursor-pointer select-none h-full ${{cb.checked ? 'bg-amber-50/60 border-amber-300 shadow-2xs' : 'bg-white border-slate-200/70 hover:border-slate-300 hover:bg-slate-50/50 shadow-2xs'}}`;
         }}
       }});
     }}
@@ -2099,7 +2147,7 @@ def get_admin_html(
             <div>
               <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block mb-1">Apps Liberados</span>
               <div class="flex flex-wrap gap-1">
-                ${{(r.apps_padrao || []).map(a => `<span class="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-gold-50 text-gold-800 border border-gold-200">${{a === '*' ? 'Todos (*)' : a}}</span>`).join('')}}
+                ${{(r.apps_padrao || []).filter(a => a !== 'gold-db-api' && a !== 'gold-auth' && a !== 'gold-apps' && a !== 'conciliacao').map(a => `<span class="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-gold-50 text-gold-800 border border-gold-200">${{a === '*' ? 'Todos (*)' : a}}</span>`).join('') || '<span class="text-xs text-slate-400 italic">Nenhum aplicativo</span>'}}
               </div>
             </div>
             <div>
@@ -2199,14 +2247,151 @@ def get_admin_html(
       }}
     }}
 
+    let confirmPendingAction = null;
+
+    function fecharModalConfirmacao() {{
+      const modal = document.getElementById('confirm-action-modal');
+      if (modal) modal.classList.add('hidden');
+      confirmPendingAction = null;
+      const btnExec = document.getElementById('confirm-action-btn-exec');
+      if (btnExec) {{
+        btnExec.disabled = false;
+        btnExec.onclick = null;
+      }}
+    }}
+
+    function abrirModalConfirmacao({{ title, desc, icon, iconWrapClass, btnLabel, btnClass, user, onConfirm }}) {{
+      const modal = document.getElementById('confirm-action-modal');
+      if (!modal) return;
+
+      document.getElementById('confirm-action-title').textContent = title;
+      document.getElementById('confirm-action-desc').textContent = desc;
+      document.getElementById('confirm-action-icon').textContent = icon;
+      document.getElementById('confirm-action-icon-wrap').className = 'w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 text-xl font-bold shadow-xs ' + iconWrapClass;
+
+      if (user) {{
+        document.getElementById('confirm-action-target-card').classList.remove('hidden');
+        document.getElementById('confirm-action-avatar').textContent = getInitials(user.nome || user.email);
+        document.getElementById('confirm-action-user-name').textContent = user.nome || 'Colaborador';
+        document.getElementById('confirm-action-user-email').textContent = user.email || '';
+      }} else {{
+        document.getElementById('confirm-action-target-card').classList.add('hidden');
+      }}
+
+      const btnExec = document.getElementById('confirm-action-btn-exec');
+      document.getElementById('confirm-action-btn-label').textContent = btnLabel;
+      btnExec.className = 'btn-tactile px-5 py-2.5 rounded-xl text-xs sm:text-sm font-black shadow-md transition flex items-center gap-2 ' + btnClass;
+      btnExec.disabled = false;
+
+      btnExec.onclick = async () => {{
+        btnExec.disabled = true;
+        const origText = document.getElementById('confirm-action-btn-label').textContent;
+        document.getElementById('confirm-action-btn-label').textContent = 'Processando...';
+        try {{
+          await onConfirm();
+          fecharModalConfirmacao();
+        }} catch (err) {{
+          console.error(err);
+          alert('Ocorreu um erro ao executar a ação.');
+          btnExec.disabled = false;
+          document.getElementById('confirm-action-btn-label').textContent = origText;
+        }}
+      }};
+
+      modal.classList.remove('hidden');
+    }}
+
+    function solicitarBloqueioUsuario(id, novoAtivo) {{
+      const u = stateUsers.find(x => x.id === id);
+      if (!u) return;
+
+      if (!novoAtivo) {{
+        // Ação de BLOQUEAR
+        abrirModalConfirmacao({{
+          title: 'Bloquear Acesso do Usuário?',
+          desc: 'O usuário não conseguirá mais fazer login ou acessar nenhuma ferramenta da Gold até ser reativado.',
+          icon: '🔒',
+          iconWrapClass: 'bg-red-100 text-red-700 border border-red-200',
+          btnLabel: 'Sim, Bloquear Usuário',
+          btnClass: 'bg-red-600 hover:bg-red-700 text-white',
+          user: u,
+          onConfirm: async () => {{
+            await alternarStatusUsuario(id, false);
+          }}
+        }});
+      }} else {{
+        // Ação de REATIVAR
+        abrirModalConfirmacao({{
+          title: 'Reativar Acesso do Usuário?',
+          desc: 'O colaborador voltará a ter permissão de acesso normal às ferramentas da Gold.',
+          icon: '✅',
+          iconWrapClass: 'bg-emerald-100 text-emerald-700 border border-emerald-200',
+          btnLabel: 'Sim, Reativar Usuário',
+          btnClass: 'bg-emerald-600 hover:bg-emerald-700 text-white',
+          user: u,
+          onConfirm: async () => {{
+            await alternarStatusUsuario(id, true);
+          }}
+        }});
+      }}
+    }}
+
+    function solicitarExclusaoUsuario(id) {{
+      const u = stateUsers.find(x => x.id === id);
+      if (!u) return;
+
+      abrirModalConfirmacao({{
+        title: 'Excluir Usuário Permanentemente?',
+        desc: 'Esta ação não pode ser desfeita. Se você deseja apenas impedir o acesso mantendo o histórico, recomendamos usar a opção Bloquear.',
+        icon: '🗑️',
+        iconWrapClass: 'bg-rose-100 text-rose-700 border border-rose-200',
+        btnLabel: 'Excluir Definitivamente',
+        btnClass: 'bg-rose-700 hover:bg-rose-800 text-white',
+        user: u,
+        onConfirm: async () => {{
+          await excluirUsuarioConfirmado(u.id, u.nome);
+        }}
+      }});
+    }}
+
+    async function excluirUsuarioConfirmado(userId, nome) {{
+      const res = await fetch(`/api/admin/users/${{userId}}`, {{ method: 'DELETE' }});
+      if (!res.ok) {{
+        const data = await res.json().catch(() => ({{}}));
+        alert(data.detail || 'Não foi possível excluir o usuário.');
+        return;
+      }}
+      await carregarUsuarios();
+      await carregarAuditoria();
+    }}
+
     function revogarSessoesPorId(id) {{
       const u = stateUsers.find(x => x.id === id);
-      if (u) revogarSessoesUsuario(u.id, u.nome);
+      if (!u) return;
+
+      abrirModalConfirmacao({{
+        title: 'Derrubar Sessões Ativas?',
+        desc: 'Todas as sessões e tokens deste usuário serão revogados imediatamente, forçando um novo login.',
+        icon: '⚡',
+        iconWrapClass: 'bg-amber-100 text-amber-800 border border-amber-200',
+        btnLabel: 'Derrubar Sessões',
+        btnClass: 'bg-amber-600 hover:bg-amber-700 text-white',
+        user: u,
+        onConfirm: async () => {{
+          const res = await fetch(`/api/admin/users/${{u.id}}/revoke-sessions`, {{ method: 'POST' }});
+          if (!res.ok) {{
+            const data = await res.json().catch(() => ({{}}));
+            alert(data.detail || 'Não foi possível derrubar as sessões.');
+            return;
+          }}
+          await carregarUsuarios();
+          await carregarAuditoria();
+        }}
+      }});
     }}
 
     function excluirUsuarioConfirmadoPorId(id) {{
-      const u = stateUsers.find(x => x.id === id);
-      if (u) excluirUsuarioConfirmado(u.id, u.nome);
+      solicitarExclusaoUsuario(id);
     }}
 
     async function carregarUsuarios() {{
@@ -2359,14 +2544,14 @@ def get_admin_html(
               ${{!isSelf ? `
                 <button
                   type="button"
-                  onclick="alternarStatusUsuario(${{u.id}}, ${{!u.ativo}})"
+                  onclick="solicitarBloqueioUsuario(${{u.id}}, ${{!u.ativo}})"
                   class="btn-tactile px-2.5 py-1.5 rounded-lg text-xs font-bold ${{u.ativo ? 'bg-red-50 text-red-700 hover:bg-red-100 border border-red-200' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200'}}"
                 >
                   ${{u.ativo ? 'Bloquear' : 'Reativar'}}
                 </button>
                 <button
                   type="button"
-                  onclick="excluirUsuarioConfirmadoPorId(${{u.id}})"
+                  onclick="solicitarExclusaoUsuario(${{u.id}})"
                   title="Excluir usuário"
                   class="btn-tactile px-2 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:text-red-700 hover:bg-red-50"
                 >
@@ -2456,10 +2641,17 @@ def get_admin_html(
               ${{!isSelf ? `
                 <button
                   type="button"
-                  onclick="alternarStatusUsuario(${{u.id}}, ${{!u.ativo}})"
+                  onclick="solicitarBloqueioUsuario(${{u.id}}, ${{!u.ativo}})"
                   class="btn-tactile py-2 rounded-xl text-xs font-bold ${{u.ativo ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}} text-center"
                 >
                   ${{u.ativo ? 'Bloquear Acesso' : 'Reativar'}}
+                </button>
+                <button
+                  type="button"
+                  onclick="solicitarExclusaoUsuario(${{u.id}})"
+                  class="btn-tactile py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-red-700 hover:bg-red-50 border border-slate-200 text-center col-span-2"
+                >
+                  Excluir Usuário
                 </button>
               ` : ''}}
             </div>
@@ -2935,6 +3127,7 @@ def get_admin_html(
         fecharModalUsuario();
         fecharModalCargo();
         fecharModalSenhaTemp();
+        fecharModalConfirmacao();
       }}
     }});
 

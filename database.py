@@ -130,7 +130,7 @@ DEFAULT_ROLES = [
             "carteira.view",
             "carteira.edit"
         ],
-        "apps_padrao": ["painel-vendedor", "gold-db-api", "cotador-web", "carteira"],
+        "apps_padrao": ["painel-vendedor", "cotador-web", "carteira"],
         "is_system": False
     },
     {
@@ -143,7 +143,7 @@ DEFAULT_ROLES = [
             "cotador.use",
             "cotador.export"
         ],
-        "apps_padrao": ["painel-vendedor", "gold-db-api", "cotador-web"],
+        "apps_padrao": ["painel-vendedor", "cotador-web"],
         "is_system": False
     }
 ]
