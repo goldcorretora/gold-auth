@@ -951,7 +951,7 @@ def get_admin_html(
             <div class="mt-2 space-y-1">
               <!-- Atalho Painel de Vendas -->
               <a
-                href="{default_redirect}"
+                href="https://vendas.goldcorretora.com.br"
                 target="_blank"
                 rel="noopener noreferrer"
                 role="menuitem"
