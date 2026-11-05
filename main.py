@@ -50,9 +50,9 @@ COOKIE_NAME = os.getenv("COOKIE_NAME", "gold_sso_token")
 COOKIE_DOMAIN = os.getenv("COOKIE_DOMAIN", ".goldcorretora.com.br").strip()
 COOKIE_SECURE = os.getenv("COOKIE_SECURE", "true").lower() == "true"
 PUBLIC_AUTH_URL = os.getenv("PUBLIC_AUTH_URL", "https://auth.goldcorretora.com.br").rstrip("/")
-_raw_default_redir = os.getenv("DEFAULT_REDIRECT_URL", "https://apps.goldcorretora.com.br").rstrip("/")
+_raw_default_redir = os.getenv("DEFAULT_REDIRECT_URL", "https://vendas.goldcorretora.com.br").rstrip("/")
 if _raw_default_redir in ("https://goldcorretora.com.br", "http://goldcorretora.com.br", ""):
-    DEFAULT_REDIRECT_URL = "https://apps.goldcorretora.com.br"
+    DEFAULT_REDIRECT_URL = "https://vendas.goldcorretora.com.br"
 else:
     DEFAULT_REDIRECT_URL = _raw_default_redir
 
