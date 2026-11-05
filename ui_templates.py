@@ -846,6 +846,23 @@ def get_admin_html(
     support_email: str = "acesso@goldcorretora.com.br",
     is_ti: bool = True
 ) -> str:
+    btn_auditoria_html = """<button
+          type="button"
+          data-tab="auditoria"
+          onclick="switchTab(\'auditoria\')"
+          class="tab-btn btn-tactile px-3.5 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-navy-900 text-white"
+        >
+          Atividade ao Vivo
+        </button>""" if is_ti else ""
+
+    btn_usuarios_class = (
+        "tab-btn btn-tactile px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-100"
+        if is_ti else
+        "tab-btn btn-tactile px-3.5 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-navy-900 text-white"
+    )
+
+    section_usuarios_class = "hidden space-y-4" if is_ti else "space-y-4"
+
     return f"""<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1020,7 +1037,7 @@ def get_admin_html(
     <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
       <div>
         <h1 class="text-2xl sm:text-3xl font-extrabold text-navy-900 tracking-tight">
-          Gestão da Equipe
+          {'Gestão da Equipe & Auditoria' if is_ti else 'Gestão da Equipe'}
         </h1>
         <p class="text-xs sm:text-sm text-slate-600 mt-0.5">
           Cadastre colaboradores, gerencie cargos, acessos aos sistemas e credenciais oficiais.
@@ -1029,19 +1046,12 @@ def get_admin_html(
 
       <!-- Segmented Control de Navegação -->
       <nav aria-label="Seções do painel" class="bg-white p-1 rounded-2xl border border-slate-200 shadow-xs flex items-center self-start lg:self-auto gap-1 overflow-x-auto scrollbar-none max-w-full flex-nowrap sm:flex-wrap">
-        <button
-          type="button"
-          data-tab="auditoria"
-          onclick="switchTab('auditoria')"
-          class="tab-btn btn-tactile px-3.5 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-navy-900 text-white"
-        >
-          Atividade ao Vivo
-        </button>
+        {btn_auditoria_html}
         <button
           type="button"
           data-tab="usuarios"
           onclick="switchTab('usuarios')"
-          class="tab-btn btn-tactile px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-100"
+          class="{btn_usuarios_class}"
         >
           Gestão da Equipe
         </button>
@@ -1092,7 +1102,7 @@ def get_admin_html(
     </section>
 
     <!-- ========================================== -->
-    <!-- ABA 1: AUDITORIA ("QUEM ESTÁ FAZENDO O QUÊ") -->
+{'''    <!-- ABA 1: AUDITORIA ("QUEM ESTÁ FAZENDO O QUÊ") -->
     <!-- ========================================== -->
     <section id="tab-auditoria" class="space-y-4">
       <div class="bg-white rounded-2xl border border-slate-200 p-3.5 sm:p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-3 shadow-2xs">
@@ -1227,12 +1237,12 @@ def get_admin_html(
           Carregando registros de atividade...
         </div>
       </div>
-    </section>
+    </section>''' if is_ti else ''}
 
     <!-- ========================================== -->
     <!-- ABA 2: GESTÃO DE USUÁRIOS / VENDEDORES     -->
     <!-- ========================================== -->
-    <section id="tab-usuarios" class="hidden space-y-4">
+    <section id="tab-usuarios" class="{section_usuarios_class}">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white rounded-2xl border border-slate-200 p-4">
         <div>
           <h2 class="text-base font-extrabold text-navy-900">Gestão da Equipe & Colaboradores</h2>
@@ -1581,13 +1591,17 @@ def get_admin_html(
               <span class="text-[11px] text-slate-500 font-medium">Selecione os módulos autorizados:</span>
             </div>
 
-            <!-- Toggle Mestre (*) -->
-            <div class="p-3.5 rounded-2xl bg-gradient-to-r from-amber-50 to-gold-50 border border-gold-200/90 flex items-center justify-between shadow-2xs mb-3">
+            <!-- Toggle Acesso Completo (*) -->
+            <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between shadow-2xs mb-3">
               <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-xl bg-navy-900 text-gold-400 flex items-center justify-center font-black text-sm shrink-0 shadow-xs">★</div>
+                <div class="w-8 h-8 rounded-xl bg-navy-900 text-emerald-400 flex items-center justify-center font-black text-sm shrink-0 shadow-xs">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
                 <div>
-                  <div class="text-xs font-black text-navy-900">Acesso Mestre Irrestrito (*)</div>
-                  <div class="text-[11px] text-slate-600 leading-tight">Libera absolutamente todas as ações e módulos sem restrições (padrão TI).</div>
+                  <div class="text-xs font-black text-navy-900">Acesso Completo (*)</div>
+                  <div class="text-[11px] text-slate-600 leading-tight">Acesso completo aos sistemas e visualização técnica (padrão TI).</div>
                 </div>
               </div>
               <label class="relative inline-flex items-center cursor-pointer shrink-0">
@@ -1659,6 +1673,7 @@ def get_admin_html(
   </div>
 
   <script>
+    const IS_TI = {'true' if is_ti else 'false'};
     let stateMe = null;
     let stateUsers = [];
     let stateRoles = [];
@@ -1704,6 +1719,7 @@ def get_admin_html(
     }}
 
     function switchTab(tab) {{
+      if (tab === 'auditoria' && !IS_TI) tab = 'usuarios';
       ['auditoria', 'usuarios', 'cargos', 'email'].forEach(t => {{
         const el = document.getElementById('tab-' + t);
         if (el) el.classList.toggle('hidden', t !== tab);
@@ -2066,9 +2082,7 @@ def get_admin_html(
           <div>
             <div class="flex items-center justify-between gap-2">
               <span class="font-mono text-xs font-black px-2.5 py-1 rounded-xl bg-navy-900 text-gold-400 tracking-wide">${{r.codigo}}</span>
-              ${{r.codigo === 'TI' ? `
-                <span class="text-[11px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-lg border border-slate-200">Protegido TI</span>
-              ` : `
+              ${{r.codigo === 'TI' ? '' : `
                 <button
                   type="button"
                   onclick="removerCargo('${{r.codigo}}')"
@@ -2093,7 +2107,7 @@ def get_admin_html(
               <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block mb-1">Permissões do Cargo</span>
               <div class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
                 ${{r.permissoes?.includes('*')
-                  ? '<span class="text-[11px] font-black px-2.5 py-0.5 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center gap-1">★ Acesso Mestre Irrestrito (*)</span>'
+                  ? '<span class="text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200">Acesso Completo (*)</span>'
                   : (r.permissoes || []).map(p => `<span class="font-mono text-[11px] px-2 py-0.5 rounded-lg bg-slate-100 text-slate-700 border border-slate-200">${{p}}</span>`).join('') || '<span class="text-xs text-slate-400 italic">Nenhuma permissão específica</span>'}}
               </div>
             </div>
@@ -2546,6 +2560,7 @@ def get_admin_html(
     }}
 
     async function carregarAuditoria() {{
+      if (!IS_TI) return;
       const q = (document.getElementById('audit-search') || {{}}).value || '';
       const app = (document.getElementById('audit-app-filter') || {{}}).value || 'TODOS';
       const email = (document.getElementById('audit-user-filter') || {{}}).value || 'TODOS';
@@ -2925,11 +2940,15 @@ def get_admin_html(
     }});
 
     async function carregarTudo() {{
-      await Promise.all([carregarMe(), carregarConfigEmail(), carregarCargos(), carregarUsuarios(), carregarAuditoria()]);
+      const promises = [carregarMe(), carregarConfigEmail(), carregarCargos(), carregarUsuarios()];
+      if (IS_TI) promises.push(carregarAuditoria());
+      await Promise.all(promises);
     }}
 
     carregarTudo();
-    setInterval(carregarAuditoria, 10000);
+    if (IS_TI) {{
+      setInterval(carregarAuditoria, 10000);
+    }}
 
 
     // Funções de Gestão de Férias e Ausência da Roleta
