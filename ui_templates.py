@@ -2081,7 +2081,7 @@ def get_admin_html(
         <div class="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 flex flex-col justify-between gap-4 shadow-xs hover:border-slate-300 transition-all">
           <div>
             <div class="flex items-center justify-between gap-2">
-              <span class="font-mono text-xs font-black px-2.5 py-1 rounded-xl bg-navy-900 text-gold-400 tracking-wide">${{r.codigo}}</span>
+              <h3 class="text-base font-black text-navy-900 tracking-tight">${{r.nome}}</h3>
               ${{r.codigo === 'TI' ? '' : `
                 <button
                   type="button"
@@ -2092,7 +2092,6 @@ def get_admin_html(
                 </button>
               `}}
             </div>
-            <h3 class="text-base font-black text-navy-900 mt-3 tracking-tight">${{r.nome}}</h3>
             <p class="text-xs text-slate-600 mt-1 leading-relaxed">${{r.descricao || 'Sem descrição cadastrada.'}}</p>
           </div>
 
