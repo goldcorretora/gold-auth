@@ -1199,3 +1199,38 @@ def listar_auditoria(
         d["detalhes"] = _parse_json_field(d.get("detalhes"), {})
         res.append(d)
     return res
+
+def expurgar_auditoria_antiga(dias_retencao: int = 90) -> int:
+    """
+    Remove registros de auditoria com data anterior a 'dias_retencao' dias atrás.
+    Mantém o banco enxuto, rápido e em conformidade com as diretrizes de governança.
+    """
+    if dias_retencao <= 0:
+        return 0
+
+    ensure_db_initialized()
+    conn, is_pg = get_connection()
+    cur = conn.cursor()
+    tb_aud = "schema_auth.auditoria" if is_pg else "auth_auditoria"
+    deletados = 0
+
+    try:
+        if is_pg:
+            # Em PostgreSQL usa interval dinâmico com cast para dias
+            cur.execute(
+                f"DELETE FROM {tb_aud} WHERE created_at < CURRENT_TIMESTAMP - (%s * INTERVAL '1 day');",
+                (int(dias_retencao),)
+            )
+        else:
+            corte = (datetime.now(timezone.utc) - timedelta(days=dias_retencao)).isoformat()
+            cur.execute(f"DELETE FROM {tb_aud} WHERE created_at < ?;", (corte,))
+        deletados = cur.rowcount
+        conn.commit()
+        if deletados > 0:
+            logger.info(f"[DB] Expurgados {deletados} registros de auditoria com mais de {dias_retencao} dias.")
+    except Exception as e:
+        logger.error(f"[DB] Erro ao expurgar auditoria antiga: {e}")
+    finally:
+        conn.close()
+
+    return deletados
