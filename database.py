@@ -113,7 +113,7 @@ DEFAULT_ROLES = [
     {
         "codigo": "TI",
         "nome": "TI",
-        "descricao": "Acesso total irrestrito a todos os sistemas, configurações, equipe e auditoria.",
+        "descricao": "Acesso completo aos sistemas e visualização técnica.",
         "permissoes": ["*"],
         "apps_padrao": ["*"],
         "is_system": True

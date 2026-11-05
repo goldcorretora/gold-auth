@@ -843,13 +843,14 @@ def get_login_html(
 
 def get_admin_html(
     default_redirect: str = "https://vendas.goldcorretora.com.br",
-    support_email: str = "acesso@goldcorretora.com.br"
+    support_email: str = "acesso@goldcorretora.com.br",
+    is_ti: bool = True
 ) -> str:
     return f"""<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   {SHARED_HEAD}
-  <title>Gestão de Acessos & Auditoria • Gold Corretora</title>
+  <title>Gestão de Acessos{' & Auditoria' if is_ti else ''} • Gold Corretora</title>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col selection:bg-gold-500 selection:text-white">
   <!-- Topbar Oficial Gold (Idêntica ao Painel do Consultor) -->
@@ -865,7 +866,7 @@ def get_admin_html(
             Portal de Acessos
           </span>
           <span class="text-[11px] font-medium block text-slate-400">
-            Gestão de Equipe & Auditoria
+            {'Gestão da Equipe & Auditoria' if is_ti else 'Gestão da Equipe'}
           </span>
         </div>
       </div>
@@ -1019,10 +1020,10 @@ def get_admin_html(
     <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
       <div>
         <h1 class="text-2xl sm:text-3xl font-extrabold text-navy-900 tracking-tight">
-          Gestão da Equipe & Auditoria Operacional
+          Gestão da Equipe
         </h1>
         <p class="text-xs sm:text-sm text-slate-600 mt-0.5">
-          Gerencie logins, e-mail de usuários, senhas temporárias, cargos e o e-mail oficial de suporte da Gold Corretora.
+          Cadastre colaboradores, gerencie cargos, acessos aos sistemas e credenciais oficiais.
         </p>
       </div>
 
@@ -1063,50 +1064,30 @@ def get_admin_html(
       </nav>
     </div>
 
-    <!-- KPIs Rápidos -->
-    <section aria-label="Resumo operacional" class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-      <div class="bg-white rounded-2xl border border-slate-200 p-4 flex items-center justify-between">
+    <!-- KPIs da Equipe -->
+    <section aria-label="Resumo da equipe" class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 flex items-center justify-between shadow-2xs">
         <div>
-          <span class="text-xs font-bold text-slate-600 block">Usuários Ativos</span>
+          <span class="text-xs font-bold text-slate-600 block">Usuários Cadastrados</span>
+          <strong id="kpi-total-users" class="text-2xl font-extrabold text-navy-900 tabular-nums mt-0.5 block">—</strong>
+        </div>
+        <span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-bold border border-slate-200">Equipe Total</span>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 flex items-center justify-between shadow-2xs">
+        <div>
+          <span class="text-xs font-bold text-slate-600 block">Acessos Ativos</span>
           <strong id="kpi-active-users" class="text-2xl font-extrabold text-navy-900 tabular-nums mt-0.5 block">—</strong>
         </div>
-        <span class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">Acesso Liberado</span>
+        <span class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">Liberados</span>
       </div>
 
-      <div class="bg-white rounded-2xl border border-slate-200 p-4 flex items-center justify-between">
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 flex items-center justify-between shadow-2xs">
         <div>
-          <span class="text-xs font-bold text-slate-600 block">Sessões Conectadas</span>
-          <strong id="kpi-active-sessions" class="text-2xl font-extrabold text-navy-900 tabular-nums mt-0.5 block">—</strong>
+          <span class="text-xs font-bold text-slate-600 block">Pendências de Acesso</span>
+          <strong id="kpi-pending-users" class="text-2xl font-extrabold text-navy-900 tabular-nums mt-0.5 block">—</strong>
         </div>
-        <span class="px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 text-xs font-bold border border-amber-200">Dispositivos vivos</span>
-      </div>
-
-      <div class="bg-white rounded-2xl border border-slate-200 p-4 flex items-center justify-between">
-        <div>
-          <span class="text-xs font-bold text-slate-600 block">E-mail de Suporte Gold</span>
-          <strong id="kpi-support-email" class="text-sm font-mono font-extrabold text-navy-900 mt-1.5 block truncate max-w-[180px]">{support_email}</strong>
-        </div>
-        <button
-          type="button"
-          onclick="switchTab('email')"
-          class="btn-tactile px-2.5 py-1 rounded-lg bg-gold-50 text-gold-700 border border-gold-300 text-xs font-bold"
-        >
-          Configurar
-        </button>
-      </div>
-
-      <div class="bg-white rounded-2xl border border-slate-200 p-4 flex items-center justify-between">
-        <div>
-          <span class="text-xs font-bold text-slate-600 block">Eventos Auditados</span>
-          <strong id="kpi-audit-count" class="text-2xl font-extrabold text-navy-900 tabular-nums mt-0.5 block">—</strong>
-        </div>
-        <button
-          type="button"
-          onclick="carregarTudo()"
-          class="btn-tactile px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-navy-900 text-xs font-bold"
-        >
-          Atualizar Agora
-        </button>
+        <span id="kpi-pending-badge" class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 text-xs font-bold border border-slate-200">Tudo em dia</span>
       </div>
     </section>
 
@@ -1212,7 +1193,8 @@ def get_admin_html(
 
         <div class="flex items-center gap-2 text-xs text-slate-500 font-medium self-end sm:self-center">
           <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span>Atualização automática a cada 10s</span>
+          <span>Ao vivo (10s)</span>
+          <button type="button" onclick="carregarAuditoria()" title="Atualizar auditoria agora" class="btn-tactile ml-1 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-navy-900 text-xs font-bold border border-slate-200">Atualizar</button>
         </div>
       </div>
 
@@ -1443,13 +1425,13 @@ def get_admin_html(
 
         <div>
           <span class="block text-xs font-bold text-slate-700 mb-1.5">Aplicativos Liberados para este Usuário</span>
-          <div class="grid grid-cols-2 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs font-semibold text-navy-900">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs font-semibold text-navy-900">
             <label class="flex items-center gap-2"><input type="checkbox" name="u-app" value="painel-vendedor" checked class="rounded text-gold-600" /> Painel de Vendas</label>
-            <label class="flex items-center gap-2"><input type="checkbox" name="u-app" value="gold-db-api" checked class="rounded text-gold-600" /> API de Leads & Carteira</label>
             <label class="flex items-center gap-2"><input type="checkbox" name="u-app" value="cotador-web" checked class="rounded text-gold-600" /> Simulador / Cotador</label>
             <label class="flex items-center gap-2"><input type="checkbox" name="u-app" value="carteira" class="rounded text-gold-600" /> Módulo Carteira Geral</label>
-            <label class="flex items-center gap-2 col-span-2"><input type="checkbox" name="u-app" value="*" class="rounded text-gold-600" /> Todos os Aplicativos Presentes e Futuros (*)</label>
+            <label class="flex items-center gap-2 sm:col-span-2 text-gold-800 font-extrabold"><input type="checkbox" name="u-app" value="*" class="rounded text-gold-600" /> Todos os Aplicativos Presentes e Futuros (*)</label>
           </div>
+          <p class="text-[11px] text-slate-500 mt-1">O acesso às APIs de dados é liberado de forma integrada e automática.</p>
         </div>
 
         <div>
@@ -1584,10 +1566,7 @@ def get_admin_html(
                 <input type="checkbox" name="r-app" value="carteira" class="w-4 h-4 rounded text-gold-600 cursor-pointer" />
                 <span>Carteira Geral</span>
               </label>
-              <label class="flex items-center gap-2 cursor-pointer hover:text-gold-700 transition">
-                <input type="checkbox" name="r-app" value="gold-db-api" checked class="w-4 h-4 rounded text-gold-600 cursor-pointer" />
-                <span>API de Dados & Leads</span>
-              </label>
+              
               <label class="flex items-center gap-2 col-span-2 sm:col-span-2 cursor-pointer text-gold-700 font-extrabold">
                 <input type="checkbox" name="r-app" value="*" class="w-4 h-4 rounded text-gold-600 cursor-pointer" />
                 <span>Todos os Aplicativos da Corretora (*)</span>
@@ -1684,7 +1663,28 @@ def get_admin_html(
     let stateUsers = [];
     let stateRoles = [];
     let stateAudit = [];
-    let stateEmailCfg = {{}};
+        let stateEmailCfg = {{}};
+    const APP_NAMES = {{
+      'painel-vendedor': 'Painel de Vendas',
+      'cotador-web': 'Simulador / Cotador',
+      'carteira': 'Carteira Geral',
+      '*': 'Todos os Aplicativos (*)'
+    }};
+
+    function formatAppBadges(apps) {{
+      if (!apps || !apps.length) return '<span class="text-[11px] text-slate-400 italic">Nenhum</span>';
+      if (apps.includes('*')) {{
+        return '<span class="text-[11px] font-bold px-2 py-0.5 rounded-md bg-gold-50 text-gold-900 border border-gold-300">Todos os Aplicativos (*)</span>';
+      }}
+      const visiveis = apps.filter(a => a !== 'gold-db-api' && a !== 'gold-auth' && a !== 'gold-apps' && a !== 'conciliacao');
+      if (!visiveis.length) {{
+        return '<span class="text-[11px] text-slate-400 italic">Nenhum aplicativo</span>';
+      }}
+      return visiveis.map(a => {{
+        const nome = APP_NAMES[a] || a;
+        return `<span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200">${{nome}}</span>`;
+      }}).join(' ');
+    }}
     let ultimoResultadoSenhaTemp = null;
     let auditDebounceTimer = null;
 
@@ -1752,7 +1752,7 @@ def get_admin_html(
       const cod = document.getElementById('u-cargo').value;
       const role = stateRoles.find(r => r.codigo === cod);
       if (!role) return;
-      const padrao = role.apps_padrao || ['painel-vendedor', 'gold-db-api', 'cotador-web'];
+      const padrao = role.apps_padrao || ['painel-vendedor', 'cotador-web'];
       document.querySelectorAll('input[name="u-app"]').forEach(cb => {{
         cb.checked = padrao.includes(cb.value);
       }});
@@ -2201,12 +2201,27 @@ def get_admin_html(
       if (!res.ok) return;
       stateUsers = await res.json();
 
+                  const total = stateUsers.length;
       const ativos = stateUsers.filter(u => u.ativo).length;
-      const sessoes = stateUsers.reduce((acc, u) => acc + (u.sessoes_ativas || 0), 0);
-      const kpiUsers = document.getElementById('kpi-active-users');
-      const kpiSessions = document.getElementById('kpi-active-sessions');
-      if (kpiUsers) kpiUsers.textContent = `${{ativos}} / ${{stateUsers.length}}`;
-      if (kpiSessions) kpiSessions.textContent = sessoes;
+      const pendentes = stateUsers.filter(u => u.precisa_trocar_senha || !u.ativo).length;
+
+      const kpiTotal = document.getElementById('kpi-total-users');
+      const kpiActive = document.getElementById('kpi-active-users');
+      const kpiPending = document.getElementById('kpi-pending-users');
+      const badgePending = document.getElementById('kpi-pending-badge');
+
+      if (kpiTotal) kpiTotal.textContent = total;
+      if (kpiActive) kpiActive.textContent = ativos;
+      if (kpiPending) kpiPending.textContent = pendentes;
+      if (badgePending) {{
+        if (pendentes > 0) {{
+          badgePending.className = 'px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 text-xs font-bold border border-amber-200';
+          badgePending.textContent = `${{pendentes}} com pendência`;
+        }} else {{
+          badgePending.className = 'px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200';
+          badgePending.textContent = 'Tudo em dia';
+        }}
+      }}
 
       // Popula Custom Dropdown de Usuários na Auditoria
       const uMenu = document.getElementById('menu-user-dropdown');
@@ -2267,7 +2282,7 @@ def get_admin_html(
             </td>
             <td class="py-3.5 px-4">
               <div class="flex flex-wrap gap-1">
-                ${{(u.apps_permitidos || []).map(a => `<span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700">${{a === '*' ? 'Todos (*)' : a}}</span>`).join('')}}
+                ${{formatAppBadges(u.apps_permitidos)}}
               </div>
             </td>
             <td class="py-3.5 px-4">
@@ -2396,6 +2411,9 @@ def get_admin_html(
                 `;
               }})() : ''}}
               <span class="text-[11px] text-slate-400 ml-auto tabular-nums">Login: ${{fmtData(u.ultimo_login)}}</span>
+            </div>
+            <div class="flex flex-wrap gap-1 pt-0.5">
+              ${{formatAppBadges(u.apps_permitidos)}}
             </div>
 
             <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100">
@@ -2639,7 +2657,7 @@ def get_admin_html(
       document.getElementById('u-perms').value = '';
       document.getElementById('user-form-error').classList.add('hidden');
       document.querySelectorAll('input[name="u-app"]').forEach(cb => {{
-        cb.checked = ['painel-vendedor', 'gold-db-api', 'cotador-web'].includes(cb.value);
+        cb.checked = ['painel-vendedor', 'cotador-web'].includes(cb.value);
       }});
       document.getElementById('user-modal').classList.remove('hidden');
     }}
@@ -2683,6 +2701,9 @@ def get_admin_html(
       const precisa_trocar_senha = document.getElementById('u-force-change').checked;
       const enviar_por_email = document.getElementById('u-send-email').checked;
       const apps = Array.from(document.querySelectorAll('input[name="u-app"]:checked')).map(cb => cb.value);
+      if (apps.length > 0 && !apps.includes('*') && !apps.includes('gold-db-api')) {{
+        apps.push('gold-db-api');
+      }}
       const perms = document.getElementById('u-perms').value.split(',').map(s => s.trim()).filter(Boolean);
 
       const payload = {{ nome, email, cargo, apps_permitidos: apps, permissoes_extras: perms, precisa_trocar_senha }};
@@ -2754,7 +2775,7 @@ def get_admin_html(
       document.getElementById('r-desc').value = '';
 
       document.querySelectorAll('input[name="r-app"]').forEach(cb => {{
-        cb.checked = ['painel-vendedor', 'gold-db-api', 'cotador-web'].includes(cb.value);
+        cb.checked = ['painel-vendedor', 'cotador-web'].includes(cb.value);
       }});
 
       renderizarCatalogoPermissoes(['leads.view', 'leads.edit', 'cotador.use']);
@@ -2790,6 +2811,9 @@ def get_admin_html(
       const nome = document.getElementById('r-nome').value.trim();
       const descricao = document.getElementById('r-desc').value.trim();
       const apps_padrao = Array.from(document.querySelectorAll('input[name="r-app"]:checked')).map(cb => cb.value);
+      if (apps_padrao.length > 0 && !apps_padrao.includes('*') && !apps_padrao.includes('gold-db-api')) {{
+        apps_padrao.push('gold-db-api');
+      }}
 
       const isMaster = document.getElementById('perm-master-toggle')?.checked;
       let permissoes = [];
