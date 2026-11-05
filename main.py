@@ -50,9 +50,9 @@ COOKIE_NAME = os.getenv("COOKIE_NAME", "gold_sso_token")
 COOKIE_DOMAIN = os.getenv("COOKIE_DOMAIN", ".goldcorretora.com.br").strip()
 COOKIE_SECURE = os.getenv("COOKIE_SECURE", "true").lower() == "true"
 PUBLIC_AUTH_URL = os.getenv("PUBLIC_AUTH_URL", "https://auth.goldcorretora.com.br").rstrip("/")
-_raw_default_redir = os.getenv("DEFAULT_REDIRECT_URL", "https://vendas.goldcorretora.com.br").rstrip("/")
+_raw_default_redir = os.getenv("DEFAULT_REDIRECT_URL", "https://apps.goldcorretora.com.br").rstrip("/")
 if _raw_default_redir in ("https://goldcorretora.com.br", "http://goldcorretora.com.br", ""):
-    DEFAULT_REDIRECT_URL = "https://vendas.goldcorretora.com.br"
+    DEFAULT_REDIRECT_URL = "https://apps.goldcorretora.com.br"
 else:
     DEFAULT_REDIRECT_URL = _raw_default_redir
 
@@ -154,15 +154,19 @@ def resolve_app_slug_from_host(host: str) -> str:
         return "cotador-web"
     if "carteira" in h:
         return "carteira"
+    if "apps" in h or "hub" in h:
+        return "gold-apps"
+    if "concilia" in h:
+        return "conciliacao"
     if "auth" in h:
         return "gold-auth"
     return h.split(".")[0] if "." in h else (h or "app-gold")
 
 def user_can_access_app(user: Dict[str, Any], app_slug: str) -> bool:
-    if user.get("cargo") == "ADMIN":
+    if user.get("cargo") in ("ADMIN", "TI"):
         return True
     apps = user.get("apps_permitidos") or []
-    if "*" in apps or app_slug in apps or app_slug == "gold-auth":
+    if "*" in apps or app_slug in apps or app_slug in ("gold-auth", "gold-apps", "conciliacao", "gold-db-api"):
         return True
     return False
 
@@ -253,7 +257,7 @@ async def login_page(
     if user and not user.get("precisa_trocar_senha") and not force_pw_change:
         if clean_rd:
             return RedirectResponse(url=clean_rd, status_code=302)
-        if user.get("cargo") == "ADMIN":
+        if user.get("cargo") in ("ADMIN", "TI"):
             return RedirectResponse(url="/admin", status_code=302)
         return RedirectResponse(url=DEFAULT_REDIRECT_URL, status_code=302)
 
@@ -286,10 +290,13 @@ async def admin_page(request: Request):
     except Exception as e:
         logger.warning(f"Aviso em admin_page ao carregar configuracoes: {e}")
         cfg = {}
+    cargo = (user.get("cargo") or "").upper()
+    is_ti = (cargo == "TI")
     return HTMLResponse(
         content=get_admin_html(
             default_redirect=DEFAULT_REDIRECT_URL,
-            support_email=cfg.get("support_email") or "acesso@goldcorretora.com.br"
+            support_email=cfg.get("support_email") or "acesso@goldcorretora.com.br",
+            is_ti=is_ti
         )
     )
 
@@ -733,6 +740,9 @@ async def admin_create_user(payload: UsuarioCreateIn, request: Request):
         prefixo = dados["email"].split("@")[0].replace(".", " ").title()
         dados["nome"] = prefixo or "Novo Colaborador"
     senha_informada = (dados.get("senha") or "").strip()
+    if "apps_permitidos" in dados and dados["apps_permitidos"]:
+        if "*" not in dados["apps_permitidos"] and "gold-db-api" not in dados["apps_permitidos"]:
+            dados["apps_permitidos"].append("gold-db-api")
 
     # Se marcou envio por email e nao digitou senha manual, gera automaticamente temporaria
     if payload.enviar_por_email and not senha_informada:
@@ -787,6 +797,11 @@ async def admin_create_user(payload: UsuarioCreateIn, request: Request):
 async def admin_update_user(user_id: int, payload: UsuarioUpdateIn, request: Request):
     admin = require_admin(request)
     updates = payload.model_dump(exclude_unset=True)
+
+    # Garante acesso transparente às APIs internas (gold-db-api) se alterou apps
+    if "apps_permitidos" in updates and updates["apps_permitidos"]:
+        if "*" not in updates["apps_permitidos"] and "gold-db-api" not in updates["apps_permitidos"]:
+            updates["apps_permitidos"].append("gold-db-api")
 
     # Validação de intervalo de férias
     if updates.get("ferias_inicio") and updates.get("ferias_retorno"):
@@ -962,7 +977,11 @@ async def admin_list_roles(request: Request):
 @app.post("/api/admin/roles")
 async def admin_save_role(payload: CargoIn, request: Request):
     admin = require_admin(request)
-    role = salvar_cargo(payload.model_dump())
+    dados = payload.model_dump()
+    if "apps_padrao" in dados and dados["apps_padrao"]:
+        if "*" not in dados["apps_padrao"] and "gold-db-api" not in dados["apps_padrao"]:
+            dados["apps_padrao"].append("gold-db-api")
+    role = salvar_cargo(dados)
     registrar_auditoria(
         acao="CARGO_SALVO",
         usuario=admin,
@@ -1007,9 +1026,10 @@ async def admin_list_audit(
     user = get_current_user(request)
     if not user:
         raise HTTPException(status_code=401, detail="Não autenticado.")
-    perms = user.get("permissoes") or []
-    if user.get("cargo") not in ("TI", "ADMIN") and "*" not in perms and "auditoria.view" not in perms:
-        raise HTTPException(status_code=403, detail="Sem permissão para visualizar auditoria.")
+    cargo = (user.get("cargo") or "").upper()
+    # Atividade ao vivo restrita exclusivamente ao cargo de TI (conforme diretriz de segurança)
+    if cargo != "TI":
+        raise HTTPException(status_code=403, detail="Acesso à atividade ao vivo restrito à equipe de TI.")
     return listar_auditoria(busca=q, app=app, usuario_email=email, limite=limite)
 
 if __name__ == "__main__":
