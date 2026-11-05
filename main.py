@@ -34,7 +34,8 @@ from database import (
     salvar_cargo,
     excluir_cargo,
     registrar_auditoria,
-    listar_auditoria
+    listar_auditoria,
+    expurgar_auditoria_antiga
 )
 from ui_templates import get_login_html, get_admin_html
 
@@ -56,16 +57,35 @@ if _raw_default_redir in ("https://goldcorretora.com.br", "http://goldcorretora.
 else:
     DEFAULT_REDIRECT_URL = _raw_default_redir
 
+# Política de retenção de auditoria (padrão de governança: 90 dias)
+AUDIT_RETENTION_DAYS = int(os.getenv("AUDIT_RETENTION_DAYS", "90"))
+
 # Cache leve em memória para evitar gravar 50 logs por segundo do mesmo usuário navegando em assets estáticos
 _last_access_audit: Dict[str, float] = {}
+
+async def _rotina_expurgo_auditoria_loop():
+    """Rotina assíncrona diária que remove logs de auditoria mais antigos que AUDIT_RETENTION_DAYS."""
+    while True:
+        try:
+            expurgar_auditoria_antiga(AUDIT_RETENTION_DAYS)
+        except Exception as e:
+            logger.warning(f"Erro na rotina de expurgo de auditoria: {e}")
+        # Executa uma vez a cada 24 horas (86400 segundos)
+        await asyncio.sleep(86400)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     try:
         init_db()
+        # Executa limpeza imediata de registros expirados no arranque
+        expurgar_auditoria_antiga(AUDIT_RETENTION_DAYS)
     except Exception as e:
-        logger.error(f"Erro ao inicializar schema_auth: {e}")
+        logger.error(f"Erro ao inicializar schema_auth ou expurgar auditoria: {e}")
+
+    # Inicia a tarefa de limpeza periódica em background
+    expurgo_task = asyncio.create_task(_rotina_expurgo_auditoria_loop())
     yield
+    expurgo_task.cancel()
     logger.info("Encerrando Gold Auth Gateway.")
 
 app = FastAPI(
