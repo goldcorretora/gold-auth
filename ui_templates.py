@@ -934,7 +934,7 @@ def get_login_html(
         forgotEmailSentLock = true;
         fEmail.disabled = true;
         fEmail.classList.add('bg-slate-50', 'text-slate-500');
-        feedback.className = 'rounded-2xl px-4 py-3 text-xs font-semibold text-center bg-slate-50 text-slate-600 border border-slate-200/90 leading-relaxed';
+        feedback.className = 'rounded-2xl px-4 py-3 text-xs font-bold text-center bg-gold-50/90 text-navy-950 border border-gold-300/80 shadow-[0_2px_8px_rgba(197,155,39,0.12)] leading-relaxed';
         feedback.textContent = data.message || 'Enviamos um e-mail com as instruções para redefinir sua senha. Verifique sua caixa de entrada.';
         feedback.classList.remove('hidden');
 
