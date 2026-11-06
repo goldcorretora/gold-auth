@@ -870,17 +870,28 @@ def get_login_html(
       eyeClosed.classList.toggle('hidden', !isPw);
     }});
 
+    let forgotEmailSentLock = false;
+
     function abrirModalRecuperacao() {{
       const modal = document.getElementById('forgot-modal');
       const fEmail = document.getElementById('forgot-email');
       const feedback = document.getElementById('forgot-feedback');
-      feedback.classList.add('hidden');
-      if (emailInput.value.trim()) {{
-        fEmail.value = emailInput.value.trim();
+      const btn = document.getElementById('forgot-submit');
+      if (!forgotEmailSentLock) {{
+        feedback.classList.add('hidden');
+        if (emailInput.value.trim() && !fEmail.value.trim()) {{
+          fEmail.value = emailInput.value.trim();
+        }}
+        fEmail.disabled = false;
+        btn.disabled = false;
+        btn.classList.remove('opacity-60', 'cursor-not-allowed');
+        btn.innerHTML = '<span>Enviar link de recuperação</span><svg class="w-4 h-4 text-gold-400 transition-transform duration-150 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>';
       }}
       modal.classList.remove('hidden');
       modal.classList.add('flex');
-      setTimeout(() => fEmail.focus(), 50);
+      if (!forgotEmailSentLock) {{
+        setTimeout(() => fEmail.focus(), 50);
+      }}
     }}
 
     function fecharModalRecuperacao() {{
@@ -895,12 +906,16 @@ def get_login_html(
 
     document.getElementById('forgot-form').addEventListener('submit', async (e) => {{
       e.preventDefault();
-      const email = document.getElementById('forgot-email').value.trim();
+      if (forgotEmailSentLock) return;
+
+      const fEmail = document.getElementById('forgot-email');
+      const email = fEmail.value.trim();
       const obsEl = document.getElementById('forgot-obs');
       const observacao = obsEl ? obsEl.value.trim() : '';
       const feedback = document.getElementById('forgot-feedback');
       const btn = document.getElementById('forgot-submit');
 
+      feedback.classList.add('hidden');
       btn.disabled = true;
       btn.innerHTML = '<span>Enviando...</span>';
 
@@ -911,14 +926,25 @@ def get_login_html(
           body: JSON.stringify({{ email, observacao }})
         }});
         const data = await res.json();
-        feedback.className = 'rounded-2xl p-3 text-xs font-bold text-center bg-emerald-50 text-emerald-800 border border-emerald-200';
-        feedback.textContent = data.message || 'Solicitação registrada com sucesso!';
+        if (!res.ok) {{
+          throw new Error(data.detail || 'Não foi possível enviar o e-mail de recuperação.');
+        }}
+
+        // Sucesso: trava o botão e o campo para impedir cliques repetidos (anti-spam)
+        forgotEmailSentLock = true;
+        fEmail.disabled = true;
+        fEmail.classList.add('bg-slate-50', 'text-slate-500');
+        feedback.className = 'rounded-2xl px-4 py-3 text-xs font-semibold text-center bg-slate-50 text-slate-600 border border-slate-200/90 leading-relaxed';
+        feedback.textContent = data.message || 'Enviamos um e-mail com as instruções para redefinir sua senha. Verifique sua caixa de entrada.';
         feedback.classList.remove('hidden');
-      }} catch {{
-        feedback.className = 'rounded-2xl p-3 text-xs font-bold text-center bg-red-50 text-red-800 border border-red-200';
-        feedback.textContent = 'Não foi possível enviar agora. Acione o suporte diretamente.';
+
+        btn.disabled = true;
+        btn.classList.add('opacity-60', 'cursor-not-allowed');
+        btn.innerHTML = '<svg class="w-4 h-4 text-gold-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg><span>E-mail enviado</span>';
+      }} catch (err) {{
+        feedback.className = 'rounded-2xl px-4 py-3 text-xs font-bold text-center bg-red-50 text-red-700 border border-red-200';
+        feedback.textContent = err.message || 'Não foi possível enviar agora. Tente novamente em instantes.';
         feedback.classList.remove('hidden');
-      }} finally {{
         btn.disabled = false;
         btn.innerHTML = '<span>Enviar link de recuperação</span><svg class="w-4 h-4 text-gold-400 transition-transform duration-150 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>';
       }}

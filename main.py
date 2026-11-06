@@ -23,6 +23,7 @@ from database import (
     obter_configuracoes_email,
     salvar_configuracoes_email,
     enviar_email_recuperacao_senha,
+    verificar_cooldown_recuperacao_senha,
     criar_token_recuperacao_senha,
     validar_token_recuperacao_senha,
     consumir_token_e_redefinir_senha,
@@ -602,17 +603,31 @@ async def api_change_password(payload: ChangePasswordIn, request: Request):
 async def api_forgot_password(payload: ForgotPasswordIn, request: Request):
     email_limpo = payload.email.strip().lower()
     if not email_limpo:
-        raise HTTPException(status_code=400, detail="Informe seu e-mail corporativo.")
+        raise HTTPException(status_code=400, detail="Por favor, digite seu endereço de e-mail.")
 
     ip = get_client_ip(request)
     cfg = obter_configuracoes_email(ocultar_senha=False)
     support_email = cfg.get("support_email") or "acesso@goldcorretora.com.br"
     alvo = buscar_usuario_por_email(email_limpo)
+
+    # Verifica diretamente no banco se o e-mail existe e está ativo
+    if not alvo:
+        raise HTTPException(status_code=404, detail="Nenhuma conta encontrada com este endereço de e-mail.")
+    if not alvo.get("ativo"):
+        raise HTTPException(status_code=403, detail="Esta conta está bloqueada. Entre em contato com a gestão.")
+
+    # Proteção anti-spam: impede envios repetidos em sequência para o mesmo e-mail
+    segundos_restantes = verificar_cooldown_recuperacao_senha(alvo["id"], segundos_cooldown=90)
+    if segundos_restantes > 0:
+        raise HTTPException(
+            status_code=429,
+            detail=f"Já enviamos um e-mail com as instruções. Verifique sua caixa de entrada ou aguarde {segundos_restantes}s."
+        )
+
     email_enviado = False
     detalhe_envio = ""
 
-    # Gera um token único de confirmação (30 min) SEM alterar a senha atual e SEM derrubar as sessões!
-    if alvo and alvo.get("ativo") and cfg.get("smtp_configurado"):
+    if cfg.get("smtp_configurado"):
         token_rec = criar_token_recuperacao_senha(alvo["id"], ip=ip, minutos_validade=30)
         link_confirmacao = f"{PUBLIC_AUTH_URL}/login?reset_token={quote(token_rec)}"
         ok_smtp, msg_smtp = enviar_email_link_recuperacao_senha(
@@ -624,15 +639,9 @@ async def api_forgot_password(payload: ForgotPasswordIn, request: Request):
         email_enviado = ok_smtp
         detalhe_envio = msg_smtp
 
-    resumo_auditoria = (
-        f"Link de confirmação de redefinição de senha enviado para {email_limpo} (senha atual mantida até confirmação)."
-        if email_enviado
-        else f"Solicitação de recuperação de acesso para {email_limpo}."
-    )
-
     registrar_auditoria(
         acao="LINK_RECUPERACAO_ENVIADO" if email_enviado else "SOLICITACAO_REDEFINICAO_SENHA",
-        usuario={"nome": alvo["nome"] if alvo else email_limpo, "email": email_limpo, "cargo": alvo["cargo"] if alvo else "RECUPERACAO"},
+        usuario={"nome": alvo["nome"], "email": email_limpo, "cargo": alvo["cargo"]},
         app="gold-auth",
         metodo="POST",
         rota="/api/auth/forgot-password",
@@ -640,7 +649,7 @@ async def api_forgot_password(payload: ForgotPasswordIn, request: Request):
             "alvo_email": email_limpo,
             "email_enviado": email_enviado,
             "detalhe_smtp": detalhe_envio,
-            "resumo": resumo_auditoria
+            "resumo": f"E-mail com instruções de recuperação enviado para {email_limpo}."
         },
         ip=ip
     )
@@ -649,7 +658,7 @@ async def api_forgot_password(payload: ForgotPasswordIn, request: Request):
         "ok": True,
         "email_sent": email_enviado,
         "support_email": support_email,
-        "message": f"Se o e-mail {email_limpo} estiver ativo, você receberá um link de confirmação na sua caixa de entrada. Sua senha atual permanece inalterada até você confirmar pelo e-mail."
+        "message": "Enviamos um e-mail com as instruções para redefinir sua senha. Verifique sua caixa de entrada."
     }
 
 @app.post("/api/auth/reset-password-confirm")

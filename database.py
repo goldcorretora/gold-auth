@@ -606,6 +606,48 @@ def enviar_email_recuperacao_senha(
         return False, f"Falha no envio SMTP: {e}"
 
 
+def verificar_cooldown_recuperacao_senha(usuario_id: int, segundos_cooldown: int = 90) -> int:
+    """
+    Verifica se já foi gerado um link de recuperação recentemente para este usuário.
+    Retorna quantos segundos faltam para poder enviar novamente (0 se liberado).
+    """
+    ensure_db_initialized()
+    conn, is_pg = get_connection()
+    cur = conn.cursor()
+    tb_rec = "schema_auth.recuperacao_senha" if is_pg else "auth_recuperacao_senha"
+    ph = "%s" if is_pg else "?"
+
+    cur.execute(
+        f"SELECT created_at FROM {tb_rec} WHERE usuario_id = {ph} AND usado = {'FALSE' if is_pg else '0'} ORDER BY id DESC LIMIT 1;",
+        (usuario_id,)
+    )
+    row = cur.fetchone()
+    conn.close()
+
+    if not row:
+        return 0
+
+    created = dict(row).get("created_at")
+    now = datetime.now(timezone.utc)
+    created_dt = None
+    if isinstance(created, str):
+        try:
+            created_dt = datetime.fromisoformat(created.replace("Z", "+00:00"))
+            if created_dt.tzinfo is None:
+                created_dt = created_dt.replace(tzinfo=timezone.utc)
+        except Exception:
+            pass
+    elif isinstance(created, datetime):
+        created_dt = created if created.tzinfo else created.replace(tzinfo=timezone.utc)
+
+    if not created_dt:
+        return 0
+
+    decorrido = (now - created_dt).total_seconds()
+    restante = int(segundos_cooldown - decorrido)
+    return max(0, restante)
+
+
 def criar_token_recuperacao_senha(usuario_id: int, ip: str = "", minutos_validade: int = 30) -> str:
     """
     Gera um token único e seguro para confirmação de redefinição de senha via e-mail,
