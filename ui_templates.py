@@ -162,131 +162,166 @@ def get_login_html(
     must_change_password: bool = False,
     logged_user_email: str = ""
 ) -> str:
+    auto_open_onboarding = "true" if must_change_password else "false"
     return f"""<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   {SHARED_HEAD}
   <title>Portal Interno • Gold Corretora de Seguros</title>
+  <style>
+    @keyframes floatSlow {{
+      0%, 100% {{ transform: translateY(0px); }}
+      50% {{ transform: translateY(-4px); }}
+    }}
+    .key-badge-float {{
+      animation: floatSlow 4.5s ease-in-out infinite;
+    }}
+    .view-panel {{
+      transition: opacity 220ms cubic-bezier(0.23, 1, 0.32, 1), transform 220ms cubic-bezier(0.23, 1, 0.32, 1);
+    }}
+    .btn-pill-gold {{
+      background: linear-gradient(135deg, #0F1A2A 0%, #1E2F47 100%);
+      color: #FFFFFF;
+      border: 1px solid #0A121E;
+      box-shadow: 0 14px 30px -8px rgba(15, 26, 42, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+    }}
+    .btn-pill-gold:hover:not(:disabled) {{
+      background: linear-gradient(135deg, #162235 0%, #243854 100%);
+      box-shadow: 0 18px 34px -8px rgba(15, 26, 42, 0.48), 0 0 0 2px rgba(245, 184, 46, 0.25);
+    }}
+    .input-pill-gold {{
+      transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+    }}
+    .input-pill-gold::placeholder {{
+      color: #94A3B8;
+      font-weight: 500;
+    }}
+    .input-pill-gold:focus {{
+      outline: none;
+      background-color: #FFFFFF;
+      border-color: #C59B27;
+      box-shadow: 0 0 0 4px rgba(245, 184, 46, 0.18);
+    }}
+  </style>
 </head>
-<body class="bg-navy-950 text-slate-100 min-h-screen selection:bg-gold-500 selection:text-white font-sans antialiased overflow-x-hidden">
+<body class="bg-white text-navy-950 min-h-screen selection:bg-gold-500 selection:text-white font-sans antialiased overflow-x-hidden relative flex flex-col justify-between">
 
   <!-- ===================================================================== -->
-  <!-- CONTAINER SPLIT-SCREEN (PAINEL INSTITUCIONAL ESQUERDO + LOGIN DIREITO) -->
+  <!-- FUNDO DIAGONAL BIPARTIDO (ESTÉTICA DA REFERÊNCIA COM CORES GOLD)      -->
   <!-- ===================================================================== -->
-  <div class="min-h-screen w-full flex flex-col lg:flex-row relative">
+  <div class="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+    <!-- Metade superior clara imaculada -->
+    <div class="absolute inset-0 bg-[#FFFFFF]"></div>
 
-    <!-- ------------------------------------------------------------------- -->
-    <!-- LADO ESQUERDO / TOPO MOBILE                                         -->
-    <!-- ------------------------------------------------------------------- -->
-    <aside class="w-full lg:w-[48%] xl:w-[50%] bg-navy-950 flex flex-col justify-between p-4 sm:p-6 lg:p-14 xl:p-16 relative overflow-hidden z-10 shrink-0 lg:min-h-screen">
-      
-      <!-- Iluminação ambiente Apple/Boutique -->
-      <div class="pointer-events-none absolute -top-32 -left-32 w-96 h-96 rounded-full bg-gold-500/10 blur-[110px]"></div>
-      <div class="pointer-events-none absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-navy-800/40 blur-[110px]"></div>
+    <!-- Corte diagonal inferior nas cores suaves Gold & Navy -->
+    <svg class="absolute inset-0 w-full h-full" viewBox="0 0 1440 900" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="goldDiagBg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#FBF7EB" />
+          <stop offset="55%" stop-color="#F3F6FA" />
+          <stop offset="100%" stop-color="#F5EBD0" stop-opacity="0.65" />
+        </linearGradient>
+        <linearGradient id="goldDiagLine" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#EAD084" stop-opacity="0.35" />
+          <stop offset="50%" stop-color="#C59B27" stop-opacity="0.55" />
+          <stop offset="100%" stop-color="#0F1A2A" stop-opacity="0.15" />
+        </linearGradient>
+      </defs>
+      <!-- Polígono diagonal principal -->
+      <polygon fill="url(#goldDiagBg)" points="0,560 1440,380 1440,900 0,900" />
+      <!-- Linha sutil dourada acompanhando a diagonal -->
+      <line x1="0" y1="560" x2="1440" y2="380" stroke="url(#goldDiagLine)" stroke-width="2" />
+    </svg>
 
-      <!-- Topo: Logotipo e Link Mobile -->
-      <header class="flex items-center justify-between relative z-10">
-        <a href="https://goldcorretora.com.br" class="inline-block focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 rounded-lg" aria-label="Gold Corretora de Seguros">
-          {GOLD_LOGO_LIGHT}
-        </a>
-        <a
-          href="https://goldcorretora.com.br"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="lg:hidden text-xs font-bold text-slate-300 hover:text-white flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-white/5 transition"
-        >
-          <span>Site Institucional</span>
-          <svg class="w-3.5 h-3.5 text-gold-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+    <!-- Brilhos atmosféricos sutis -->
+    <div class="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[620px] h-[320px] rounded-full bg-gold-300/15 blur-[110px]"></div>
+    <div class="absolute bottom-[-12%] right-[10%] w-[480px] h-[320px] rounded-full bg-navy-900/5 blur-[100px]"></div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- TOPO CENTRALIZADO COM LOGOTIPO OFICIAL GOLD CORRETORA                 -->
+  <!-- ===================================================================== -->
+  <header class="w-full pt-6 sm:pt-8 pb-2 px-4 flex items-center justify-center relative z-10 shrink-0">
+    <a
+      href="https://goldcorretora.com.br"
+      class="inline-flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 rounded-xl transition-transform hover:scale-[1.02]"
+      aria-label="Gold Corretora de Seguros"
+    >
+      {GOLD_LOGO_NAVY}
+    </a>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- CONTAINER CENTRALIZADO (CARD ELEVADO COM ILUSTRAÇÃO DE CHAVES GOLD)   -->
+  <!-- ===================================================================== -->
+  <main class="flex-1 w-full flex items-center justify-center px-4 py-4 sm:py-6 relative z-10">
+    <div class="w-full max-w-[440px] bg-white rounded-[32px] px-6 py-8 sm:px-10 sm:py-10 shadow-[0_24px_70px_-15px_rgba(15,26,42,0.13),0_0_1px_1px_rgba(15,26,42,0.05)] border border-slate-100/90 relative">
+
+      <!-- ILUSTRAÇÃO CENTRAL DE CHAVES ENTRELAÇADAS (GOLD & NAVY) -->
+      <div class="flex justify-center mb-5 sm:mb-6">
+        <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-[#FBF7EB] border border-gold-100/80 flex items-center justify-center relative key-badge-float shadow-inner">
+          <!-- Quadradinhos flutuantes decorativos (idênticos à referência, nas cores Gold & Navy) -->
+          <span class=" w-3.5 h-3.5 rounded-[4px] bg-gold-300/75 absolute top-3.5 left-5 rotate-[-8deg]"></span>
+          <span class="w-5 h-5 rounded-[6px] bg-navy-900/15 absolute top-4 right-3.5 rotate-[6deg]"></span>
+          <span class="w-3.5 h-3.5 rounded-[4px] bg-navy-900/20 absolute bottom-6 left-3.5"></span>
+          <span class="w-2.5 h-2.5 rounded-[3px] bg-gold-400/60 absolute bottom-7 right-4"></span>
+          <span class="w-4 h-4 rounded-[5px] bg-gold-400/45 absolute -bottom-1 left-1/2 -translate-x-1/2"></span>
+
+          <!-- SVG das duas chaves penduradas na argola (Chave Dourada + Chave Azul-Marinho) -->
+          <svg class="w-16 h-16 sm:w-[70px] sm:h-[70px] relative z-10 overflow-visible" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <!-- Argola superior metálica -->
+            <circle cx="40" cy="18" r="7.5" stroke="#94A3B8" stroke-width="2.6" fill="none" />
+
+            <!-- Chave 2 (Direita / Fundo - Azul Marinho Gold Corretora) -->
+            <g transform="translate(43, 28) rotate(24) translate(-40, -28)">
+              <!-- Haste da chave Navy -->
+              <path d="M37 33 L37 64 L41 67 L44 63 L41 59 L45 55 L41 52 L45 48 L43 33 Z" fill="#1E2F47" />
+              <!-- Cabeça da chave Navy -->
+              <circle cx="40" cy="28" r="10.5" fill="#1E2F47" />
+              <!-- Sombra interna sutil -->
+              <path d="M37 38 L43 38 L43 41 L37 41 Z" fill="#0F1A2A" />
+              <!-- Furo superior na argola -->
+              <circle cx="40" cy="23.5" r="2.6" fill="#FBF7EB" />
+            </g>
+
+            <!-- Chave 1 (Esquerda / Frente - Ouro Gold Corretora) -->
+            <g transform="translate(36, 28) rotate(-24) translate(-40, -28)">
+              <!-- Haste da chave Dourada -->
+              <path d="M37 33 L37 50 L33 53 L37 57 L34 60 L37 64 L40 67 L43 64 L43 33 Z" fill="#F5B82E" />
+              <!-- Detalhe de profundidade na haste -->
+              <path d="M40.5 36 L40.5 64" stroke="#C59B27" stroke-width="1.6" stroke-linecap="round" />
+              <!-- Cabeça da chave Dourada -->
+              <circle cx="40" cy="28" r="11" fill="#F5B82E" stroke="#C59B27" stroke-width="1.2" />
+              <!-- Colarinho da chave Dourada -->
+              <rect x="36.2" y="36.5" width="7.6" height="3" rx="1.2" fill="#C59B27" />
+              <!-- Furo superior da chave -->
+              <circle cx="40" cy="23.2" r="2.7" fill="#FBF7EB" />
+            </g>
+
+            <!-- Arco frontal da argola passando pelo furo das chaves (efeito entrelaçado real) -->
+            <path d="M34.2 13.5 A 7.5 7.5 0 0 1 46.8 15" stroke="#94A3B8" stroke-width="2.6" stroke-linecap="round" fill="none" />
           </svg>
-        </a>
-      </header>
-
-      <!-- Conteúdo Editorial Institucional: EXCLUSIVO DESKTOP (lg:block), não empurra o formulário no mobile! -->
-      <div class="hidden lg:block my-auto py-8 sm:py-12 space-y-5 relative z-10 max-w-lg">
-        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-gold-500/15 border border-gold-400/30 text-gold-300 text-xs font-bold tracking-wide">
-          Tradição em Proteção Familiar e Patrimonial
-        </div>
-
-        <h1 class="text-3xl xl:text-4xl 2xl:text-5xl font-black text-white tracking-tight leading-[1.15]">
-          Cuidando do futuro de quem confia na Gold Corretora.
-        </h1>
-
-        <p class="text-sm sm:text-base text-slate-300 font-normal leading-relaxed">
-          Central integrada de autenticação e ferramentas corporativas. Acompanhe cotações, clientes e emissões com agilidade e segurança institucional.
-        </p>
-
-        <!-- Indicadores sutis de segurança -->
-        <div class="flex pt-4 flex-wrap items-center gap-6 text-xs text-slate-400 font-medium border-t border-white/10">
-          <div class="flex items-center gap-2">
-            <svg class="w-4 h-4 text-gold-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-            </svg>
-            <span>Criptografia de Ponta a Ponta</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <svg class="w-4 h-4 text-gold-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>Sessão Corporativa Segura</span>
-          </div>
         </div>
       </div>
 
-      <!-- Rodapé Institucional (Desktop) -->
-      <footer class="hidden lg:block relative z-10 pt-4 text-xs text-slate-400 font-medium">
-        <span>© 2026 Gold Corretora de Seguros. Todos os direitos reservados.</span>
-      </footer>
-    </aside>
-
-    <!-- ------------------------------------------------------------------- -->
-    <!-- LADO DIREITO / PARTE PRINCIPAL MOBILE (LOGIN FIT TO SCREEN)         -->
-    <!-- ------------------------------------------------------------------- -->
-    <main class="w-full lg:w-[52%] xl:w-[50%] bg-white text-navy-950 flex flex-col justify-between p-5 sm:p-8 lg:p-14 xl:p-16 relative z-20 flex-1 lg:min-h-screen">
-      
-      <!-- CURVA ORGÂNICA DIVISÓRIA (DESKTOP) -->
-      <div class="hidden lg:block absolute -left-24 xl:-left-36 2xl:-left-44 top-0 bottom-0 h-full w-24 xl:w-36 2xl:w-44 pointer-events-none z-20">
-        <svg class="h-full w-full fill-white" viewBox="0 0 100 1000" preserveAspectRatio="none">
-          <path d="M 100 0 C 100 200, 0 320, 0 500 C 0 680, 100 800, 100 1000 Z" />
-        </svg>
-      </div>
-
-      <!-- CURVA ORGÂNICA HORIZONTAL (MOBILE: Suave e Compacta) -->
-      <div class="lg:hidden absolute -top-5 left-0 right-0 w-full h-5 pointer-events-none z-20">
-        <svg class="w-full h-full fill-white" viewBox="0 0 1000 100" preserveAspectRatio="none">
-          <path d="M 0 100 C 250 100, 350 0, 500 0 C 650 0, 750 100, 1000 100 Z" />
-        </svg>
-      </div>
-
-      <!-- Topo Direito (Desktop): Site Institucional -->
-      <div class="hidden lg:flex items-center justify-end relative z-10">
-        <a
-          href="https://goldcorretora.com.br"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="text-xs font-bold text-slate-600 hover:text-navy-900 flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-slate-100 transition"
-        >
-          <span>Site Institucional</span>
-          <svg class="w-3.5 h-3.5 text-gold-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-          </svg>
-        </a>
-      </div>
-
-      <!-- Formulário de Login: my-auto para ajuste perfeito sem rolagem no mobile -->
-      <div class="my-auto w-full max-w-[400px] mx-auto py-2 sm:py-6 relative z-10">
-        
-        <div class="mb-4 sm:mb-7">
-          <h2 class="text-2xl sm:text-4xl font-extrabold text-navy-900 tracking-tight">
-            Login
-          </h2>
+      <!-- ================================================================= -->
+      <!-- VISÃO 1: FORMULÁRIO DE LOGIN PRINCIPAL                            -->
+      <!-- ================================================================= -->
+      <div id="login-view-panel" class="view-panel">
+        <div class="text-center mb-6 sm:mb-7">
+          <h1 class="text-2xl sm:text-[28px] font-extrabold text-navy-950 tracking-tight leading-tight">
+            Acesse sua conta
+          </h1>
+          <p class="text-xs sm:text-[13.5px] text-slate-500 font-medium mt-2 leading-relaxed max-w-[320px] mx-auto">
+            Informe seu e-mail corporativo e sua senha para entrar no portal da Gold Corretora.
+          </p>
         </div>
 
         <!-- Banner de Erro -->
         <div
           id="error-banner"
           role="alert"
-          class="hidden mb-4 rounded-2xl bg-red-50 border border-red-200 px-4 py-3 text-xs font-bold text-red-800 flex items-start gap-2.5"
+          class="hidden mb-5 rounded-2xl bg-red-50 border border-red-200 px-4 py-3 text-xs font-bold text-red-800 flex items-start gap-2.5"
         >
           <svg class="w-4 h-4 text-red-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
@@ -294,12 +329,11 @@ def get_login_html(
           <span id="error-text">Verifique seu e-mail e sua senha.</span>
         </div>
 
-        <!-- Formulário de Login -->
-        <form id="login-form" class="space-y-3.5 sm:space-y-5" novalidate>
+        <form id="login-form" class="space-y-4" novalidate>
           <!-- E-mail -->
           <div class="field-group">
-            <label for="email" class="block text-xs font-bold text-slate-700 mb-1.5 sm:mb-2 transition-colors">
-              E-mail
+            <label for="email" class="block text-xs font-extrabold text-navy-950 mb-2 pl-1">
+              Endereço de e-mail
             </label>
             <input
               id="email"
@@ -307,15 +341,15 @@ def get_login_html(
               type="email"
               autocomplete="email"
               required
-              placeholder="Digite seu e-mail"
-              class="input-corporate w-full h-11 sm:h-12 rounded-xl bg-slate-50 border border-slate-300 px-4 text-sm sm:text-base font-semibold text-navy-900 placeholder:text-slate-400 focus:bg-white"
+              placeholder="Digite seu endereço de e-mail"
+              class="input-pill-gold w-full h-12 sm:h-[52px] rounded-full bg-slate-50/70 border border-slate-200/90 px-5 text-sm font-semibold text-navy-950"
             />
           </div>
 
           <!-- Senha -->
           <div class="field-group">
-            <label for="senha" class="block text-xs font-bold text-slate-700 mb-1.5 sm:mb-2 transition-colors">
-              Senha
+            <label for="senha" class="block text-xs font-extrabold text-navy-950 mb-2 pl-1">
+              Senha de acesso
             </label>
             <div class="relative">
               <input
@@ -325,12 +359,12 @@ def get_login_html(
                 autocomplete="current-password"
                 required
                 placeholder="Digite sua senha"
-                class="input-corporate w-full h-11 sm:h-12 rounded-xl bg-slate-50 border border-slate-300 pl-4 pr-12 text-sm sm:text-base font-semibold text-navy-900 placeholder:text-slate-400 focus:bg-white"
+                class="input-pill-gold w-full h-12 sm:h-[52px] rounded-full bg-slate-50/70 border border-slate-200/90 pl-5 pr-12 text-sm font-semibold text-navy-950"
               />
               <button
                 type="button"
                 id="toggle-pw"
-                class="absolute right-1 top-1 bottom-1 w-10 flex items-center justify-center text-slate-500 hover:text-navy-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-navy-900 rounded-lg transition-colors cursor-pointer"
+                class="absolute right-2 top-1.5 bottom-1.5 w-10 flex items-center justify-center text-slate-400 hover:text-navy-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 rounded-full transition-colors cursor-pointer"
                 title="Mostrar ou ocultar senha"
                 aria-label="Mostrar ou ocultar senha"
               >
@@ -346,77 +380,155 @@ def get_login_html(
           </div>
 
           <!-- Lembrar meu e-mail -->
-          <div class="flex items-center gap-2.5 pt-0.5">
-            <input
-              id="lembrar"
-              name="lembrar"
-              type="checkbox"
-              checked
-              class="w-4 h-4 rounded border-slate-300 text-gold-600 focus:ring-gold-500 cursor-pointer"
-            />
-            <label for="lembrar" class="text-xs font-semibold text-slate-700 cursor-pointer select-none">
-              Lembrar meu e-mail
+          <div class="flex items-center justify-between px-1 pt-0.5">
+            <label for="lembrar" class="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 cursor-pointer select-none">
+              <input
+                id="lembrar"
+                name="lembrar"
+                type="checkbox"
+                checked
+                class="w-4 h-4 rounded border-slate-300 text-gold-600 focus:ring-gold-500 cursor-pointer"
+              />
+              <span>Lembrar meu e-mail</span>
             </label>
           </div>
 
-          <!-- Botão Entrar -->
-          <button
-            type="submit"
-            id="submit-btn"
-            class="btn-tactile btn-gold-primary w-full h-11 sm:h-12 rounded-xl text-sm font-extrabold flex items-center justify-center gap-2 shadow-lg cursor-pointer transition-all active:scale-[0.98]"
-          >
-            <span id="submit-label">Entrar</span>
-            <svg id="submit-arrow" class="w-4 h-4 text-gold-400 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-            </svg>
-            <svg id="submit-spinner" class="w-4 h-4 animate-spin text-white hidden" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-            </svg>
-          </button>
+          <!-- Botão Pill Principal (Estilo da Referência nas Cores Gold) -->
+          <div class="pt-1.5">
+            <button
+              type="submit"
+              id="submit-btn"
+              class="btn-tactile btn-pill-gold w-full h-12 sm:h-[52px] rounded-full text-sm font-extrabold flex items-center justify-center gap-2.5 cursor-pointer group"
+            >
+              <span id="submit-label">Entrar no Portal</span>
+              <svg id="submit-arrow" class="w-4 h-4 text-gold-400 transition-transform duration-150 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+              <svg id="submit-spinner" class="w-4 h-4 animate-spin text-gold-400 hidden" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+              </svg>
+            </button>
+          </div>
         </form>
 
-        <!-- Suporte / Redefinição de Senha -->
-        <div class="mt-4 sm:mt-5 pt-3 sm:pt-4 border-t border-slate-100 text-center">
-          <p class="text-xs font-medium text-slate-500">
-            Problemas para acessar?
+        <!-- Link Inferior Centralizado (Idêntico à estrutura da referência) -->
+        <div class="mt-6 text-center">
+          <p class="text-xs sm:text-[13px] font-medium text-slate-500">
+            Esqueceu sua senha?
             <button
               type="button"
               onclick="abrirModalRecuperacao()"
-              class="font-bold text-navy-900 hover:text-gold-700 underline decoration-slate-300 hover:decoration-gold-500 underline-offset-4 ml-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-navy-900 rounded cursor-pointer"
+              class="font-extrabold text-navy-900 hover:text-gold-600 transition-colors ml-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 rounded cursor-pointer"
             >
-              Redefinir minha senha
+              Recuperar acesso
             </button>
           </p>
         </div>
       </div>
 
-      <!-- Rodapé Mobile com Onda Azul Institucional -->
-      <footer class="lg:hidden relative z-10 -mx-5 sm:-mx-8 -mb-5 sm:-mb-8 bg-navy-950 pt-5 pb-3.5 px-4 text-center text-[11px] text-slate-400 font-medium shrink-0 mt-3 sm:mt-4">
-        <!-- Onda Azul Superior do Rodapé (Mobile) com sobreposição anti-seam (elimina linha residual) -->
-        <div class="absolute -top-4 sm:-top-5 left-0 right-0 w-full h-[calc(1rem+3px)] sm:h-[calc(1.25rem+3px)] pointer-events-none z-20">
-          <svg class="w-full h-full fill-[#0A121E] overflow-visible" viewBox="0 0 1000 100" preserveAspectRatio="none">
-            <path d="M 0 100 C 250 100, 350 0, 500 0 C 650 0, 750 100, 1000 100 L 1000 105 L 0 105 Z" />
-          </svg>
+      <!-- ================================================================= -->
+      <!-- VISÃO 2: ESQUECEU SUA SENHA? (NO MESMO CARD, FIEL À REFERÊNCIA!)  -->
+      <!-- ================================================================= -->
+      <div id="forgot-modal" class="view-panel hidden">
+        <div class="text-center mb-6 sm:mb-7">
+          <h2 class="text-2xl sm:text-[28px] font-extrabold text-navy-950 tracking-tight leading-tight">
+            Esqueceu sua senha?
+          </h2>
+          <p class="text-xs sm:text-[13.5px] text-slate-500 font-medium mt-2 leading-relaxed max-w-[330px] mx-auto">
+            Informe seu e-mail abaixo e notificaremos a gestão da Gold Corretora para restaurar seu acesso.
+          </p>
         </div>
-        <span>© 2026 Gold Corretora de Seguros. Todos os direitos reservados.</span>
-      </footer>
 
-    </main>
+        <form id="forgot-form" class="space-y-4">
+          <div>
+            <label for="forgot-email" class="block text-xs font-extrabold text-navy-950 mb-2 pl-1">
+              Endereço de e-mail
+            </label>
+            <input
+              id="forgot-email"
+              type="email"
+              required
+              placeholder="Digite seu endereço de e-mail"
+              class="input-pill-gold w-full h-12 sm:h-[52px] rounded-full bg-slate-50/70 border border-slate-200/90 px-5 text-sm font-semibold text-navy-950"
+            />
+          </div>
 
-  </div>
+          <div>
+            <label for="forgot-obs" class="block text-xs font-extrabold text-navy-950 mb-2 pl-1">
+              Observação <span class="text-slate-400 font-medium">(opcional)</span>
+            </label>
+            <input
+              id="forgot-obs"
+              type="text"
+              placeholder="Ex.: Esqueci minha senha ou troquei de celular"
+              class="input-pill-gold w-full h-11 rounded-full bg-slate-50/70 border border-slate-200/90 px-5 text-xs font-semibold text-navy-950"
+            />
+          </div>
 
-  <!-- Modais -->
-  <!-- 1. Modal de Primeiro Acesso & Ativação de Perfil (Zero-Friction Onboarding) -->
+          <div id="forgot-feedback" class="hidden rounded-2xl p-3.5 text-xs font-bold text-center"></div>
+
+          <div class="pt-1.5">
+            <button
+              type="submit"
+              id="forgot-submit"
+              class="btn-tactile btn-pill-gold w-full h-12 sm:h-[52px] rounded-full text-sm font-extrabold flex items-center justify-center gap-2 cursor-pointer group"
+            >
+              <span>Solicitar recuperação</span>
+              <svg class="w-4 h-4 text-gold-400 transition-transform duration-150 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </button>
+          </div>
+        </form>
+
+        <div class="mt-6 text-center">
+          <p class="text-xs sm:text-[13px] font-medium text-slate-500">
+            Lembrou sua senha?
+            <button
+              type="button"
+              onclick="fecharModalRecuperacao()"
+              class="font-extrabold text-navy-900 hover:text-gold-600 transition-colors ml-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 rounded cursor-pointer"
+            >
+              Voltar ao login
+            </button>
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ===================================================================== -->
+  <!-- RODAPÉ DISCRETO E ELEGANTE                                            -->
+  <!-- ===================================================================== -->
+  <footer class="w-full py-4 px-4 text-center relative z-10 shrink-0">
+    <div class="inline-flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] sm:text-xs font-medium text-slate-500">
+      <span>© 2026 Gold Corretora de Seguros</span>
+      <span class="text-slate-300">•</span>
+      <a
+        href="https://goldcorretora.com.br"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="hover:text-navy-900 font-semibold transition-colors"
+      >
+        Site Institucional
+      </a>
+    </div>
+  </footer>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL DE PRIMEIRO ACESSO & ATIVAÇÃO DE PERFIL (ONBOARDING)            -->
+  <!-- ===================================================================== -->
   <div
     id="force-pw-modal"
     role="dialog"
     aria-modal="true"
-    class="fixed inset-0 z-50 bg-navy-950/80 backdrop-blur-sm hidden items-center justify-center p-4"
+    class="fixed inset-0 z-50 bg-navy-950/75 backdrop-blur-sm hidden items-center justify-center p-4"
   >
-    <div class="modal-panel bg-white w-full max-w-lg rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-5 animate-in fade-in zoom-in-95 duration-200">
-      <div>
-        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold-100 text-gold-800 text-[11px] font-extrabold uppercase tracking-wider mb-2">
+    <div class="modal-panel bg-white w-full max-w-lg rounded-[32px] p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-5 animate-in fade-in zoom-in-95 duration-200">
+      <div class="text-center sm:text-left">
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold-50 border border-gold-200 text-gold-700 text-[11px] font-extrabold uppercase tracking-wider mb-2">
           ✨ Primeiro Acesso — Ativação de Conta
         </div>
         <h3 class="text-xl sm:text-2xl font-black text-navy-900 tracking-tight">
@@ -429,7 +541,7 @@ def get_login_html(
 
       <form id="force-pw-form" class="space-y-3.5">
         <div>
-          <label for="onboarding-nome" class="block text-xs font-extrabold text-slate-700 mb-1">
+          <label for="onboarding-nome" class="block text-xs font-extrabold text-navy-950 mb-1.5 pl-1">
             Seu Nome Completo
           </label>
           <input
@@ -437,37 +549,37 @@ def get_login_html(
             type="text"
             required
             placeholder="Ex: Gabriel Rodrigues de Souza"
-            class="input-corporate w-full h-11 rounded-xl bg-slate-50 border border-slate-300 px-3.5 text-sm font-semibold text-navy-900 focus:outline-none focus:border-gold-500"
+            class="input-pill-gold w-full h-11 rounded-2xl bg-slate-50 border border-slate-200 px-4 text-sm font-semibold text-navy-900"
           />
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label for="onboarding-tel" class="block text-xs font-extrabold text-slate-700 mb-1">
+            <label for="onboarding-tel" class="block text-xs font-extrabold text-navy-950 mb-1.5 pl-1">
               WhatsApp / Celular
             </label>
             <input
               id="onboarding-tel"
               type="tel"
               placeholder="(11) 98765-4321"
-              class="input-corporate w-full h-11 rounded-xl bg-slate-50 border border-slate-300 px-3.5 text-sm font-semibold text-navy-900 focus:outline-none focus:border-gold-500"
+              class="input-pill-gold w-full h-11 rounded-2xl bg-slate-50 border border-slate-200 px-4 text-sm font-semibold text-navy-900"
             />
           </div>
           <div>
-            <label for="onboarding-nasc" class="block text-xs font-extrabold text-slate-700 mb-1">
+            <label for="onboarding-nasc" class="block text-xs font-extrabold text-navy-950 mb-1.5 pl-1">
               Data de Nascimento
             </label>
             <input
               id="onboarding-nasc"
               type="date"
-              class="input-corporate w-full h-11 rounded-xl bg-slate-50 border border-slate-300 px-3.5 text-sm font-semibold text-navy-900 focus:outline-none focus:border-gold-500"
+              class="input-pill-gold w-full h-11 rounded-2xl bg-slate-50 border border-slate-200 px-4 text-sm font-semibold text-navy-900"
             />
           </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-slate-100">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-100">
           <div>
-            <label for="new-password" class="block text-xs font-extrabold text-slate-700 mb-1">
+            <label for="new-password" class="block text-xs font-extrabold text-navy-950 mb-1.5 pl-1">
               Nova Senha Pessoal
             </label>
             <input
@@ -476,11 +588,11 @@ def get_login_html(
               required
               minlength="4"
               placeholder="Mínimo 4 caracteres"
-              class="input-corporate w-full h-11 rounded-xl bg-slate-50 border border-slate-300 px-3.5 text-sm font-semibold text-navy-900 focus:outline-none focus:border-gold-500"
+              class="input-pill-gold w-full h-11 rounded-2xl bg-slate-50 border border-slate-200 px-4 text-sm font-semibold text-navy-900"
             />
           </div>
           <div>
-            <label for="confirm-password" class="block text-xs font-extrabold text-slate-700 mb-1">
+            <label for="confirm-password" class="block text-xs font-extrabold text-navy-950 mb-1.5 pl-1">
               Confirme a Senha
             </label>
             <input
@@ -489,111 +601,33 @@ def get_login_html(
               required
               minlength="4"
               placeholder="Repita a nova senha"
-              class="input-corporate w-full h-11 rounded-xl bg-slate-50 border border-slate-300 px-3.5 text-sm font-semibold text-navy-900 focus:outline-none focus:border-gold-500"
+              class="input-pill-gold w-full h-11 rounded-2xl bg-slate-50 border border-slate-200 px-4 text-sm font-semibold text-navy-900"
             />
           </div>
         </div>
 
-        <div id="force-pw-feedback" class="hidden rounded-xl p-3 text-xs font-bold"></div>
+        <div id="force-pw-feedback" class="hidden rounded-2xl p-3 text-xs font-bold"></div>
 
-        <div class="flex items-center justify-between gap-2 pt-3 border-t border-slate-200">
+        <div class="flex items-center justify-between gap-2 pt-3 border-t border-slate-100">
           <a
             href="/api/auth/logout"
-            class="btn-tactile px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100"
+            class="btn-tactile px-4 py-2.5 rounded-full text-xs font-bold text-slate-600 hover:bg-slate-100"
           >
             Sair da conta
           </a>
           <button
             type="submit"
             id="force-pw-submit"
-            class="btn-tactile btn-gold-primary px-5 py-2.5 rounded-xl text-xs font-extrabold shadow-sm active:scale-98 transition"
+            class="btn-tactile btn-pill-gold px-6 py-2.5 rounded-full text-xs font-extrabold shadow-sm cursor-pointer"
           >
-            Ativar Minha Conta & Acessar
+            Ativar Minha Conta & Acessar →
           </button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- 2. Modal de Solicitação de Recuperação de Senha -->
-  <div
-    id="forgot-modal"
-    role="dialog"
-    aria-modal="true"
-    class="fixed inset-0 z-50 bg-navy-950/75 backdrop-blur-sm hidden items-center justify-center p-4"
-  >
-    <div class="modal-panel bg-white w-full max-w-md rounded-3xl p-7 sm:p-8 shadow-2xl border border-slate-200 space-y-5">
-      <div class="flex items-start justify-between gap-3">
-        <div>
-          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-gold-50 border border-gold-200 text-gold-700 text-[11px] font-extrabold uppercase tracking-wide">
-            Suporte Gold TI
-          </span>
-          <h3 class="text-xl font-extrabold text-navy-900 mt-2">
-            Recuperação de Senha
-          </h3>
-          <p class="text-xs text-slate-600 mt-1">
-            Informe seu e-mail corporativo. A gestão da Gold Corretora será notificada no painel administrativo para restaurar seu acesso.
-          </p>
-        </div>
-        <button
-          type="button"
-          onclick="fecharModalRecuperacao()"
-          class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-sm font-bold focus:outline-none focus-visible:ring-2 focus-visible:ring-navy-900 cursor-pointer"
-          title="Fechar"
-        >
-          ✕
-        </button>
-      </div>
-
-      <form id="forgot-form" class="space-y-4">
-        <div>
-          <label for="forgot-email" class="block text-xs font-extrabold text-slate-700 mb-1.5">
-            E-mail cadastrado
-          </label>
-          <input
-            id="forgot-email"
-            type="email"
-            required
-            placeholder="voce@goldcorretora.com.br"
-            class="input-corporate w-full h-11 rounded-xl bg-slate-50 border border-slate-300 px-3.5 text-sm font-semibold text-navy-900"
-          />
-        </div>
-
-        <div>
-          <label for="forgot-obs" class="block text-xs font-extrabold text-slate-700 mb-1.5">
-            Observação (opcional)
-          </label>
-          <textarea
-            id="forgot-obs"
-            rows="2"
-            placeholder="Ex.: Esqueci minha senha ou preciso trocar de dispositivo"
-            class="input-corporate w-full rounded-xl bg-slate-50 border border-slate-300 p-3 text-xs font-medium text-navy-900"
-          ></textarea>
-        </div>
-
-        <div id="forgot-feedback" class="hidden rounded-xl p-3 text-xs font-bold"></div>
-
-        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-200">
-          <button
-            type="button"
-            onclick="fecharModalRecuperacao()"
-            class="btn-tactile px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 cursor-pointer"
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            id="forgot-submit"
-            class="btn-tactile btn-gold-primary px-5 py-2.5 rounded-xl text-xs font-extrabold cursor-pointer"
-          >
-            Notificar Gestão
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-<script>
+  <script>
     const form = document.getElementById('login-form');
     const emailInput = document.getElementById('email');
     const senhaInput = document.getElementById('senha');
@@ -607,19 +641,25 @@ def get_login_html(
     const togglePw = document.getElementById('toggle-pw');
     const eyeOpen = document.getElementById('eye-open');
     const eyeClosed = document.getElementById('eye-closed');
+    const loginViewPanel = document.getElementById('login-view-panel');
+    const forgotModal = document.getElementById('forgot-modal');
 
     function resetLoginForm() {{
       if (submitBtn) submitBtn.disabled = false;
-      if (submitLabel) submitLabel.textContent = 'Entrar';
+      if (submitLabel) submitLabel.textContent = 'Entrar no Portal';
       if (submitArrow) submitArrow.classList.remove('hidden');
       if (submitSpinner) submitSpinner.classList.add('hidden');
       if (senhaInput) senhaInput.value = '';
     }}
 
-    // Previne que a tela fique congelada em "Entrando..." ao voltar via logout ou histórico (bfcache)
     window.addEventListener('pageshow', () => {{ resetLoginForm(); }});
     window.addEventListener('pagehide', () => {{ resetLoginForm(); }});
-    document.addEventListener('DOMContentLoaded', () => {{ resetLoginForm(); }});
+    document.addEventListener('DOMContentLoaded', () => {{
+      resetLoginForm();
+      if ({auto_open_onboarding}) {{
+        abrirModalTrocaSenhaObrigatoria('{logged_user_email}', '');
+      }}
+    }});
     if (emailInput) emailInput.addEventListener('input', () => {{ if (submitBtn && submitBtn.disabled) resetLoginForm(); }});
     if (senhaInput) senhaInput.addEventListener('input', () => {{ if (submitBtn && submitBtn.disabled) resetLoginForm(); }});
     resetLoginForm();
@@ -663,19 +703,19 @@ def get_login_html(
 
       fb.classList.add('hidden');
       if (!nome) {{
-        fb.className = 'rounded-xl p-3 text-xs font-bold bg-red-50 text-red-800 border border-red-200';
+        fb.className = 'rounded-2xl p-3 text-xs font-bold bg-red-50 text-red-800 border border-red-200';
         fb.textContent = 'Por favor, informe seu nome completo.';
         fb.classList.remove('hidden');
         return;
       }}
       if (nova_senha.length < 4) {{
-        fb.className = 'rounded-xl p-3 text-xs font-bold bg-red-50 text-red-800 border border-red-200';
+        fb.className = 'rounded-2xl p-3 text-xs font-bold bg-red-50 text-red-800 border border-red-200';
         fb.textContent = 'A nova senha deve ter pelo menos 4 caracteres.';
         fb.classList.remove('hidden');
         return;
       }}
       if (nova_senha !== confirmar_senha) {{
-        fb.className = 'rounded-xl p-3 text-xs font-bold bg-red-50 text-red-800 border border-red-200';
+        fb.className = 'rounded-2xl p-3 text-xs font-bold bg-red-50 text-red-800 border border-red-200';
         fb.textContent = 'A confirmação de senha não confere.';
         fb.classList.remove('hidden');
         return;
@@ -699,16 +739,16 @@ def get_login_html(
         if (!res.ok) {{
           throw new Error(data.detail || 'Não foi possível concluir a ativação.');
         }}
-        fb.className = 'rounded-xl p-3 text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200';
+        fb.className = 'rounded-2xl p-3 text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200';
         fb.textContent = 'Conta ativada com sucesso! Redirecionando...';
         fb.classList.remove('hidden');
         setTimeout(() => concluirRedirecionamentoPosLogin(), 600);
       }} catch (err) {{
-        fb.className = 'rounded-xl p-3 text-xs font-bold bg-red-50 text-red-800 border border-red-200';
+        fb.className = 'rounded-2xl p-3 text-xs font-bold bg-red-50 text-red-800 border border-red-200';
         fb.textContent = err.message;
         fb.classList.remove('hidden');
         btn.disabled = false;
-        btn.textContent = 'Ativar Minha Conta & Acessar';
+        btn.textContent = 'Ativar Minha Conta & Acessar →';
       }}
     }});
 
@@ -728,23 +768,26 @@ def get_login_html(
     }});
 
     function abrirModalRecuperacao() {{
-      const modal = document.getElementById('forgot-modal');
       const fEmail = document.getElementById('forgot-email');
       const feedback = document.getElementById('forgot-feedback');
       feedback.classList.add('hidden');
       if (emailInput.value.trim()) {{
         fEmail.value = emailInput.value.trim();
       }}
-      modal.classList.remove('hidden');
+      if (loginViewPanel) loginViewPanel.classList.add('hidden');
+      if (forgotModal) forgotModal.classList.remove('hidden');
       setTimeout(() => fEmail.focus(), 50);
     }}
 
     function fecharModalRecuperacao() {{
-      document.getElementById('forgot-modal').classList.add('hidden');
+      if (forgotModal) forgotModal.classList.add('hidden');
+      if (loginViewPanel) loginViewPanel.classList.remove('hidden');
     }}
 
     window.addEventListener('keydown', (e) => {{
-      if (e.key === 'Escape') fecharModalRecuperacao();
+      if (e.key === 'Escape' && forgotModal && !forgotModal.classList.contains('hidden')) {{
+        fecharModalRecuperacao();
+      }}
     }});
 
     document.getElementById('forgot-form').addEventListener('submit', async (e) => {{
@@ -755,7 +798,7 @@ def get_login_html(
       const btn = document.getElementById('forgot-submit');
 
       btn.disabled = true;
-      btn.textContent = 'Enviando...';
+      btn.innerHTML = '<span>Enviando solicitação...</span>';
 
       try {{
         const res = await fetch('/api/auth/forgot-password', {{
@@ -764,16 +807,16 @@ def get_login_html(
           body: JSON.stringify({{ email, observacao }})
         }});
         const data = await res.json();
-        feedback.className = 'rounded-xl p-3 text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200';
+        feedback.className = 'rounded-2xl p-3.5 text-xs font-bold text-center bg-emerald-50 text-emerald-800 border border-emerald-200';
         feedback.textContent = data.message || 'Solicitação registrada com sucesso!';
         feedback.classList.remove('hidden');
       }} catch {{
-        feedback.className = 'rounded-xl p-3 text-xs font-bold bg-red-50 text-red-800 border border-red-200';
+        feedback.className = 'rounded-2xl p-3.5 text-xs font-bold text-center bg-red-50 text-red-800 border border-red-200';
         feedback.textContent = 'Não foi possível enviar agora. Acione o suporte diretamente.';
         feedback.classList.remove('hidden');
       }} finally {{
         btn.disabled = false;
-        btn.textContent = 'Solicitar Nova Senha';
+        btn.innerHTML = '<span>Solicitar recuperação</span><svg class="w-4 h-4 text-gold-400 transition-transform duration-150 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>';
       }}
     }});
 
@@ -817,7 +860,7 @@ def get_login_html(
 
         if (data.must_change_password) {{
           submitBtn.disabled = false;
-          submitLabel.textContent = 'Entrar';
+          submitLabel.textContent = 'Entrar no Portal';
           submitArrow.classList.remove('hidden');
           submitSpinner.classList.add('hidden');
           abrirModalTrocaSenhaObrigatoria(data.user?.email || email, data.user?.nome || '');
@@ -829,7 +872,7 @@ def get_login_html(
         errorText.textContent = err.message || 'Não foi possível conectar ao servidor.';
         errorBanner.classList.remove('hidden');
         submitBtn.disabled = false;
-        submitLabel.textContent = 'Entrar';
+        submitLabel.textContent = 'Entrar no Portal';
         submitArrow.classList.remove('hidden');
         submitSpinner.classList.add('hidden');
       }}
