@@ -238,6 +238,17 @@ def init_db():
                 updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
             );
 
+            CREATE TABLE IF NOT EXISTS schema_auth.recuperacao_senha (
+                id SERIAL PRIMARY KEY,
+                usuario_id INTEGER REFERENCES schema_auth.usuarios(id) ON DELETE CASCADE,
+                token_hash VARCHAR(128) UNIQUE NOT NULL,
+                ip VARCHAR(64),
+                usado BOOLEAN DEFAULT FALSE,
+                expires_at TIMESTAMPTZ NOT NULL,
+                created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_auth_recup_token ON schema_auth.recuperacao_senha(token_hash);
             CREATE INDEX IF NOT EXISTS idx_auth_sessoes_token ON schema_auth.sessoes(token_hash);
             CREATE INDEX IF NOT EXISTS idx_auth_auditoria_created ON schema_auth.auditoria(created_at DESC);
             CREATE INDEX IF NOT EXISTS idx_auth_auditoria_email ON schema_auth.auditoria(usuario_email);
@@ -301,6 +312,17 @@ def init_db():
                 updated_at TEXT DEFAULT CURRENT_TIMESTAMP
             );
 
+            CREATE TABLE IF NOT EXISTS auth_recuperacao_senha (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                usuario_id INTEGER NOT NULL,
+                token_hash TEXT UNIQUE NOT NULL,
+                ip TEXT,
+                usado INTEGER DEFAULT 0,
+                expires_at TEXT NOT NULL,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_auth_recup_token ON auth_recuperacao_senha(token_hash);
             CREATE INDEX IF NOT EXISTS idx_auth_sessoes_token ON auth_sessoes(token_hash);
             CREATE INDEX IF NOT EXISTS idx_auth_auditoria_created ON auth_auditoria(created_at DESC);
         """)
@@ -581,6 +603,240 @@ def enviar_email_recuperacao_senha(
         return True, f"E-mail enviado com sucesso para {destinatario_email}."
     except Exception as e:
         logger.warning(f"Falha ao enviar e-mail SMTP para {destinatario_email}: {e}")
+        return False, f"Falha no envio SMTP: {e}"
+
+
+def criar_token_recuperacao_senha(usuario_id: int, ip: str = "", minutos_validade: int = 30) -> str:
+    """
+    Gera um token único e seguro para confirmação de redefinição de senha via e-mail,
+    SEM alterar a senha atual e SEM derrubar as sessões ativas do colaborador.
+    """
+    ensure_db_initialized()
+    raw_token = secrets.token_urlsafe(36)
+    t_hash = hash_token(raw_token)
+    expires = datetime.now(timezone.utc) + timedelta(minutes=minutos_validade)
+
+    conn, is_pg = get_connection()
+    cur = conn.cursor()
+    tb_rec = "schema_auth.recuperacao_senha" if is_pg else "auth_recuperacao_senha"
+
+    if is_pg:
+        cur.execute(
+            f"DELETE FROM {tb_rec} WHERE usuario_id = %s AND (usado = TRUE OR expires_at < CURRENT_TIMESTAMP);",
+            (usuario_id,)
+        )
+        cur.execute(
+            f"INSERT INTO {tb_rec} (usuario_id, token_hash, ip, usado, expires_at) VALUES (%s, %s, %s, FALSE, %s);",
+            (usuario_id, t_hash, ip, expires)
+        )
+    else:
+        now_iso = datetime.now(timezone.utc).isoformat()
+        cur.execute(
+            f"DELETE FROM {tb_rec} WHERE usuario_id = ? AND (usado = 1 OR expires_at < ?);",
+            (usuario_id, now_iso)
+        )
+        cur.execute(
+            f"INSERT INTO {tb_rec} (usuario_id, token_hash, ip, usado, expires_at) VALUES (?, ?, ?, 0, ?);",
+            (usuario_id, t_hash, ip, expires.isoformat())
+        )
+    conn.commit()
+    conn.close()
+    return raw_token
+
+
+def validar_token_recuperacao_senha(raw_token: str) -> Optional[Dict[str, Any]]:
+    """
+    Valida se o token do link de recuperação existe, não foi utilizado e está dentro do prazo (30 min).
+    Retorna os dados do usuário se válido, ou None caso contrário.
+    """
+    if not raw_token or not raw_token.strip():
+        return None
+    ensure_db_initialized()
+    t_hash = hash_token(raw_token.strip())
+
+    conn, is_pg = get_connection()
+    cur = conn.cursor()
+    tb_rec = "schema_auth.recuperacao_senha" if is_pg else "auth_recuperacao_senha"
+    tb_users = "schema_auth.usuarios" if is_pg else "auth_usuarios"
+    ph = "%s" if is_pg else "?"
+
+    cur.execute(
+        f"""
+        SELECT r.id as rec_id, r.usado, r.expires_at, u.*
+        FROM {tb_rec} r
+        JOIN {tb_users} u ON u.id = r.usuario_id
+        WHERE r.token_hash = {ph};
+        """,
+        (t_hash,)
+    )
+    row = cur.fetchone()
+    conn.close()
+
+    if not row:
+        return None
+
+    d = dict(row)
+    if bool(d.get("usado", False)) or not bool(d.get("ativo", True)):
+        return None
+
+    exp = d.get("expires_at")
+    now = datetime.now(timezone.utc)
+    if isinstance(exp, str):
+        try:
+            exp_dt = datetime.fromisoformat(exp.replace("Z", "+00:00"))
+            if exp_dt.tzinfo is None:
+                exp_dt = exp_dt.replace(tzinfo=timezone.utc)
+            if exp_dt < now:
+                return None
+        except Exception:
+            return None
+    elif isinstance(exp, datetime):
+        if exp.tzinfo is None:
+            exp = exp.replace(tzinfo=timezone.utc)
+        if exp < now:
+            return None
+
+    return _normalize_user(d, is_pg)
+
+
+def consumir_token_e_redefinir_senha(raw_token: str, nova_senha: str) -> Tuple[Optional[Dict[str, Any]], Optional[str]]:
+    """
+    Valida o token de recuperação, define a nova senha escolhida pelo usuário,
+    invalida o token e todos os outros tokens pendentes de recuperação daquele usuário.
+    """
+    if len((nova_senha or "").strip()) < 4:
+        return None, "A nova senha deve ter pelo menos 4 caracteres."
+
+    user = validar_token_recuperacao_senha(raw_token)
+    if not user:
+        return None, "Este link de recuperação expirou ou já foi utilizado. Solicite um novo link."
+
+    t_hash = hash_token(raw_token.strip())
+    pw_hash = hash_password(nova_senha.strip())
+
+    conn, is_pg = get_connection()
+    cur = conn.cursor()
+    tb_rec = "schema_auth.recuperacao_senha" if is_pg else "auth_recuperacao_senha"
+    tb_users = "schema_auth.usuarios" if is_pg else "auth_usuarios"
+    ph = "%s" if is_pg else "?"
+    false_val = False if is_pg else 0
+    true_val = True if is_pg else 1
+
+    cur.execute(
+        f"UPDATE {tb_users} SET senha_hash = {ph}, precisa_trocar_senha = {ph}, updated_at = CURRENT_TIMESTAMP WHERE id = {ph};",
+        (pw_hash, false_val, user["id"])
+    )
+    cur.execute(
+        f"UPDATE {tb_rec} SET usado = {ph} WHERE usuario_id = {ph} OR token_hash = {ph};",
+        (true_val, user["id"], t_hash)
+    )
+    conn.commit()
+    conn.close()
+
+    return buscar_usuario_por_id(user["id"]), None
+
+
+def enviar_email_link_recuperacao_senha(
+    destinatario_email: str,
+    destinatario_nome: str,
+    link_recuperacao: str,
+    minutos_validade: int = 30
+) -> Tuple[bool, str]:
+    """
+    Envia um e-mail institucional perguntando se o colaborador realmente esqueceu a senha
+    e deseja redefini-la. Sem clicar no botão de confirmação, a senha atual permanece intacta.
+    """
+    cfg = obter_configuracoes_email(ocultar_senha=False)
+    if not cfg.get("smtp_configurado"):
+        return False, "Servidor de e-mail (SMTP) da Gold ainda não configurado no painel."
+
+    host = cfg["smtp_host"]
+    port = int(cfg.get("smtp_port") or 587)
+    user = cfg["smtp_user"]
+    password = cfg["smtp_password"]
+    from_name = cfg.get("smtp_from_name") or "Gold Corretora de Seguros"
+    from_email = cfg.get("smtp_from_email") or user
+    reply_to = cfg.get("support_email") or from_email
+    use_tls = bool(cfg.get("smtp_use_tls", True))
+
+    msg = EmailMessage()
+    msg["Subject"] = "Confirmação de recuperação de senha • Gold Corretora"
+    msg["From"] = f"{from_name} <{from_email}>"
+    msg["To"] = destinatario_email
+    if reply_to:
+        msg["Reply-To"] = reply_to
+
+    texto_puro = (
+        f"Olá, {destinatario_nome}!\n\n"
+        f"Recebemos uma solicitação para redefinir a senha da sua conta ({destinatario_email}) no Portal Interno da Gold Corretora.\n\n"
+        f"Você realmente esqueceu sua senha e deseja trocá-la?\n"
+        f"Se SIM, confirme clicando no link abaixo (válido por {minutos_validade} minutos):\n"
+        f"{link_recuperacao}\n\n"
+        f"Se NÃO foi você quem solicitou, pode ficar tranquilo(a): basta ignorar esta mensagem. "
+        f"Sua senha atual continua funcionando normalmente e nenhuma alteração foi feita na sua conta.\n\n"
+        f"Dúvidas? Entre em contato pelo e-mail {reply_to}.\n"
+        f"Gold Corretora de Seguros"
+    )
+    msg.set_content(texto_puro)
+
+    html_content = f"""
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <body style="margin:0;padding:28px 16px;background-color:#F1F5F9;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:#0F1A2A;">
+      <div style="max-width:520px;margin:0 auto;background:#FFFFFF;border-radius:24px;border:1px solid #E2E8F0;overflow:hidden;box-shadow:0 12px 32px rgba(15,26,42,0.08);">
+        <div style="background:#0F1A2A;padding:24px 30px;border-bottom:3px solid #C59B27;text-align:center;">
+          <div style="color:#F5B82E;font-size:11px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;">Gold Corretora de Seguros</div>
+          <h1 style="color:#FFFFFF;font-size:21px;margin:6px 0 0 0;font-weight:800;">Você esqueceu sua senha?</h1>
+        </div>
+        <div style="padding:32px 30px;text-align:center;">
+          <p style="margin:0 0 14px 0;font-size:15px;line-height:1.6;color:#1E293B;">
+            Olá, <strong>{destinatario_nome}</strong>!
+          </p>
+          <p style="margin:0 0 24px 0;font-size:14px;line-height:1.6;color:#475569;">
+            Recebemos um pedido para redefinir a senha da conta <strong style="color:#0F1A2A;">{destinatario_email}</strong>.
+            Você realmente esqueceu sua senha e deseja criar uma nova?
+          </p>
+
+          <div style="margin:28px 0;">
+            <a href="{link_recuperacao}" style="display:inline-block;background:#0F1A2A;color:#FFFFFF;text-decoration:none;font-weight:800;font-size:14px;padding:14px 32px;border-radius:9999px;border:1px solid #C59B27;box-shadow:0 8px 20px rgba(15,26,42,0.22);">
+              Sim, quero redefinir minha senha &rarr;
+            </a>
+          </div>
+
+          <p style="margin:0 0 22px 0;font-size:12px;color:#64748B;">
+            Este link de confirmação é válido por <strong>{minutos_validade} minutos</strong>.
+          </p>
+
+          <div style="background:#FBF7EB;border:1px solid #F5EBD0;border-radius:14px;padding:14px 18px;text-align:left;">
+            <div style="font-size:12px;font-weight:800;color:#0F1A2A;margin-bottom:4px;">🔒 Não foi você quem pediu?</div>
+            <div style="font-size:12px;line-height:1.5;color:#475569;">
+              Nenhuma alteração foi feita na sua conta. Sem a sua confirmação clicando no botão acima, <strong>sua senha atual permanece exatamente a mesma</strong>. Basta ignorar este e-mail.
+            </div>
+          </div>
+        </div>
+        <div style="background:#F8FAFC;padding:16px 28px;border-top:1px solid #E2E8F0;font-size:12px;color:#64748B;text-align:center;">
+          Precisa de ajuda? Fale com o suporte pelo e-mail <a href="mailto:{reply_to}" style="color:#0F1A2A;font-weight:700;">{reply_to}</a>.
+        </div>
+      </div>
+    </body>
+    </html>
+    """
+    msg.add_alternative(html_content, subtype="html")
+
+    try:
+        if port == 465:
+            with smtplib.SMTP_SSL(host, port, timeout=10) as server:
+                server.login(user, password)
+                server.send_message(msg)
+        else:
+            with smtplib.SMTP(host, port, timeout=10) as server:
+                if use_tls:
+                    server.starttls()
+                server.login(user, password)
+                server.send_message(msg)
+        return True, f"Link de confirmação enviado com sucesso para {destinatario_email}."
+    except Exception as e:
+        logger.warning(f"Falha ao enviar link de recuperação SMTP para {destinatario_email}: {e}")
         return False, f"Falha no envio SMTP: {e}"
 
 # ==========================================================

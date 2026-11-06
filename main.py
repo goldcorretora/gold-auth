@@ -23,6 +23,10 @@ from database import (
     obter_configuracoes_email,
     salvar_configuracoes_email,
     enviar_email_recuperacao_senha,
+    criar_token_recuperacao_senha,
+    validar_token_recuperacao_senha,
+    consumir_token_e_redefinir_senha,
+    enviar_email_link_recuperacao_senha,
     criar_sessao,
     validar_sessao_token,
     revogar_sessao,
@@ -268,14 +272,22 @@ async def root_redirect(request: Request, rd: Optional[str] = Query(None)):
 async def login_page(
     request: Request,
     rd: Optional[str] = Query(None),
-    force_pw_change: Optional[str] = Query(None)
+    force_pw_change: Optional[str] = Query(None),
+    reset_token: Optional[str] = Query(None)
 ):
     clean_rd = rd if (rd and "auth.goldcorretora.com.br" not in rd) else None
     user = get_current_user(request)
     cfg = obter_configuracoes_email(ocultar_senha=True)
     support_email = cfg.get("support_email") or "acesso@goldcorretora.com.br"
 
-    if user and not user.get("precisa_trocar_senha") and not force_pw_change:
+    # Se o usuário clicou no link de confirmação de recuperação do e-mail (?reset_token=...),
+    # não redireciona mesmo que haja sessão anterior: valida o token e abre direto o modal de Nova Senha!
+    reset_user = validar_token_recuperacao_senha(reset_token) if reset_token else None
+    reset_token_status = ""
+    if reset_token:
+        reset_token_status = "valid" if reset_user else "invalid"
+
+    if user and not user.get("precisa_trocar_senha") and not force_pw_change and not reset_token:
         if clean_rd:
             return RedirectResponse(url=clean_rd, status_code=302)
         if user.get("cargo") in ("ADMIN", "TI"):
@@ -287,7 +299,11 @@ async def login_page(
             default_redirect=DEFAULT_REDIRECT_URL,
             support_email=support_email,
             must_change_password=bool(user and user.get("precisa_trocar_senha")),
-            logged_user_email=user.get("email") if user else ""
+            logged_user_email=user.get("email") if user else "",
+            reset_token=reset_token or "",
+            reset_token_status=reset_token_status,
+            reset_user_email=reset_user.get("email", "") if reset_user else "",
+            reset_user_name=reset_user.get("nome", "") if reset_user else ""
         ),
         headers={
             "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
@@ -448,6 +464,11 @@ class ForgotPasswordIn(BaseModel):
     email: str
     observacao: Optional[str] = ""
 
+class ResetPasswordConfirmIn(BaseModel):
+    token: str
+    nova_senha: str
+    confirmar_senha: Optional[str] = None
+
 class ChangePasswordIn(BaseModel):
     nova_senha: str
     confirmar_senha: Optional[str] = None
@@ -583,32 +604,34 @@ async def api_forgot_password(payload: ForgotPasswordIn, request: Request):
     if not email_limpo:
         raise HTTPException(status_code=400, detail="Informe seu e-mail corporativo.")
 
+    ip = get_client_ip(request)
     cfg = obter_configuracoes_email(ocultar_senha=False)
     support_email = cfg.get("support_email") or "acesso@goldcorretora.com.br"
     alvo = buscar_usuario_por_email(email_limpo)
     email_enviado = False
     detalhe_envio = ""
 
-    # Se o usuário existe, está ativo e o SMTP da Gold está configurado, gera e envia a senha temporária na hora
+    # Gera um token único de confirmação (30 min) SEM alterar a senha atual e SEM derrubar as sessões!
     if alvo and alvo.get("ativo") and cfg.get("smtp_configurado"):
-        _, senha_temp = definir_senha_temporaria_usuario(alvo["id"])
-        ok_smtp, msg_smtp = enviar_email_recuperacao_senha(
+        token_rec = criar_token_recuperacao_senha(alvo["id"], ip=ip, minutos_validade=30)
+        link_confirmacao = f"{PUBLIC_AUTH_URL}/login?reset_token={quote(token_rec)}"
+        ok_smtp, msg_smtp = enviar_email_link_recuperacao_senha(
             destinatario_email=alvo["email"],
             destinatario_nome=alvo["nome"],
-            senha_temporaria=senha_temp,
-            portal_url=PUBLIC_AUTH_URL
+            link_recuperacao=link_confirmacao,
+            minutos_validade=30
         )
         email_enviado = ok_smtp
         detalhe_envio = msg_smtp
 
     resumo_auditoria = (
-        f"Senha temporária enviada automaticamente por e-mail para {email_limpo}."
+        f"Link de confirmação de redefinição de senha enviado para {email_limpo} (senha atual mantida até confirmação)."
         if email_enviado
-        else f"Solicitação de redefinição de senha para {email_limpo}. {payload.observacao or ''}".strip()
+        else f"Solicitação de recuperação de acesso para {email_limpo}."
     )
 
     registrar_auditoria(
-        acao="SENHA_TEMPORARIA_ENVIADA" if email_enviado else "SOLICITACAO_REDEFINICAO_SENHA",
+        acao="LINK_RECUPERACAO_ENVIADO" if email_enviado else "SOLICITACAO_REDEFINICAO_SENHA",
         usuario={"nome": alvo["nome"] if alvo else email_limpo, "email": email_limpo, "cargo": alvo["cargo"] if alvo else "RECUPERACAO"},
         app="gold-auth",
         metodo="POST",
@@ -619,22 +642,54 @@ async def api_forgot_password(payload: ForgotPasswordIn, request: Request):
             "detalhe_smtp": detalhe_envio,
             "resumo": resumo_auditoria
         },
-        ip=get_client_ip(request)
+        ip=ip
     )
-
-    if email_enviado:
-        return {
-            "ok": True,
-            "email_sent": True,
-            "support_email": support_email,
-            "message": f"Enviamos uma senha temporária para {email_limpo}! Verifique sua caixa de entrada e troque a senha no primeiro acesso."
-        }
 
     return {
         "ok": True,
-        "email_sent": False,
+        "email_sent": email_enviado,
         "support_email": support_email,
-        "message": f"Solicitação registrada! A gestão da Gold Corretora foi notificada no painel para enviar sua senha temporária (contato oficial: {support_email})."
+        "message": f"Se o e-mail {email_limpo} estiver ativo, você receberá um link de confirmação na sua caixa de entrada. Sua senha atual permanece inalterada até você confirmar pelo e-mail."
+    }
+
+@app.post("/api/auth/reset-password-confirm")
+async def api_reset_password_confirm(payload: ResetPasswordConfirmIn, request: Request, response: Response):
+    token_limpo = (payload.token or "").strip()
+    nova = (payload.nova_senha or "").strip()
+    if not token_limpo:
+        raise HTTPException(status_code=400, detail="Token de recuperação ausente.")
+    if len(nova) < 4:
+        raise HTTPException(status_code=400, detail="A nova senha deve ter pelo menos 4 caracteres.")
+    if payload.confirmar_senha is not None and nova != payload.confirmar_senha.strip():
+        raise HTTPException(status_code=400, detail="A confirmação de senha não confere.")
+
+    user, erro = consumir_token_e_redefinir_senha(token_limpo, nova)
+    if erro or not user:
+        raise HTTPException(status_code=400, detail=erro or "Link de recuperação inválido ou expirado.")
+
+    ip = get_client_ip(request)
+    ua = request.headers.get("user-agent", "")
+
+    # Já autentica o colaborador automaticamente na nova senha!
+    sess_token = criar_sessao(user["id"], ip=ip, user_agent=ua, dias_validade=7)
+    set_sso_cookie(response, sess_token, request, dias_validade=7)
+
+    registrar_auditoria(
+        acao="SENHA_REDEFINIDA_POR_LINK",
+        usuario=user,
+        app="gold-auth",
+        metodo="POST",
+        rota="/api/auth/reset-password-confirm",
+        detalhes={
+            "resumo": f"{user['nome']} confirmou o link por e-mail e definiu uma nova senha de acesso."
+        },
+        ip=ip
+    )
+
+    return {
+        "ok": True,
+        "user": user,
+        "message": "Sua nova senha foi salva com sucesso! Redirecionando para o portal..."
     }
 
 @app.post("/api/auth/logout")

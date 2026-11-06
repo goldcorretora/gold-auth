@@ -160,7 +160,11 @@ def get_login_html(
     default_redirect: str = "https://vendas.goldcorretora.com.br",
     support_email: str = "acesso@goldcorretora.com.br",
     must_change_password: bool = False,
-    logged_user_email: str = ""
+    logged_user_email: str = "",
+    reset_token: str = "",
+    reset_token_status: str = "",
+    reset_user_email: str = "",
+    reset_user_name: str = ""
 ) -> str:
     return f"""<!DOCTYPE html>
 <html lang="pt-BR">
@@ -623,6 +627,115 @@ def get_login_html(
     </div>
   </div>
 
+  <!-- 3. Modal de Definição de Nova Senha (Aberto após confirmar no link do e-mail) -->
+  <div
+    id="reset-confirm-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="reset-confirm-title"
+    class="fixed inset-0 z-50 bg-navy-950/75 backdrop-blur-sm hidden items-center justify-center p-4"
+  >
+    <div class="modal-panel bg-white w-full max-w-[430px] rounded-[32px] px-7 py-9 sm:px-10 sm:py-11 shadow-[0_25px_70px_-15px_rgba(10,18,30,0.45)] border border-slate-100 relative">
+
+      <!-- Ilustração Central das Duas Chaves na Argola (Cores Gold & Navy) -->
+      <div class="flex justify-center mb-6">
+        <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-[#FBF7EB] flex items-center justify-center relative">
+          <span class="w-3.5 h-3.5 rounded-[4px] bg-gold-300/70 absolute top-3.5 left-6"></span>
+          <span class="w-5 h-5 rounded-[6px] bg-navy-900/15 absolute top-5 right-3.5"></span>
+          <span class="w-3.5 h-3.5 rounded-[4px] bg-navy-900/15 absolute bottom-7 left-3.5"></span>
+          <span class="w-2.5 h-2.5 rounded-[3px] bg-navy-900/20 absolute bottom-7 right-4"></span>
+          <span class="w-5 h-5 rounded-[6px] bg-gold-400/55 absolute -bottom-1 left-1/2 -translate-x-1/2"></span>
+
+          <svg class="w-16 h-16 sm:w-[72px] sm:h-[72px] relative z-10 overflow-visible" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="40" cy="17.5" r="7.5" stroke="#94A3B8" stroke-width="2.5" fill="none" />
+            <g transform="translate(43, 28) rotate(24) translate(-40, -28)">
+              <path d="M37 33 L37 64 L41 67 L44 63 L41 59 L45 55 L41 52 L45 48 L43 33 Z" fill="#1E2F47" />
+              <circle cx="40" cy="28" r="10.5" fill="#1E2F47" />
+              <rect x="36.5" y="36.5" width="7" height="2.8" rx="1" fill="#0F1A2A" />
+              <circle cx="40" cy="23.2" r="2.6" fill="#FBF7EB" />
+            </g>
+            <g transform="translate(36, 28) rotate(-24) translate(-40, -28)">
+              <path d="M37 33 L37 50 L33 53 L37 57 L34 60 L37 64 L40 67 L43 64 L43 33 Z" fill="#F5B82E" />
+              <path d="M40.5 36 L40.5 64" stroke="#C59B27" stroke-width="1.5" stroke-linecap="round" />
+              <circle cx="40" cy="28" r="11" fill="#F5B82E" stroke="#C59B27" stroke-width="1" />
+              <rect x="36.2" y="36.5" width="7.6" height="3" rx="1.2" fill="#C59B27" />
+              <circle cx="40" cy="23" r="2.7" fill="#FBF7EB" />
+            </g>
+            <path d="M34.2 13 A 7.5 7.5 0 0 1 46.8 14.5" stroke="#94A3B8" stroke-width="2.5" stroke-linecap="round" fill="none" />
+          </svg>
+        </div>
+      </div>
+
+      <div class="text-center mb-6">
+        <h3 id="reset-confirm-title" class="text-2xl sm:text-[26px] font-extrabold text-navy-950 tracking-tight">
+          Criar nova senha
+        </h3>
+        <p class="text-xs sm:text-[13px] text-slate-500 font-medium mt-2 leading-relaxed max-w-[320px] mx-auto">
+          Confirmação validada para <strong class="text-navy-900 font-bold">{reset_user_email}</strong>. Digite abaixo sua nova senha de acesso.
+        </p>
+      </div>
+
+      <form id="reset-confirm-form" class="space-y-4">
+        <input type="hidden" id="reset-token-input" value="{reset_token}" />
+
+        <div>
+          <label for="reset-new-pw" class="block text-xs font-extrabold text-navy-950 mb-2 pl-1">
+            Nova senha
+          </label>
+          <input
+            id="reset-new-pw"
+            type="password"
+            required
+            minlength="4"
+            placeholder="Digite sua nova senha (mín. 4 caracteres)"
+            class="input-corporate w-full h-12 sm:h-[50px] rounded-full bg-white border border-slate-200 px-5 text-xs sm:text-sm font-semibold text-navy-900 placeholder:text-slate-400 shadow-[0_2px_10px_rgba(15,26,42,0.03)] focus:border-gold-500"
+          />
+        </div>
+
+        <div>
+          <label for="reset-confirm-pw" class="block text-xs font-extrabold text-navy-950 mb-2 pl-1">
+            Confirmar nova senha
+          </label>
+          <input
+            id="reset-confirm-pw"
+            type="password"
+            required
+            minlength="4"
+            placeholder="Repita a nova senha"
+            class="input-corporate w-full h-12 sm:h-[50px] rounded-full bg-white border border-slate-200 px-5 text-xs sm:text-sm font-semibold text-navy-900 placeholder:text-slate-400 shadow-[0_2px_10px_rgba(15,26,42,0.03)] focus:border-gold-500"
+          />
+        </div>
+
+        <div id="reset-confirm-feedback" class="hidden rounded-2xl p-3 text-xs font-bold text-center"></div>
+
+        <div class="pt-1">
+          <button
+            type="submit"
+            id="reset-confirm-submit"
+            class="btn-tactile btn-gold-primary w-full h-12 sm:h-[50px] rounded-full text-xs sm:text-sm font-extrabold flex items-center justify-center gap-2 shadow-lg cursor-pointer group"
+          >
+            <span>Salvar nova senha e entrar</span>
+            <svg class="w-4 h-4 text-gold-400 transition-transform duration-150 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="pt-2 text-center">
+          <p class="text-xs sm:text-[13px] font-medium text-slate-400">
+            Deseja voltar?
+            <a
+              href="/login"
+              class="font-bold text-slate-500 hover:text-navy-900 transition-colors ml-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-navy-900 rounded cursor-pointer"
+            >
+              Cancelar e ir ao login
+            </a>
+          </p>
+        </div>
+      </form>
+    </div>
+  </div>
+
 <script>
     const form = document.getElementById('login-form');
     const emailInput = document.getElementById('email');
@@ -810,6 +923,79 @@ def get_login_html(
         btn.innerHTML = '<span>Enviar link de recuperação</span><svg class="w-4 h-4 text-gold-400 transition-transform duration-150 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>';
       }}
     }});
+
+    // Verifica se a página foi aberta através do link de confirmação de recuperação do e-mail (?reset_token=...)
+    const resetTokenStatus = '{reset_token_status}';
+    if (resetTokenStatus === 'valid') {{
+      const rModal = document.getElementById('reset-confirm-modal');
+      if (rModal) {{
+        rModal.classList.remove('hidden');
+        rModal.classList.add('flex');
+        setTimeout(() => {{
+          const pwInput = document.getElementById('reset-new-pw');
+          if (pwInput) pwInput.focus();
+        }}, 80);
+      }}
+    }} else if (resetTokenStatus === 'invalid') {{
+      abrirModalRecuperacao();
+      const feedback = document.getElementById('forgot-feedback');
+      if (feedback) {{
+        feedback.className = 'rounded-2xl p-3 text-xs font-bold text-center bg-amber-50 text-amber-900 border border-amber-200';
+        feedback.textContent = 'Este link de recuperação expirou ou já foi utilizado. Digite seu e-mail abaixo para receber um novo link.';
+        feedback.classList.remove('hidden');
+      }}
+    }}
+
+    const resetConfirmForm = document.getElementById('reset-confirm-form');
+    if (resetConfirmForm) {{
+      resetConfirmForm.addEventListener('submit', async (e) => {{
+        e.preventDefault();
+        const token = document.getElementById('reset-token-input').value.trim();
+        const nova_senha = document.getElementById('reset-new-pw').value.trim();
+        const confirmar_senha = document.getElementById('reset-confirm-pw').value.trim();
+        const fb = document.getElementById('reset-confirm-feedback');
+        const btn = document.getElementById('reset-confirm-submit');
+
+        fb.classList.add('hidden');
+        if (nova_senha.length < 4) {{
+          fb.className = 'rounded-2xl p-3 text-xs font-bold text-center bg-red-50 text-red-800 border border-red-200';
+          fb.textContent = 'A nova senha deve ter pelo menos 4 caracteres.';
+          fb.classList.remove('hidden');
+          return;
+        }}
+        if (nova_senha !== confirmar_senha) {{
+          fb.className = 'rounded-2xl p-3 text-xs font-bold text-center bg-red-50 text-red-800 border border-red-200';
+          fb.textContent = 'A confirmação de senha não confere.';
+          fb.classList.remove('hidden');
+          return;
+        }}
+
+        btn.disabled = true;
+        btn.innerHTML = '<span>Salvando nova senha...</span>';
+
+        try {{
+          const res = await fetch('/api/auth/reset-password-confirm', {{
+            method: 'POST',
+            headers: {{ 'Content-Type': 'application/json' }},
+            body: JSON.stringify({{ token, nova_senha, confirmar_senha }})
+          }});
+          const data = await res.json();
+          if (!res.ok) {{
+            throw new Error(data.detail || 'Não foi possível redefinir sua senha.');
+          }}
+          fb.className = 'rounded-2xl p-3 text-xs font-bold text-center bg-emerald-50 text-emerald-800 border border-emerald-200';
+          fb.textContent = data.message || 'Nova senha definida com sucesso! Redirecionando...';
+          fb.classList.remove('hidden');
+          setTimeout(() => concluirRedirecionamentoPosLogin(), 700);
+        }} catch (err) {{
+          fb.className = 'rounded-2xl p-3 text-xs font-bold text-center bg-red-50 text-red-800 border border-red-200';
+          fb.textContent = err.message;
+          fb.classList.remove('hidden');
+          btn.disabled = false;
+          btn.innerHTML = '<span>Salvar nova senha e entrar</span><svg class="w-4 h-4 text-gold-400 transition-transform duration-150 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>';
+        }}
+      }});
+    }}
 
     form.addEventListener('submit', async (e) => {{
       e.preventDefault();
