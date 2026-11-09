@@ -1104,18 +1104,14 @@ def get_admin_html(
           type="button"
           data-tab="auditoria"
           onclick="switchTab(\'auditoria\')"
-          class="tab-btn btn-tactile px-3.5 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-navy-900 text-white"
+          class="tab-btn btn-tactile px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-100"
         >
           Atividade ao Vivo
         </button>""" if is_ti else ""
 
-    btn_usuarios_class = (
-        "tab-btn btn-tactile px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-100"
-        if is_ti else
-        "tab-btn btn-tactile px-3.5 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-navy-900 text-white"
-    )
+    btn_usuarios_class = "tab-btn btn-tactile px-3.5 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-navy-900 text-white"
 
-    section_usuarios_class = "hidden space-y-4" if is_ti else "space-y-4"
+    section_usuarios_class = "space-y-4"
 
     return f"""<!DOCTYPE html>
 <html lang="pt-BR">
@@ -1236,7 +1232,6 @@ def get_admin_html(
 
       <!-- Segmented Control de Navegação -->
       <nav aria-label="Seções do painel" class="bg-white p-1 rounded-2xl border border-slate-200 shadow-xs flex items-center self-start lg:self-auto gap-1 overflow-x-auto scrollbar-none max-w-full flex-nowrap sm:flex-wrap">
-        {btn_auditoria_html}
         <button
           type="button"
           data-tab="usuarios"
@@ -1245,6 +1240,7 @@ def get_admin_html(
         >
           Gestão da Equipe
         </button>
+        {btn_auditoria_html}
         <button
           type="button"
           data-tab="cargos"
@@ -1294,7 +1290,7 @@ def get_admin_html(
     <!-- ========================================== -->
 {'''    <!-- ABA 1: AUDITORIA ("QUEM ESTÁ FAZENDO O QUÊ") -->
     <!-- ========================================== -->
-    <section id="tab-auditoria" class="space-y-4">
+    <section id="tab-auditoria" class="hidden space-y-4">
       <div class="bg-white rounded-2xl border border-slate-200 p-3.5 sm:p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-3 shadow-2xs">
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 flex-1">
           <!-- Campo de Busca -->
@@ -3326,6 +3322,14 @@ def get_admin_html(
       if (IS_TI) promises.push(carregarAuditoria());
       await Promise.all(promises);
     }}
+
+    try {{
+      const urlParams = new URLSearchParams(window.location.search);
+      const tabParam = urlParams.get('tab') || window.location.hash.replace('#', '');
+      if (tabParam && ['auditoria', 'usuarios', 'cargos', 'email'].includes(tabParam)) {{
+        switchTab(tabParam);
+      }}
+    }} catch {{}}
 
     carregarTudo();
     if (IS_TI) {{
