@@ -130,7 +130,7 @@ DEFAULT_ROLES = [
             "carteira.view",
             "carteira.edit"
         ],
-        "apps_padrao": ["painel-vendedor", "cotador-web", "carteira"],
+        "apps_padrao": ["painel-vendedor", "cotador-web", "carteira", "gold-auth"],
         "is_system": False
     },
     {
