@@ -161,8 +161,9 @@ def require_admin(request: Request) -> Dict[str, Any]:
     if not user:
         raise HTTPException(status_code=401, detail="Não autenticado.")
     perms = user.get("permissoes", [])
-    if user.get("cargo") not in ("TI", "ADMIN") and "*" not in perms and "admin.manage" not in perms:
-        raise HTTPException(status_code=403, detail="Acesso restrito à equipe de TI.")
+    cargo = (user.get("cargo") or "").upper()
+    if cargo not in ("TI", "ADMIN", "ADMINISTRATIVO") and "*" not in perms and "admin.manage" not in perms:
+        raise HTTPException(status_code=403, detail="Acesso restrito à gestão e TI.")
     return user
 
 def set_sso_cookie(response: Response, token: str, request: Request, dias_validade: int = 7):
@@ -206,7 +207,8 @@ def resolve_app_slug_from_host(host: str) -> str:
     return h.split(".")[0] if "." in h else (h or "app-gold")
 
 def user_can_access_app(user: Dict[str, Any], app_slug: str) -> bool:
-    if user.get("cargo") in ("ADMIN", "TI"):
+    cargo = (user.get("cargo") or "").upper()
+    if cargo in ("ADMIN", "TI", "ADMINISTRATIVO"):
         return True
     apps = user.get("apps_permitidos") or []
     if "*" in apps or app_slug in apps or app_slug in ("gold-auth", "gold-apps", "conciliacao", "gold-db-api"):
@@ -340,14 +342,14 @@ async def admin_page(request: Request):
     if user.get("precisa_trocar_senha"):
         return RedirectResponse(url="/login?force_pw_change=1&rd=/admin", status_code=302)
     perms = user.get("permissoes") or []
-    if user.get("cargo") not in ("TI", "ADMIN") and "*" not in perms:
+    cargo = (user.get("cargo") or "").upper()
+    if cargo not in ("TI", "ADMIN", "ADMINISTRATIVO") and "*" not in perms:
         return RedirectResponse(url=DEFAULT_REDIRECT_URL, status_code=302)
     try:
         cfg = obter_configuracoes_email(ocultar_senha=True)
     except Exception as e:
         logger.warning(f"Aviso em admin_page ao carregar configuracoes: {e}")
         cfg = {}
-    cargo = (user.get("cargo") or "").upper()
     is_ti = (cargo == "TI")
     return HTMLResponse(
         content=get_admin_html(
@@ -843,6 +845,10 @@ async def admin_create_user(payload: UsuarioCreateIn, request: Request):
     if not (dados.get("nome") or "").strip():
         prefixo = dados["email"].split("@")[0].replace(".", " ").title()
         dados["nome"] = prefixo or "Novo Colaborador"
+    admin_cargo = (admin.get("cargo") or "").upper()
+    if admin_cargo != "TI" and (dados.get("cargo") or "").upper() == "TI":
+        raise HTTPException(status_code=403, detail="Apenas a equipe de TI pode criar usuários com cargo de TI.")
+
     senha_informada = (dados.get("senha") or "").strip()
     if "apps_permitidos" in dados and dados["apps_permitidos"]:
         if "*" not in dados["apps_permitidos"] and "gold-db-api" not in dados["apps_permitidos"]:
@@ -912,12 +918,20 @@ async def admin_update_user(user_id: int, payload: UsuarioUpdateIn, request: Req
         if updates["ferias_retorno"] <= updates["ferias_inicio"]:
             raise HTTPException(status_code=400, detail="A data de retorno deve ser posterior à data de início das férias.")
 
+    admin_cargo = (admin.get("cargo") or "").upper()
+    if admin_cargo != "TI":
+        alvo_user = buscar_usuario_por_id(user_id)
+        if alvo_user and (alvo_user.get("cargo") or "").upper() == "TI":
+            raise HTTPException(status_code=403, detail="Apenas a equipe de TI pode modificar contas de TI.")
+        if "cargo" in updates and updates["cargo"] and updates["cargo"].upper() == "TI":
+            raise HTTPException(status_code=403, detail="Apenas a equipe de TI pode conceder o cargo de TI.")
+
     # Proteção contra auto-bloqueio ou remoção do próprio cargo ADMIN
     if user_id == admin["id"]:
         if "ativo" in updates and not updates["ativo"]:
             raise HTTPException(status_code=400, detail="Você não pode bloquear sua própria conta de administrador.")
-        if "cargo" in updates and updates["cargo"] and updates["cargo"].upper() not in ("TI", "ADMIN"):
-            raise HTTPException(status_code=400, detail="Você não pode remover o cargo TI da sua própria conta.")
+        if "cargo" in updates and updates["cargo"] and updates["cargo"].upper() not in ("TI", "ADMIN", "ADMINISTRATIVO"):
+            raise HTTPException(status_code=400, detail="Você não pode remover o cargo administrativo da sua própria conta.")
 
     try:
         atualizado = atualizar_usuario(user_id, updates)
@@ -951,6 +965,12 @@ async def admin_delete_user(user_id: int, request: Request):
     admin = require_admin(request)
     if user_id == admin["id"]:
         raise HTTPException(status_code=400, detail="Você não pode excluir sua própria conta de administrador.")
+
+    admin_cargo = (admin.get("cargo") or "").upper()
+    if admin_cargo != "TI":
+        alvo_user = buscar_usuario_por_id(user_id)
+        if alvo_user and (alvo_user.get("cargo") or "").upper() == "TI":
+            raise HTTPException(status_code=403, detail="Apenas a equipe de TI pode excluir contas de TI.")
 
     excluido = excluir_usuario(user_id)
     if not excluido:
