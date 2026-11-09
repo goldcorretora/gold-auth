@@ -57,11 +57,28 @@ COOKIE_NAME = os.getenv("COOKIE_NAME", "gold_sso_token")
 COOKIE_DOMAIN = os.getenv("COOKIE_DOMAIN", ".goldcorretora.com.br").strip()
 COOKIE_SECURE = os.getenv("COOKIE_SECURE", "true").lower() == "true"
 PUBLIC_AUTH_URL = os.getenv("PUBLIC_AUTH_URL", "https://auth.goldcorretora.com.br").rstrip("/")
-_raw_default_redir = os.getenv("DEFAULT_REDIRECT_URL", "https://vendas.goldcorretora.com.br").rstrip("/")
-if _raw_default_redir in ("https://goldcorretora.com.br", "http://goldcorretora.com.br", ""):
-    DEFAULT_REDIRECT_URL = "https://vendas.goldcorretora.com.br"
+_raw_default_redir = os.getenv("DEFAULT_REDIRECT_URL", "https://apps.goldcorretora.com.br").rstrip("/")
+if _raw_default_redir in (
+    "https://goldcorretora.com.br",
+    "http://goldcorretora.com.br",
+    "https://vendas.goldcorretora.com.br",
+    "https://painel.goldcorretora.com.br",
+    "",
+):
+    DEFAULT_REDIRECT_URL = "https://apps.goldcorretora.com.br"
 else:
     DEFAULT_REDIRECT_URL = _raw_default_redir
+
+
+def _resolve_safe_redirect(rd: Optional[str]) -> Optional[str]:
+    if not rd:
+        return None
+    cleaned = rd.strip()
+    if cleaned.startswith("/admin") or "auth.goldcorretora.com.br/admin" in cleaned:
+        return cleaned
+    if "auth.goldcorretora.com.br" not in cleaned:
+        return cleaned
+    return None
 
 # Política de retenção de auditoria (padrão de governança: 90 dias)
 AUDIT_RETENTION_DAYS = int(os.getenv("AUDIT_RETENTION_DAYS", "90"))
@@ -255,28 +272,32 @@ async def get_favicon_png():
 # ROTAS VISUAIS (LOGIN & PAINEL ADMIN)
 # ==========================================================
 @app.get("/", include_in_schema=False)
-async def root_redirect(request: Request, rd: Optional[str] = Query(None)):
+async def root_redirect(
+    request: Request,
+    rd: Optional[str] = Query(None),
+    redirectUri: Optional[str] = Query(None),
+):
+    clean_rd = _resolve_safe_redirect(rd or redirectUri)
     user = get_current_user(request)
     if not user:
-        target = f"/login?rd={quote(rd)}" if rd else "/login"
+        target = f"/login?rd={quote(clean_rd)}" if clean_rd else "/login"
         return RedirectResponse(url=target, status_code=302)
     if user.get("precisa_trocar_senha"):
-        target = f"/login?force_pw_change=1&rd={quote(rd)}" if rd else "/login?force_pw_change=1"
+        target = f"/login?force_pw_change=1&rd={quote(clean_rd)}" if clean_rd else "/login?force_pw_change=1"
         return RedirectResponse(url=target, status_code=302)
-    if rd and "auth.goldcorretora.com.br" not in rd:
-        return RedirectResponse(url=rd, status_code=302)
-    if user.get("cargo") in ("TI", "ADMIN") or "*" in (user.get("permissoes") or []):
-        return RedirectResponse(url="/admin", status_code=302)
+    if clean_rd:
+        return RedirectResponse(url=clean_rd, status_code=302)
     return RedirectResponse(url=DEFAULT_REDIRECT_URL, status_code=302)
 
 @app.get("/login", response_class=HTMLResponse, include_in_schema=False)
 async def login_page(
     request: Request,
     rd: Optional[str] = Query(None),
+    redirectUri: Optional[str] = Query(None),
     force_pw_change: Optional[str] = Query(None),
     reset_token: Optional[str] = Query(None)
 ):
-    clean_rd = rd if (rd and "auth.goldcorretora.com.br" not in rd) else None
+    clean_rd = _resolve_safe_redirect(rd or redirectUri)
     user = get_current_user(request)
     cfg = obter_configuracoes_email(ocultar_senha=True)
     support_email = cfg.get("support_email") or "acesso@goldcorretora.com.br"
@@ -291,8 +312,6 @@ async def login_page(
     if user and not user.get("precisa_trocar_senha") and not force_pw_change and not reset_token:
         if clean_rd:
             return RedirectResponse(url=clean_rd, status_code=302)
-        if user.get("cargo") in ("ADMIN", "TI"):
-            return RedirectResponse(url="/admin", status_code=302)
         return RedirectResponse(url=DEFAULT_REDIRECT_URL, status_code=302)
 
     return HTMLResponse(
@@ -418,7 +437,7 @@ async def traefik_forward_auth(request: Request, target: Optional[str] = Query(N
             .box{{background:#162235;border:1px solid rgba(197,155,39,0.3);padding:32px;border-radius:16px;max-width:420px;text-align:center}}
             a{{display:inline-block;margin-top:16px;padding:10px 20px;background:#C59B27;color:#0F1A2A;font-weight:800;text-decoration:none;border-radius:10px}}</style></head>
             <body><div class="box"><h2>Acesso Restrito</h2><p>Olá <b>{user['nome']}</b>, seu perfil (<b>{user['cargo']}</b>) não possui acesso liberado para o módulo <code>{app_slug}</code>.</p>
-            <a href="{PUBLIC_AUTH_URL}/login">Voltar</a></div></body></html>
+            <a href="{DEFAULT_REDIRECT_URL}">Voltar ao Hub</a></div></body></html>
             """
         )
 

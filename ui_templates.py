@@ -769,10 +769,18 @@ def get_login_html(
 
     function concluirRedirecionamentoPosLogin() {{
       const params = new URLSearchParams(window.location.search);
-      const rd = params.get('rd');
-      const destination = (rd && !rd.includes('auth.goldcorretora.com.br'))
-        ? rd
-        : (('{default_redirect}' && '{default_redirect}' !== 'https://goldcorretora.com.br') ? '{default_redirect}' : 'https://vendas.goldcorretora.com.br');
+      const rd = (params.get('rd') || params.get('redirectUri') || '').trim();
+      const isValidRd = Boolean(
+        rd && (
+          rd.startsWith('/admin') ||
+          rd.includes('auth.goldcorretora.com.br/admin') ||
+          !rd.includes('auth.goldcorretora.com.br')
+        )
+      );
+      const fallbackHub = ('{default_redirect}' && !['https://goldcorretora.com.br', 'https://vendas.goldcorretora.com.br', 'https://painel.goldcorretora.com.br'].includes('{default_redirect}'))
+        ? '{default_redirect}'
+        : 'https://apps.goldcorretora.com.br';
+      const destination = isValidRd ? rd : fallbackHub;
 
       setTimeout(() => {{ resetLoginForm(); }}, 1200);
       window.location.href = destination;
@@ -1088,7 +1096,7 @@ def get_login_html(
 
 
 def get_admin_html(
-    default_redirect: str = "https://vendas.goldcorretora.com.br",
+    default_redirect: str = "https://apps.goldcorretora.com.br",
     support_email: str = "acesso@goldcorretora.com.br",
     is_ti: bool = True
 ) -> str:
@@ -1191,70 +1199,6 @@ def get_admin_html(
                   acesso@goldcorretora.com.br
                 </span>
               </div>
-            </div>
-
-            <!-- Itens do Menu -->
-            <div class="mt-2 space-y-1">
-              <!-- Atalho Painel de Vendas -->
-              <a
-                href="https://vendas.goldcorretora.com.br"
-                target="_blank"
-                rel="noopener noreferrer"
-                role="menuitem"
-                onclick="fecharMenuUsuario()"
-                class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-colors group cursor-pointer"
-              >
-                <div class="flex items-center gap-2.5">
-                  <svg class="w-4 h-4 text-slate-400 group-hover:text-gold-400 group-hover:scale-105 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                  </svg>
-                  <span>Painel de Vendas</span>
-                </div>
-                <svg class="w-3.5 h-3.5 text-slate-500 group-hover:text-slate-300 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                </svg>
-              </a>
-
-              <!-- Atalho Simulador de Seguros -->
-              <a
-                href="https://simulador.goldcorretora.com.br"
-                target="_blank"
-                rel="noopener noreferrer"
-                role="menuitem"
-                onclick="fecharMenuUsuario()"
-                class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-colors group cursor-pointer"
-              >
-                <div class="flex items-center gap-2.5">
-                  <svg class="w-4 h-4 text-slate-400 group-hover:text-gold-400 group-hover:scale-105 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                  </svg>
-                  <span>Simulador de Seguros</span>
-                </div>
-                <svg class="w-3.5 h-3.5 text-slate-500 group-hover:text-slate-300 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                </svg>
-              </a>
-
-              <!-- Preencher Apólice (Clicksign) -->
-              <a
-                href="https://app.clicksign.com/fluxia/dcf94a94-ba23-4e06-98af-29057948d6e6"
-                target="_blank"
-                rel="noopener noreferrer"
-                role="menuitem"
-                onclick="fecharMenuUsuario()"
-                class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-colors group cursor-pointer"
-                title="Preencher formulário de apólice de seguro via Clicksign"
-              >
-                <div class="flex items-center gap-2.5">
-                  <svg class="w-4 h-4 text-slate-400 group-hover:text-gold-400 group-hover:scale-105 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                  </svg>
-                  <span class="truncate">Preencher Apólice (Clicksign)</span>
-                </div>
-                <svg class="w-3.5 h-3.5 text-slate-500 group-hover:text-slate-300 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                </svg>
-              </a>
             </div>
 
             <!-- Divisor -->
