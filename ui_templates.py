@@ -1109,6 +1109,15 @@ def get_admin_html(
           Atividade ao Vivo
         </button>""" if is_ti else ""
 
+    btn_email_html = """<button
+          type="button"
+          data-tab="email"
+          onclick="switchTab(\'email\')"
+          class="tab-btn btn-tactile px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-100"
+        >
+          E-mail & Recuperação
+        </button>""" if is_ti else ""
+
     btn_usuarios_class = "tab-btn btn-tactile px-3.5 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-navy-900 text-white"
 
     section_usuarios_class = "space-y-4"
@@ -1249,14 +1258,7 @@ def get_admin_html(
         >
           Cargos & Permissões
         </button>
-        <button
-          type="button"
-          data-tab="email"
-          onclick="switchTab('email')"
-          class="tab-btn btn-tactile px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-100"
-        >
-          E-mail & Recuperação
-        </button>
+        {btn_email_html}
       </nav>
     </div>
 
@@ -1498,7 +1500,7 @@ def get_admin_html(
     </section>
 
     <!-- ========================================== -->
-    <!-- ABA 4: E-MAIL DA GOLD & RECUPERAÇÃO        -->
+{'''    <!-- ABA 4: E-MAIL DA GOLD & RECUPERAÇÃO        -->
     <!-- ========================================== -->
     <section id="tab-email" class="hidden space-y-4">
       <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-6">
@@ -1570,7 +1572,7 @@ def get_admin_html(
           <div id="email-settings-feedback" class="hidden rounded-xl p-3 text-xs font-bold max-w-lg"></div>
         </div>
       </div>
-    </section>
+    </section>''' if is_ti else ''}
   </main>
 
   <!-- MODAL: CRIAR / EDITAR USUÁRIO -->
@@ -1954,6 +1956,7 @@ def get_admin_html(
 
     function switchTab(tab) {{
       if (tab === 'auditoria' && !IS_TI) tab = 'usuarios';
+      if (tab === 'email' && !IS_TI) tab = 'usuarios';
       ['auditoria', 'usuarios', 'cargos', 'email'].forEach(t => {{
         const el = document.getElementById('tab-' + t);
         if (el) el.classList.toggle('hidden', t !== tab);
@@ -2034,6 +2037,7 @@ def get_admin_html(
     }}
 
     async function carregarConfigEmail() {{
+      if (!IS_TI) return;
       try {{
         const res = await fetch('/api/admin/email-settings');
         if (!res.ok) return;

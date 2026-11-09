@@ -166,6 +166,12 @@ def require_admin(request: Request) -> Dict[str, Any]:
         raise HTTPException(status_code=403, detail="Acesso restrito à gestão e TI.")
     return user
 
+def require_ti(request: Request) -> Dict[str, Any]:
+    admin = require_admin(request)
+    if (admin.get("cargo") or "").upper() != "TI":
+        raise HTTPException(status_code=403, detail="Acesso restrito à equipe de TI.")
+    return admin
+
 def set_sso_cookie(response: Response, token: str, request: Request, dias_validade: int = 7):
     host = request.headers.get("x-forwarded-host") or request.headers.get("host") or ""
     domain = COOKIE_DOMAIN if ("goldcorretora.com.br" in host and COOKIE_DOMAIN) else None
@@ -1052,12 +1058,12 @@ async def admin_revoke_user_sessions(user_id: int, request: Request):
 
 @app.get("/api/admin/email-settings")
 async def admin_get_email_settings(request: Request):
-    require_admin(request)
+    require_ti(request)
     return obter_configuracoes_email(ocultar_senha=True)
 
 @app.post("/api/admin/email-settings")
 async def admin_save_email_settings(payload: EmailSettingsIn, request: Request):
-    admin = require_admin(request)
+    admin = require_ti(request)
     salvo = salvar_configuracoes_email(payload.model_dump())
     registrar_auditoria(
         acao="CONFIG_EMAIL_ATUALIZADA",
@@ -1076,7 +1082,7 @@ async def admin_save_email_settings(payload: EmailSettingsIn, request: Request):
 
 @app.post("/api/admin/email-settings/test")
 async def admin_test_email_settings(payload: TestEmailIn, request: Request):
-    admin = require_admin(request)
+    admin = require_ti(request)
     destino = (payload.destinatario or admin.get("email") or "").strip()
     if not destino:
         raise HTTPException(status_code=400, detail="Informe um e-mail destinatário para o teste.")
@@ -1147,13 +1153,7 @@ async def admin_list_audit(
     email: Optional[str] = Query("TODOS"),
     limite: int = Query(120, ge=1, le=500)
 ):
-    user = get_current_user(request)
-    if not user:
-        raise HTTPException(status_code=401, detail="Não autenticado.")
-    cargo = (user.get("cargo") or "").upper()
-    # Atividade ao vivo restrita exclusivamente ao cargo de TI (conforme diretriz de segurança)
-    if cargo != "TI":
-        raise HTTPException(status_code=403, detail="Acesso à atividade ao vivo restrito à equipe de TI.")
+    require_ti(request)
     return listar_auditoria(busca=q, app=app, usuario_email=email, limite=limite)
 
 if __name__ == "__main__":
