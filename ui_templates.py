@@ -1362,7 +1362,7 @@ def get_admin_html(
             <h1 class="text-2xl sm:text-3xl font-extrabold text-navy-900 dark:text-white tracking-tight flex items-center gap-2.5">
               <span>{'Gestão da Equipe & Auditoria' if is_ti else 'Gestão da Equipe'}</span>
             </h1>
-            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+            <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1 font-medium">
               Cadastre colaboradores, gerencie cargos, acessos aos sistemas e credenciais oficiais da Gold Corretora.
             </p>
           </div>
@@ -1392,49 +1392,58 @@ def get_admin_html(
 
         <!-- KPIs da Equipe -->
         <section aria-label="Resumo da equipe" class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
-          <div class="glass-card glass-card-hover rounded-2xl border border-slate-200/90 dark:border-white/10 bg-slate-50/60 dark:bg-[#162235]/80 p-5 flex items-center justify-between">
-            <div class="flex items-center gap-3.5">
-              <div class="w-11 h-11 rounded-xl bg-[#FBF7EB] dark:bg-[#C59B27]/15 border border-[#EAD084]/70 dark:border-[#C59B27]/30 flex items-center justify-center text-[#A67F18] dark:text-[#DDBB5C] shrink-0">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
+          <div class="glass-card glass-card-hover rounded-2xl border border-slate-200/90 dark:border-white/10 bg-slate-50/70 dark:bg-[#162235]/80 p-5 flex flex-col justify-between gap-3 shadow-xs">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-[#FBF7EB] dark:bg-[#C59B27]/15 border border-[#EAD084]/70 dark:border-[#C59B27]/30 flex items-center justify-center text-[#A67F18] dark:text-[#DDBB5C] shrink-0">
+                  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+                <span class="text-xs font-semibold text-slate-600 dark:text-slate-300">Usuários Cadastrados</span>
               </div>
-              <div>
-                <span class="text-xs font-bold text-slate-500 dark:text-slate-400 block">Usuários Cadastrados</span>
-                <strong id="kpi-total-users" class="text-2xl font-extrabold text-navy-900 dark:text-white tabular-nums mt-0.5 block">—</strong>
-              </div>
+              <span class="px-2.5 py-0.5 rounded-md bg-white dark:bg-white/10 text-slate-700 dark:text-slate-300 text-[11px] font-bold border border-slate-200 dark:border-white/10 shrink-0">Equipe Total</span>
             </div>
-            <span class="px-2.5 py-1 rounded-lg bg-white dark:bg-white/10 text-slate-700 dark:text-slate-200 text-xs font-bold border border-slate-200 dark:border-white/10">Equipe Total</span>
+            <div class="pt-1 flex items-baseline justify-between">
+              <strong id="kpi-total-users" class="text-3xl font-black text-navy-900 dark:text-white tabular-nums tracking-tight">—</strong>
+              <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Contas ativas na base</span>
+            </div>
           </div>
 
-          <div class="glass-card glass-card-hover rounded-2xl border border-slate-200/90 dark:border-white/10 bg-slate-50/60 dark:bg-[#162235]/80 p-5 flex items-center justify-between">
-            <div class="flex items-center gap-3.5">
-              <div class="w-11 h-11 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
+          <div class="glass-card glass-card-hover rounded-2xl border border-slate-200/90 dark:border-white/10 bg-slate-50/70 dark:bg-[#162235]/80 p-5 flex flex-col justify-between gap-3 shadow-xs">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                <span class="text-xs font-semibold text-slate-600 dark:text-slate-300">Acessos Ativos</span>
               </div>
-              <div>
-                <span class="text-xs font-bold text-slate-500 dark:text-slate-400 block">Acessos Ativos</span>
-                <strong id="kpi-active-users" class="text-2xl font-extrabold text-navy-900 dark:text-white tabular-nums mt-0.5 block">—</strong>
-              </div>
+              <span class="px-2.5 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold border border-emerald-200 dark:border-emerald-500/30 shrink-0">Liberados</span>
             </div>
-            <span class="px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-xs font-bold border border-emerald-200 dark:border-emerald-500/30">Liberados</span>
+            <div class="pt-1 flex items-baseline justify-between">
+              <strong id="kpi-active-users" class="text-3xl font-black text-navy-900 dark:text-white tabular-nums tracking-tight">—</strong>
+              <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Com credencial regular</span>
+            </div>
           </div>
 
-          <div class="glass-card glass-card-hover rounded-2xl border border-slate-200/90 dark:border-white/10 bg-slate-50/60 dark:bg-[#162235]/80 p-5 flex items-center justify-between">
-            <div class="flex items-center gap-3.5">
-              <div class="w-11 h-11 rounded-xl bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+          <div class="glass-card glass-card-hover rounded-2xl border border-slate-200/90 dark:border-white/10 bg-slate-50/70 dark:bg-[#162235]/80 p-5 flex flex-col justify-between gap-3 shadow-xs">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
+                  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <span class="text-xs font-semibold text-slate-600 dark:text-slate-300">Pendências de Acesso</span>
               </div>
-              <div>
-                <span class="text-xs font-bold text-slate-500 dark:text-slate-400 block">Pendências de Acesso</span>
-                <strong id="kpi-pending-users" class="text-2xl font-extrabold text-navy-900 dark:text-white tabular-nums mt-0.5 block">—</strong>
-              </div>
+              <span id="kpi-pending-badge" class="px-2.5 py-0.5 rounded-md bg-white dark:bg-white/10 text-slate-600 dark:text-slate-300 text-[11px] font-bold border border-slate-200 dark:border-white/10 shrink-0">Tudo em dia</span>
             </div>
-            <span id="kpi-pending-badge" class="px-2.5 py-1 rounded-lg bg-white dark:bg-white/10 text-slate-600 dark:text-slate-300 text-xs font-bold border border-slate-200 dark:border-white/10">Tudo em dia</span>
+            <div class="pt-1 flex items-baseline justify-between">
+              <strong id="kpi-pending-users" class="text-3xl font-black text-navy-900 dark:text-white tabular-nums tracking-tight">—</strong>
+              <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Troca de senha ou inativo</span>
+            </div>
           </div>
         </section>
 
@@ -1703,16 +1712,19 @@ def get_admin_html(
     <!-- ========================================== -->
     <!-- ABA 3: CARGOS & PERMISSÕES DINÂMICAS       -->
     <!-- ========================================== -->
-    <section id="tab-cargos" class="hidden space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/70 dark:bg-[#162235]/80 rounded-2xl border border-slate-200/90 dark:border-white/10 p-4 sm:p-5">
+    <section id="tab-cargos" class="hidden space-y-5">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/70 dark:bg-[#162235]/80 rounded-2xl border border-slate-200/90 dark:border-white/10 p-4 sm:p-5 shadow-2xs">
         <div>
-          <h2 class="text-base font-extrabold text-navy-900 dark:text-white">Cargos e Permissões Customizáveis</h2>
-          <p class="text-xs text-slate-600 dark:text-slate-400 mt-0.5">Crie novos cargos (ex: Financeiro, Pós-Venda, Auditor) e defina quais aplicativos e permissões são liberados por padrão.</p>
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-[#C59B27]"></span>
+            <h2 class="text-base font-black text-navy-900 dark:text-white tracking-tight">Cargos e Permissões da Equipe</h2>
+          </div>
+          <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">Crie perfis operacionais e defina quais aplicativos e recursos cada colaborador tem autorização para utilizar.</p>
         </div>
         <button
           type="button"
           onclick="abrirModalCargo()"
-          class="btn-tactile h-10 px-4 rounded-xl bg-[#C59B27] hover:bg-[#DDBB5C] text-[#0F1A2A] font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 shrink-0 shadow-sm cursor-pointer"
+          class="btn-tactile h-10 px-4 rounded-xl bg-gradient-to-r from-[#C59B27] to-[#DDBB5C] hover:brightness-105 active:scale-95 text-[#0F1A2A] font-black text-xs sm:text-sm inline-flex items-center justify-center gap-2 shrink-0 shadow-sm transition cursor-pointer"
         >
           <svg class="w-4 h-4 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
@@ -1721,8 +1733,75 @@ def get_admin_html(
         </button>
       </div>
 
-      <div id="roles-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
-        <!-- Renderizado via JS -->
+      <div id="roles-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 items-stretch">
+        <!-- Skeletons enquanto carrega -->
+        <div class="bg-white dark:bg-[#162235]/80 rounded-2xl border border-slate-200/90 dark:border-white/10 p-5 sm:p-6 animate-pulse space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="h-5 bg-slate-200 dark:bg-white/10 rounded w-28"></div>
+            <div class="h-5 bg-slate-200 dark:bg-white/10 rounded w-16"></div>
+          </div>
+          <div class="space-y-2">
+            <div class="h-3.5 bg-slate-100 dark:bg-white/5 rounded w-full"></div>
+            <div class="h-3.5 bg-slate-100 dark:bg-white/5 rounded w-4/5"></div>
+          </div>
+          <div class="pt-3 border-t border-slate-100 dark:border-white/10 space-y-3">
+            <div class="h-3 bg-slate-200 dark:bg-white/10 rounded w-20"></div>
+            <div class="flex gap-1.5">
+              <div class="h-6 bg-slate-200 dark:bg-white/10 rounded-lg w-24"></div>
+              <div class="h-6 bg-slate-200 dark:bg-white/10 rounded-lg w-20"></div>
+            </div>
+            <div class="h-3 bg-slate-200 dark:bg-white/10 rounded w-24"></div>
+            <div class="flex gap-1.5">
+              <div class="h-6 bg-slate-200 dark:bg-white/10 rounded-lg w-32"></div>
+              <div class="h-6 bg-slate-200 dark:bg-white/10 rounded-lg w-24"></div>
+            </div>
+            <div class="h-10 bg-slate-200 dark:bg-white/10 rounded-xl w-full mt-2"></div>
+          </div>
+        </div>
+        <div class="bg-white dark:bg-[#162235]/80 rounded-2xl border border-slate-200/90 dark:border-white/10 p-5 sm:p-6 animate-pulse space-y-4 hidden md:block">
+          <div class="flex items-center justify-between">
+            <div class="h-5 bg-slate-200 dark:bg-white/10 rounded w-24"></div>
+            <div class="h-5 bg-slate-200 dark:bg-white/10 rounded w-14"></div>
+          </div>
+          <div class="space-y-2">
+            <div class="h-3.5 bg-slate-100 dark:bg-white/5 rounded w-full"></div>
+            <div class="h-3.5 bg-slate-100 dark:bg-white/5 rounded w-3/4"></div>
+          </div>
+          <div class="pt-3 border-t border-slate-100 dark:border-white/10 space-y-3">
+            <div class="h-3 bg-slate-200 dark:bg-white/10 rounded w-20"></div>
+            <div class="flex gap-1.5">
+              <div class="h-6 bg-slate-200 dark:bg-white/10 rounded-lg w-28"></div>
+            </div>
+            <div class="h-3 bg-slate-200 dark:bg-white/10 rounded w-24"></div>
+            <div class="flex gap-1.5">
+              <div class="h-6 bg-slate-200 dark:bg-white/10 rounded-lg w-28"></div>
+              <div class="h-6 bg-slate-200 dark:bg-white/10 rounded-lg w-20"></div>
+            </div>
+            <div class="h-10 bg-slate-200 dark:bg-white/10 rounded-xl w-full mt-2"></div>
+          </div>
+        </div>
+        <div class="bg-white dark:bg-[#162235]/80 rounded-2xl border border-slate-200/90 dark:border-white/10 p-5 sm:p-6 animate-pulse space-y-4 hidden md:block">
+          <div class="flex items-center justify-between">
+            <div class="h-5 bg-slate-200 dark:bg-white/10 rounded w-20"></div>
+            <div class="h-5 bg-slate-200 dark:bg-white/10 rounded w-14"></div>
+          </div>
+          <div class="space-y-2">
+            <div class="h-3.5 bg-slate-100 dark:bg-white/5 rounded w-full"></div>
+            <div class="h-3.5 bg-slate-100 dark:bg-white/5 rounded w-2/3"></div>
+          </div>
+          <div class="pt-3 border-t border-slate-100 dark:border-white/10 space-y-3">
+            <div class="h-3 bg-slate-200 dark:bg-white/10 rounded w-20"></div>
+            <div class="flex gap-1.5">
+              <div class="h-6 bg-slate-200 dark:bg-white/10 rounded-lg w-24"></div>
+            </div>
+            <div class="h-3 bg-slate-200 dark:bg-white/10 rounded w-24"></div>
+            <div class="flex gap-1.5">
+              <div class="h-6 bg-slate-200 dark:bg-white/10 rounded-lg w-24"></div>
+              <div class="h-6 bg-slate-200 dark:bg-white/10 rounded-lg w-24"></div>
+            </div>
+            <div class="h-10 bg-slate-200 dark:bg-white/10 rounded-xl w-full mt-2"></div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -2684,65 +2763,207 @@ def get_admin_html(
       }});
     }}
 
-    async function carregarCargos() {{
-      const res = await fetch('/api/admin/roles');
-      if (!res.ok) return;
-      stateRoles = await res.json();
+    function getFriendlyPermissionLabel(p) {{
+      if (p === '*') return 'Acesso Completo';
+      if (typeof PERMISSIONS_CATALOG !== 'undefined') {{
+        for (const cat of PERMISSIONS_CATALOG) {{
+          const item = (cat.itens || []).find(it => it.key === p);
+          if (item) return item.label;
+        }}
+      }}
+      return p.replace('.', ' • ');
+    }}
 
-      const sel = document.getElementById('u-cargo');
-      if (sel) {{
-        sel.innerHTML = stateRoles.map(r => `<option value="${{r.codigo}}">${{r.nome}} (${{r.codigo}})</option>`).join('');
+    function renderAppsChips(apps) {{
+      if (!apps || !apps.length) {{
+        return '<span class="text-xs text-slate-400 dark:text-slate-500 italic">Nenhum aplicativo</span>';
+      }}
+      if (apps.includes('*')) {{
+        return '<span class="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-gold-50 dark:bg-[#C59B27]/15 text-gold-900 dark:text-[#DDBB5C] border border-gold-300 dark:border-[#C59B27]/35">Todos os Apps (*)</span>';
+      }}
+      const visiveis = apps.filter(a => a !== 'gold-db-api' && a !== 'gold-auth' && a !== 'gold-apps' && a !== 'conciliacao');
+      if (!visiveis.length) {{
+        return '<span class="text-xs text-slate-400 dark:text-slate-500 italic">Nenhum aplicativo</span>';
+      }}
+      return visiveis.map(a => {{
+        const nome = APP_NAMES[a] || a;
+        return `<span class="inline-flex items-center text-[11px] font-bold px-2 py-0.5 rounded-lg bg-amber-500/10 text-amber-900 dark:text-[#E2C375] border border-amber-500/25">${{nome}}</span>`;
+      }}).join(' ');
+    }}
+
+    function renderPermissionsChips(perms) {{
+      if (!perms || !perms.length) {{
+        return '<span class="text-xs text-slate-400 dark:text-slate-500 italic">Nenhuma permissão</span>';
+      }}
+      if (perms.includes('*')) {{
+        return '<span class="inline-flex items-center gap-1.5 text-[11px] font-extrabold px-2.5 py-0.5 rounded-lg bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 shadow-2xs"><svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>Acesso Irrestrito aos Sistemas</span>';
+      }}
+      const maxVisiveis = 4;
+      const visiveis = perms.slice(0, maxVisiveis);
+      const restantes = perms.length - maxVisiveis;
+
+      const chips = visiveis.map(p => {{
+        const label = getFriendlyPermissionLabel(p);
+        return `<span class="inline-flex items-center text-[11px] font-medium px-2 py-0.5 rounded-md bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-200 border border-slate-200/80 dark:border-white/10" title="${{p}}">${{label}}</span>`;
+      }});
+
+      if (restantes > 0) {{
+        const restantesNomes = perms.slice(maxVisiveis).map(p => getFriendlyPermissionLabel(p)).join(', ');
+        chips.push(`<span class="inline-flex items-center text-[11px] font-extrabold px-2 py-0.5 rounded-md bg-slate-200/70 dark:bg-white/15 text-slate-700 dark:text-slate-300 cursor-help" title="${{restantesNomes}}">+${{restantes}} mais</span>`);
       }}
 
+      return chips.join(' ');
+    }}
+
+    function editarCargoByCodigo(codigo) {{
+      const r = (stateRoles || []).find(item => item.codigo === codigo);
+      if (r) {{
+        editarCargo(r);
+      }}
+    }}
+
+    async function carregarCargos() {{
       const grid = document.getElementById('roles-grid');
-      if (!grid) return;
-
-      grid.innerHTML = stateRoles.map(r => `
-        <div class="glass-card glass-card-hover bg-white dark:bg-[#162235]/80 rounded-2xl border border-slate-200/90 dark:border-white/10 p-5 sm:p-6 flex flex-col justify-between gap-4 shadow-xs transition-all">
-          <div>
-            <div class="flex items-center justify-between gap-2">
-              <div class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-[#C59B27]"></span>
-                <h3 class="text-base font-black text-navy-900 dark:text-white tracking-tight">${{r.nome}}</h3>
-              </div>
-              ${{r.codigo === 'TI' ? '<span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-navy-900 text-[#DDBB5C] border border-[#C59B27]/30">MESTRE</span>' : `
-                <button
-                  type="button"
-                  onclick="removerCargo('${{r.codigo}}')"
-                  class="text-xs font-extrabold text-red-600 dark:text-red-400 hover:text-red-700 hover:underline px-2 py-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/15 transition cursor-pointer"
-                >
-                  Excluir
+      try {{
+        const res = await fetch('/api/admin/roles');
+        if (!res.ok) {{
+          if (grid) {{
+            grid.innerHTML = `
+              <div class="col-span-full py-12 px-6 text-center bg-white dark:bg-[#162235]/80 rounded-2xl border border-red-200 dark:border-red-500/20 shadow-xs">
+                <div class="w-12 h-12 mx-auto rounded-2xl bg-red-50 dark:bg-red-500/15 text-red-500 flex items-center justify-center mb-3">
+                  <svg class="w-6 h-6 stroke-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </div>
+                <h4 class="text-sm font-extrabold text-navy-900 dark:text-white">Não foi possível carregar os cargos</h4>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">Houve uma instabilidade na comunicação com o servidor de acessos.</p>
+                <button type="button" onclick="carregarCargos()" class="btn-tactile mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/15 text-xs font-bold text-slate-700 dark:text-slate-200 transition cursor-pointer">
+                  <span>Tentar novamente</span>
                 </button>
-              `}}
-            </div>
-            <p class="text-xs text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed">${{r.descricao || 'Sem descrição cadastrada.'}}</p>
-          </div>
+              </div>
+            `;
+          }}
+          return;
+        }}
 
-          <div class="pt-3 border-t border-slate-100 dark:border-white/10 space-y-2.5">
-            <div>
-              <span class="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">Apps Liberados</span>
-              <div class="flex flex-wrap gap-1">
-                ${{(r.apps_padrao || []).filter(a => a !== 'gold-db-api' && a !== 'gold-auth' && a !== 'gold-apps' && a !== 'conciliacao').map(a => `<span class="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-gold-50 dark:bg-[#C59B27]/15 text-gold-900 dark:text-[#DDBB5C] border border-gold-200 dark:border-[#C59B27]/35">${{a === '*' ? 'Todos (*)' : (APP_NAMES[a] || a)}}</span>`).join('') || '<span class="text-xs text-slate-400 italic">Nenhum aplicativo</span>'}}
+        stateRoles = await res.json();
+
+        const sel = document.getElementById('u-cargo');
+        if (sel) {{
+          sel.innerHTML = stateRoles.map(r => `<option value="${{r.codigo}}">${{r.nome}} (${{r.codigo}})</option>`).join('');
+        }}
+
+        if (!grid) return;
+
+        if (!stateRoles || stateRoles.length === 0) {{
+          grid.innerHTML = `
+            <div class="col-span-full py-12 px-6 text-center bg-white dark:bg-[#162235]/60 rounded-2xl border border-dashed border-slate-300 dark:border-white/15">
+              <div class="w-12 h-12 mx-auto rounded-2xl bg-amber-50 dark:bg-[#C59B27]/15 text-[#C59B27] flex items-center justify-center mb-3">
+                <svg class="w-6 h-6 stroke-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
               </div>
+              <h4 class="text-sm font-extrabold text-navy-900 dark:text-white">Nenhum cargo configurado</h4>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">Crie cargos com pacotes pré-definidos de aplicativos e permissões para atribuir rapidamente aos novos colaboradores.</p>
+              <button type="button" onclick="abrirModalCargo()" class="btn-tactile mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#C59B27] hover:bg-[#DDBB5C] text-[#0F1A2A] text-xs font-black transition cursor-pointer">
+                <span>Criar Primeiro Cargo</span>
+              </button>
             </div>
-            <div>
-              <span class="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">Permissões do Cargo</span>
-              <div class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
-                ${{r.permissoes?.includes('*')
-                  ? '<span class="text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30">Acesso Completo (*)</span>'
-                  : (r.permissoes || []).map(p => `<span class="font-mono text-[11px] px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10">${{p}}</span>`).join('') || '<span class="text-xs text-slate-400 italic">Nenhuma permissão específica</span>'}}
+          `;
+          return;
+        }}
+
+        grid.innerHTML = stateRoles.map(r => `
+          <article class="glass-card glass-card-hover bg-white dark:bg-[#162235]/85 rounded-2xl border border-slate-200/90 dark:border-white/10 p-5 sm:p-6 flex flex-col justify-between shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:border-slate-300 dark:hover:border-white/20">
+            <div class="space-y-3">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex items-center gap-2 min-w-0">
+                  <span class="text-[10px] font-mono font-black uppercase px-2 py-0.5 rounded-md bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 border border-slate-200/80 dark:border-white/10 shrink-0">
+                    ${{r.codigo}}
+                  </span>
+                  <h3 class="text-base font-black text-navy-900 dark:text-white tracking-tight truncate">${{r.nome}}</h3>
+                </div>
+
+                ${{r.codigo === 'TI' ? `
+                  <span class="inline-flex items-center gap-1.5 text-[10px] font-mono font-black px-2.5 py-1 rounded-lg bg-navy-900 dark:bg-[#0F1A2A] text-[#DDBB5C] border border-[#C59B27]/40 shadow-xs shrink-0">
+                    <svg class="w-3 h-3 text-[#DDBB5C]" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 1.944A11.954 11.954 0 012.166 5C2.056 5.649 2 6.319 2 7c0 5.225 3.34 9.67 8 11.317C14.66 16.67 18 12.225 18 7c0-.682-.057-1.35-.166-2.001A11.954 11.954 0 0110 1.944zM11 14a1 1 0 11-2 0 1 1 0 012 0zm0-7a1 1 0 10-2 0v3a1 1 0 102 0V7z" clip-rule="evenodd" />
+                    </svg>
+                    MESTRE
+                  </span>
+                ` : `
+                  <button
+                    type="button"
+                    onclick="removerCargo('${{r.codigo}}')"
+                    class="inline-flex items-center gap-1 text-xs font-bold text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 px-2 py-1 rounded-lg transition-colors cursor-pointer shrink-0"
+                    title="Excluir este cargo"
+                  >
+                    <svg class="w-3.5 h-3.5 stroke-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    <span>Excluir</span>
+                  </button>
+                `}}
               </div>
+
+              <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed min-h-[38px] line-clamp-2">
+                ${{r.descricao || 'Cargo operacional da equipe da Gold Corretora.'}}
+              </p>
             </div>
-            <button
-              type="button"
-              onclick='editarCargo(${{JSON.stringify(r)}})'
-              class="btn-tactile mt-2 w-full py-2.5 rounded-xl border border-slate-200 dark:border-white/15 bg-slate-50/70 dark:bg-white/5 hover:bg-[#C59B27] hover:text-[#0F1A2A] hover:border-[#C59B27] dark:hover:bg-[#C59B27] dark:hover:text-[#0F1A2A] text-xs font-black text-navy-900 dark:text-white transition shadow-2xs cursor-pointer"
-            >
-              Editar Cargo & Permissões
-            </button>
-          </div>
-        </div>
-      `).join('');
+
+            <div class="pt-3.5 mt-3.5 border-t border-slate-100 dark:border-white/10 space-y-3">
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    Apps Liberados
+                  </span>
+                  <span class="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
+                    ${{(r.apps_padrao?.includes('*')) ? 'Todos' : (r.apps_padrao || []).filter(a => a !== 'gold-db-api' && a !== 'gold-auth' && a !== 'gold-apps' && a !== 'conciliacao').length + ' app(s)'}}
+                  </span>
+                </div>
+                <div class="flex flex-wrap gap-1.5 min-h-[32px] items-center">
+                  ${{renderAppsChips(r.apps_padrao)}}
+                </div>
+              </div>
+
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    Permissões Ativas
+                  </span>
+                  <span class="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
+                    ${{(r.permissoes?.includes('*')) ? 'Total' : (r.permissoes || []).length + ' recurso(s)'}}
+                  </span>
+                </div>
+                <div class="flex flex-wrap gap-1.5 min-h-[48px] items-start">
+                  ${{renderPermissionsChips(r.permissoes)}}
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onclick="editarCargoByCodigo('${{r.codigo}}')"
+                class="btn-tactile mt-2 w-full py-2.5 px-3 rounded-xl border border-slate-200 dark:border-white/15 bg-slate-50/80 dark:bg-white/5 hover:bg-[#C59B27] hover:text-[#0F1A2A] hover:border-[#C59B27] dark:hover:bg-[#C59B27] dark:hover:text-[#0F1A2A] text-xs font-black text-navy-900 dark:text-white transition shadow-2xs inline-flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <svg class="w-3.5 h-3.5 stroke-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                <span>Editar Cargo & Permissões</span>
+              </button>
+            </div>
+          </article>
+        `).join('');
+      }} catch (err) {{
+        console.error('Erro ao carregar cargos:', err);
+        if (grid) {{
+          grid.innerHTML = `
+            <div class="col-span-full py-10 px-6 text-center bg-white dark:bg-[#162235]/80 rounded-2xl border border-red-200 dark:border-red-500/20">
+              <p class="text-xs text-red-500 font-bold">Erro de conexão ao carregar cargos da corretora.</p>
+              <button type="button" onclick="carregarCargos()" class="mt-3 px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-white/10 text-xs font-bold text-slate-700 dark:text-slate-300">Tentar novamente</button>
+            </div>
+          `;
+        }}
+      }}
     }}
 
     // Custom Dropdowns Controller
@@ -2990,10 +3211,10 @@ def get_admin_html(
       if (kpiPending) kpiPending.textContent = pendentes;
       if (badgePending) {{
         if (pendentes > 0) {{
-          badgePending.className = 'px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-500/15 text-amber-800 dark:text-amber-300 text-xs font-bold border border-amber-200 dark:border-amber-500/30';
+          badgePending.className = 'px-2.5 py-0.5 rounded-md bg-amber-50 dark:bg-amber-500/15 text-amber-800 dark:text-amber-300 text-[11px] font-bold border border-amber-200 dark:border-amber-500/30 shrink-0';
           badgePending.textContent = `${{pendentes}} com pendência`;
         }} else {{
-          badgePending.className = 'px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-xs font-bold border border-emerald-200 dark:border-emerald-500/30';
+          badgePending.className = 'px-2.5 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold border border-emerald-200 dark:border-emerald-500/30 shrink-0';
           badgePending.textContent = 'Tudo em dia';
         }}
       }}
