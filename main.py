@@ -445,7 +445,7 @@ async def traefik_forward_auth(request: Request, target: Optional[str] = Query(N
             .box{{background:#162235;border:1px solid rgba(197,155,39,0.3);padding:32px;border-radius:16px;max-width:420px;text-align:center}}
             a{{display:inline-block;margin-top:16px;padding:10px 20px;background:#C59B27;color:#0F1A2A;font-weight:800;text-decoration:none;border-radius:10px}}</style></head>
             <body><div class="box"><h2>Acesso Restrito</h2><p>Olá <b>{user['nome']}</b>, seu perfil (<b>{user['cargo']}</b>) não possui acesso liberado para o módulo <code>{app_slug}</code>.</p>
-            <a href="{DEFAULT_REDIRECT_URL}">Voltar ao Hub</a></div></body></html>
+            <a href="{DEFAULT_REDIRECT_URL}">Voltar ao Hub de Aplicativos</a></div></body></html>
             """
         )
 
