@@ -47,6 +47,7 @@ SHARED_HEAD = """
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
   tailwind.config = {
+    darkMode: 'class',
     theme: {
       extend: {
         fontFamily: {
@@ -145,8 +146,81 @@ SHARED_HEAD = """
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+  /* Gold Hub Atmospheric Surfaces & Dynamic Island */
+  body.hub-surface {
+    background-color: #F1F5F9;
+    background-image:
+      radial-gradient(ellipse at 0% 0%, rgba(197, 155, 39, 0.08) 0%, transparent 55%),
+      radial-gradient(ellipse at 100% 0%, rgba(15, 26, 42, 0.06) 0%, transparent 50%),
+      linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%);
+    background-attachment: fixed;
+  }
+  html.dark body.hub-surface {
+    background-color: #0A121E;
+    background-image:
+      radial-gradient(ellipse at 15% 0%, rgba(197, 155, 39, 0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 85% 0%, rgba(30, 47, 71, 0.35) 0%, transparent 55%);
+  }
+  .ambient-light {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 1200px;
+    height: 480px;
+    border-radius: 9999px;
+    pointer-events: none;
+    opacity: 0.55;
+    transform: translateX(-50%);
+    background: rgba(197, 155, 39, 0.09);
+    filter: blur(140px);
+  }
+  .top-obfuscation {
+    height: 112px;
+    transition: height 240ms var(--ease-out-strong);
+  }
+  .top-obfuscation.is-scrolled {
+    height: 76px;
+  }
+  .app-header-shell {
+    transition:
+      max-width 260ms var(--ease-out-strong),
+      box-shadow 220ms var(--ease-out-strong),
+      border-color 220ms var(--ease-out-strong);
+  }
+  .glass-card {
+    transition:
+      transform 220ms var(--ease-out-strong),
+      box-shadow 220ms var(--ease-out-strong),
+      border-color 200ms ease,
+      background-color 200ms ease;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .glass-card-hover:hover {
+      transform: translateY(-2px) translateZ(0);
+      box-shadow: 0 14px 28px -12px rgba(15, 26, 42, 0.12);
+    }
+    html.dark .glass-card-hover:hover {
+      box-shadow: 0 14px 28px -12px rgba(197, 155, 39, 0.12);
+    }
+  }
+  @keyframes scrollProgress {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
+  }
+  .scroll-progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #C59B27 0%, #DDBB5C 100%);
+    transform-origin: left center;
+    z-index: 60;
+    animation: scrollProgress linear both;
+    animation-timeline: scroll();
+  }
   @media (prefers-reduced-motion: reduce) {
-    .btn-tactile, .modal-panel, * {
+    .btn-tactile, .modal-panel, .glass-card, .app-header-shell, * {
       transition-duration: 0.01ms !important;
       animation-duration: 0.01ms !important;
       transform: none !important;
@@ -1104,7 +1178,7 @@ def get_admin_html(
           type="button"
           data-tab="auditoria"
           onclick="switchTab(\'auditoria\')"
-          class="tab-btn btn-tactile px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-100"
+          class="tab-btn btn-tactile px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-white/10"
         >
           Atividade ao Vivo
         </button>""" if is_ti else ""
@@ -1113,12 +1187,12 @@ def get_admin_html(
           type="button"
           data-tab="email"
           onclick="switchTab(\'email\')"
-          class="tab-btn btn-tactile px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-100"
+          class="tab-btn btn-tactile px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-white/10"
         >
           E-mail & Recuperação
         </button>""" if is_ti else ""
 
-    btn_usuarios_class = "tab-btn btn-tactile px-3.5 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-navy-900 text-white"
+    btn_usuarios_class = "tab-btn btn-tactile px-3.5 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-[#C59B27] text-[#0F1A2A] shadow-sm"
 
     section_usuarios_class = "space-y-4"
 
@@ -1127,31 +1201,92 @@ def get_admin_html(
 <head>
   {SHARED_HEAD}
   <title>Gestão de Acessos{' & Auditoria' if is_ti else ''} • Gold Corretora</title>
+  <script>
+    (function() {{
+      try {{
+        const savedTheme = localStorage.getItem('gold-hub-theme') || localStorage.getItem('theme');
+        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {{
+          document.documentElement.classList.add('dark');
+        }} else {{
+          document.documentElement.classList.remove('dark');
+        }}
+      }} catch (e) {{}}
+    }})();
+  </script>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col selection:bg-gold-500 selection:text-white">
-  <!-- Topbar Oficial Gold (Idêntica ao Painel do Consultor) -->
-  <header class="bg-navy-900 border-b border-navy-800 sticky top-0 z-30 shadow-md">
-    <div class="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-4">
+<body class="hub-surface text-slate-800 dark:text-slate-100 min-h-screen relative overflow-x-hidden flex flex-col selection:bg-gold-500 selection:text-white">
+  <!-- Scroll Progress Bar -->
+  <div class="scroll-progress-bar"></div>
+
+  <!-- Central Ambient Light -->
+  <div class="ambient-light"></div>
+
+  <!-- GLOBAL TOP BLUR ZONE -->
+  <div id="top-blur-zone" class="fixed top-0 left-0 right-0 z-40 pointer-events-none top-obfuscation">
+    <div id="top-blur-gradient" class="absolute inset-0 bg-gradient-to-b from-[#F8FAFC]/95 via-[#F8FAFC]/70 to-transparent dark:from-[#0A121E]/95 dark:via-[#0A121E]/70 opacity-0 transition-opacity duration-200"></div>
+    <div class="absolute inset-0 backdrop-blur-xl [mask-image:linear-gradient(to_bottom,black_20%,black_60%,transparent)]"></div>
+  </div>
+
+  <!-- Dynamic Island Navbar — Gold Corretora Navy & Gold -->
+  <div
+    id="dynamic-island-wrap"
+    class="fixed top-0 left-0 right-0 z-50 flex justify-center pointer-events-none px-4 sm:px-6 lg:px-8"
+    style="padding-top: 1.5rem; transition: padding-top 240ms cubic-bezier(0.23, 1, 0.32, 1);"
+  >
+    <header
+      id="dynamic-island-header"
+      class="pointer-events-auto flex items-center justify-between px-4 sm:px-6 rounded-2xl app-header-shell bg-[#0F1A2A]/95 dark:bg-[#0F1A2A]/95 text-white border border-[#C59B27]/25 backdrop-blur-xl shadow-[0_8px_24px_-10px_rgba(10,18,30,0.35)]"
+      style="height: 62px; width: 100%; max-width: 1600px;"
+    >
       <!-- Lado Esquerdo: Logo & Identidade -->
-      <div class="flex items-center gap-3 sm:gap-5">
-        <a href="/admin" class="flex items-center shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-500 rounded-lg p-0.5" aria-label="Portal de Acessos Gold">
+      <div class="flex items-center gap-3 sm:gap-5 shrink-0">
+        <a href="/admin" class="flex items-center gap-3 sm:gap-4 shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C59B27] rounded-lg py-1" aria-label="Portal de Acessos Gold">
           {GOLD_LOGO_HEADER}
+          <div class="hidden sm:block border-l border-white/15 pl-3.5 py-0.5">
+            <span class="text-[11px] font-extrabold uppercase tracking-wider block text-[#DDBB5C] leading-tight">
+              Portal de Acessos
+            </span>
+            <span class="text-[10px] font-medium block text-slate-300 leading-tight">
+              {'Gestão da Equipe & Auditoria' if is_ti else 'Gestão da Equipe'}
+            </span>
+          </div>
         </a>
-        <div class="hidden sm:block border-l border-slate-700/60 pl-3.5">
-          <span class="text-xs font-black uppercase tracking-wider block text-gold-400">
-            Portal de Acessos
-          </span>
-          <span class="text-[11px] font-medium block text-slate-400">
-            {'Gestão da Equipe & Auditoria' if is_ti else 'Gestão da Equipe'}
-          </span>
-        </div>
       </div>
 
-      <!-- Lado Direito: Controles Compactos & Menu do Usuário -->
+      <!-- Lado Direito: Atalho Gold Hub + Alternador de Tema + Menu do Usuário -->
       <div class="flex items-center gap-2 sm:gap-2.5">
-        <!-- Acesso aos aplicativos centralizado no menu dropdown -->
+        <!-- Botão Atalho Rápido: Gold Hub -->
+        <a
+          href="{default_redirect}"
+          class="btn-tactile hidden sm:inline-flex items-center gap-2 h-9 px-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#C59B27]/40 text-xs font-bold text-slate-200 hover:text-[#DDBB5C] transition-colors"
+          title="Voltar para a Central de Aplicativos (Gold Hub)"
+        >
+          <svg class="w-4 h-4 text-[#DDBB5C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg>
+          <span>Gold Hub</span>
+        </a>
 
-        <!-- Usuário & Menu Dropdown (Idêntico ao do Painel do Consultor) -->
+        <!-- Botão de Alternar Tema (Claro / Escuro) Direto na Dynamic Island -->
+        <button
+          type="button"
+          id="theme-toggle-btn"
+          onclick="alternarTema()"
+          aria-label="Alternar entre modo claro e escuro"
+          title="Alternar tema (Claro / Escuro)"
+          class="btn-tactile w-9 h-9 rounded-xl flex items-center justify-center bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#C59B27]/40 text-[#DDBB5C] transition-colors cursor-pointer"
+        >
+          <!-- Ícone Sol (visível no Dark Mode) -->
+          <svg id="theme-icon-sun" class="w-4 h-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+          <!-- Ícone Lua (visível no Light Mode) -->
+          <svg id="theme-icon-moon" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+        </button>
+
+        <!-- Usuário & Menu Dropdown -->
         <div class="relative" id="user-dropdown-container">
           <button
             type="button"
@@ -1160,35 +1295,28 @@ def get_admin_html(
             aria-expanded="false"
             aria-haspopup="menu"
             aria-label="Menu do usuário"
-            class="flex items-center gap-2 pl-2 pr-2.5 sm:pr-3 py-1.5 rounded-xl border border-slate-700/70 bg-navy-950/80 hover:bg-navy-950 transition-all duration-150 cursor-pointer active:scale-98 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-500"
+            class="flex items-center gap-2 pl-1.5 pr-2.5 sm:pr-3 h-9 rounded-xl border border-white/15 bg-[#162235]/90 hover:bg-[#1E2F47] transition-colors duration-150 cursor-pointer active:scale-98 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C59B27]"
           >
-            <!-- Avatar simples com iniciais -->
-            <div id="header-avatar-initials" class="w-7 h-7 rounded-lg bg-navy-800 border border-slate-700 text-gold-400 flex items-center justify-center font-bold text-xs shrink-0">
+            <div id="header-avatar-initials" class="w-6 h-6 rounded-lg bg-[#0F1A2A] border border-[#C59B27]/40 text-[#DDBB5C] flex items-center justify-center font-bold text-[11px] shrink-0">
               AD
             </div>
-
-            <!-- Nome do Usuário -->
             <span id="header-user-name" class="hidden md:inline font-bold text-xs text-white truncate max-w-[140px] lg:max-w-[180px]">
               Admin
             </span>
-
-            <!-- Chevron com Rotação -->
             <svg id="header-chevron" class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
             </svg>
           </button>
 
-          <!-- Dropdown Popover (Idêntico ao Painel do Consultor) -->
+          <!-- Dropdown Popover -->
           <div
             id="user-dropdown-menu"
             role="menu"
             aria-orientation="vertical"
-            class="hidden absolute right-0 top-full mt-2 w-72 sm:w-80 rounded-2xl p-2.5 z-50 origin-top-right menu-pop-in text-slate-100"
-            style="background-color: #0A121E !important; border: 1px solid rgba(51, 65, 85, 0.8) !important; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.06) !important;"
+            class="hidden absolute right-0 top-full mt-2.5 w-72 sm:w-80 rounded-2xl p-2.5 z-50 origin-top-right menu-pop-in text-slate-100 bg-[#0A121E] border border-[#C59B27]/30 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.75)]"
           >
-            <!-- Cabeçalho do Perfil -->
-            <div class="p-3 rounded-xl border border-slate-800/80 flex items-center gap-3" style="background-color: rgba(15, 26, 42, 0.85); border-color: #1E293B;">
-              <div id="dropdown-avatar-initials" class="w-9 h-9 rounded-xl border border-slate-700 text-gold-400 flex items-center justify-center font-bold text-xs shrink-0" style="background-color: #162235; border-color: #334155;">
+            <div class="p-3 rounded-xl bg-[#0F1A2A] border border-white/10 flex items-center gap-3">
+              <div id="dropdown-avatar-initials" class="w-9 h-9 rounded-xl bg-[#162235] border border-[#C59B27]/40 text-[#DDBB5C] flex items-center justify-center font-bold text-xs shrink-0">
                 AD
               </div>
               <div class="flex-1 min-w-0">
@@ -1196,7 +1324,7 @@ def get_admin_html(
                   <span id="dropdown-user-name" class="font-bold text-xs text-white truncate block">
                     Admin
                   </span>
-                  <span id="dropdown-user-role" class="px-1.5 py-0.5 rounded text-[9px] font-mono font-extrabold uppercase tracking-wider bg-gold-500/20 text-gold-400 border border-gold-500/30 shrink-0">
+                  <span id="dropdown-user-role" class="px-1.5 py-0.5 rounded text-[9px] font-mono font-extrabold uppercase tracking-wider bg-[#C59B27]/20 text-[#DDBB5C] border border-[#C59B27]/30 shrink-0">
                     TI
                   </span>
                 </div>
@@ -1206,94 +1334,126 @@ def get_admin_html(
               </div>
             </div>
 
-            <!-- Divisor -->
-            <div class="my-1.5 border-t border-slate-800/90" style="border-color: #1E293B;"></div>
+            <div class="my-1.5 border-t border-white/10"></div>
 
-            <!-- Sair -->
+            <a
+              href="{default_redirect}"
+              role="menuitem"
+              class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-200 hover:text-[#DDBB5C] hover:bg-white/5 transition-colors duration-150 cursor-pointer"
+            >
+              <svg class="w-4 h-4 text-[#DDBB5C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+              </svg>
+              <span>Ir para o Gold Hub</span>
+            </a>
+
             <a
               href="/api/auth/logout"
               role="menuitem"
-              class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-red-300 hover:text-red-200 hover:bg-red-500/15 border border-transparent hover:border-red-500/30 transition-all duration-150 cursor-pointer"
+              class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-300 hover:text-rose-200 hover:bg-rose-500/15 border border-transparent hover:border-rose-500/30 transition-colors duration-150 cursor-pointer mt-0.5"
             >
-              <svg class="w-4 h-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <svg class="w-4 h-4 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
               </svg>
-              <span>Sair</span>
+              <span>Sair da conta</span>
             </a>
           </div>
         </div>
       </div>
-    </div>
-  </header>
+    </header>
+  </div>
 
-  <!-- Conteúdo Principal -->
-  <main class="flex-1 max-w-[1440px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-    <!-- Cabeçalho da Página + Abas -->
-    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-      <div>
-        <h1 class="text-2xl sm:text-3xl font-extrabold text-navy-900 tracking-tight">
-          {'Gestão da Equipe & Auditoria' if is_ti else 'Gestão da Equipe'}
-        </h1>
-        <p class="text-xs sm:text-sm text-slate-600 mt-0.5">
-          Cadastre colaboradores, gerencie cargos, acessos aos sistemas e credenciais oficiais.
-        </p>
-      </div>
+  <!-- Conteúdo Principal Contido no App Panel Shell (Idêntico ao Gold Hub) -->
+  <main class="flex-1 pt-28 sm:pt-32 pb-16 relative z-10 flex flex-col justify-between">
+    <div class="mx-auto px-4 sm:px-6 lg:px-8 max-w-[1600px] w-full">
+      <div class="rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#0F1A2A]/90 shadow-[0_4px_24px_-6px_rgba(15,26,42,0.06)] dark:shadow-none p-5 sm:p-8 lg:p-10 space-y-6 sm:space-y-8">
+        <!-- Cabeçalho da Página + Abas (Dentro do Painel Mestre) -->
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 dark:border-white/10 pb-6">
+          <div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-navy-900 dark:text-white tracking-tight flex items-center gap-2.5">
+              <span>{'Gestão da Equipe & Auditoria' if is_ti else 'Gestão da Equipe'}</span>
+            </h1>
+            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+              Cadastre colaboradores, gerencie cargos, acessos aos sistemas e credenciais oficiais da Gold Corretora.
+            </p>
+          </div>
 
-      <!-- Segmented Control de Navegação -->
-      <nav aria-label="Seções do painel" class="bg-white p-1 rounded-2xl border border-slate-200 shadow-xs flex items-center self-start lg:self-auto gap-1 overflow-x-auto scrollbar-none max-w-full flex-nowrap sm:flex-wrap">
-        <button
-          type="button"
-          data-tab="usuarios"
-          onclick="switchTab('usuarios')"
-          class="{btn_usuarios_class}"
-        >
-          Gestão da Equipe
-        </button>
-        {btn_auditoria_html}
-        <button
-          type="button"
-          data-tab="cargos"
-          onclick="switchTab('cargos')"
-          class="tab-btn btn-tactile px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-100"
-        >
-          Cargos & Permissões
-        </button>
-        {btn_email_html}
-      </nav>
-    </div>
-
-    <!-- KPIs da Equipe -->
-    <section aria-label="Resumo da equipe" class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-      <div class="bg-white rounded-2xl border border-slate-200 p-4 flex items-center justify-between shadow-2xs">
-        <div>
-          <span class="text-xs font-bold text-slate-600 block">Usuários Cadastrados</span>
-          <strong id="kpi-total-users" class="text-2xl font-extrabold text-navy-900 tabular-nums mt-0.5 block">—</strong>
+          <!-- Segmented Control de Navegação -->
+          <nav aria-label="Seções do painel" class="bg-slate-100 dark:bg-[#162235] p-1.5 rounded-2xl border border-slate-200/80 dark:border-white/10 flex items-center self-start lg:self-auto gap-1 overflow-x-auto scrollbar-none max-w-full flex-nowrap sm:flex-wrap">
+            <button
+              type="button"
+              data-tab="usuarios"
+              onclick="switchTab('usuarios')"
+              class="{btn_usuarios_class}"
+            >
+              Gestão da Equipe
+            </button>
+            {btn_auditoria_html}
+            <button
+              type="button"
+              data-tab="cargos"
+              onclick="switchTab('cargos')"
+              class="tab-btn btn-tactile px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-white/10"
+            >
+              Cargos & Permissões
+            </button>
+            {btn_email_html}
+          </nav>
         </div>
-        <span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-bold border border-slate-200">Equipe Total</span>
-      </div>
 
-      <div class="bg-white rounded-2xl border border-slate-200 p-4 flex items-center justify-between shadow-2xs">
-        <div>
-          <span class="text-xs font-bold text-slate-600 block">Acessos Ativos</span>
-          <strong id="kpi-active-users" class="text-2xl font-extrabold text-navy-900 tabular-nums mt-0.5 block">—</strong>
-        </div>
-        <span class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">Liberados</span>
-      </div>
+        <!-- KPIs da Equipe -->
+        <section aria-label="Resumo da equipe" class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
+          <div class="glass-card glass-card-hover rounded-2xl border border-slate-200/90 dark:border-white/10 bg-slate-50/60 dark:bg-[#162235]/80 p-5 flex items-center justify-between">
+            <div class="flex items-center gap-3.5">
+              <div class="w-11 h-11 rounded-xl bg-[#FBF7EB] dark:bg-[#C59B27]/15 border border-[#EAD084]/70 dark:border-[#C59B27]/30 flex items-center justify-center text-[#A67F18] dark:text-[#DDBB5C] shrink-0">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <div>
+                <span class="text-xs font-bold text-slate-500 dark:text-slate-400 block">Usuários Cadastrados</span>
+                <strong id="kpi-total-users" class="text-2xl font-extrabold text-navy-900 dark:text-white tabular-nums mt-0.5 block">—</strong>
+              </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-lg bg-white dark:bg-white/10 text-slate-700 dark:text-slate-200 text-xs font-bold border border-slate-200 dark:border-white/10">Equipe Total</span>
+          </div>
 
-      <div class="bg-white rounded-2xl border border-slate-200 p-4 flex items-center justify-between shadow-2xs">
-        <div>
-          <span class="text-xs font-bold text-slate-600 block">Pendências de Acesso</span>
-          <strong id="kpi-pending-users" class="text-2xl font-extrabold text-navy-900 tabular-nums mt-0.5 block">—</strong>
-        </div>
-        <span id="kpi-pending-badge" class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 text-xs font-bold border border-slate-200">Tudo em dia</span>
-      </div>
-    </section>
+          <div class="glass-card glass-card-hover rounded-2xl border border-slate-200/90 dark:border-white/10 bg-slate-50/60 dark:bg-[#162235]/80 p-5 flex items-center justify-between">
+            <div class="flex items-center gap-3.5">
+              <div class="w-11 h-11 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+              </div>
+              <div>
+                <span class="text-xs font-bold text-slate-500 dark:text-slate-400 block">Acessos Ativos</span>
+                <strong id="kpi-active-users" class="text-2xl font-extrabold text-navy-900 dark:text-white tabular-nums mt-0.5 block">—</strong>
+              </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-xs font-bold border border-emerald-200 dark:border-emerald-500/30">Liberados</span>
+          </div>
+
+          <div class="glass-card glass-card-hover rounded-2xl border border-slate-200/90 dark:border-white/10 bg-slate-50/60 dark:bg-[#162235]/80 p-5 flex items-center justify-between">
+            <div class="flex items-center gap-3.5">
+              <div class="w-11 h-11 rounded-xl bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <span class="text-xs font-bold text-slate-500 dark:text-slate-400 block">Pendências de Acesso</span>
+                <strong id="kpi-pending-users" class="text-2xl font-extrabold text-navy-900 dark:text-white tabular-nums mt-0.5 block">—</strong>
+              </div>
+            </div>
+            <span id="kpi-pending-badge" class="px-2.5 py-1 rounded-lg bg-white dark:bg-white/10 text-slate-600 dark:text-slate-300 text-xs font-bold border border-slate-200 dark:border-white/10">Tudo em dia</span>
+          </div>
+        </section>
 
     <!-- ========================================== -->
 {'''    <!-- ABA 1: AUDITORIA ("QUEM ESTÁ FAZENDO O QUÊ") -->
     <!-- ========================================== -->
     <section id="tab-auditoria" class="hidden space-y-4">
-      <div class="bg-white rounded-2xl border border-slate-200 p-3.5 sm:p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-3 shadow-2xs">
+      <div class="bg-slate-50/70 dark:bg-[#162235]/80 rounded-2xl border border-slate-200/90 dark:border-white/10 p-3.5 sm:p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-3 shadow-2xs">
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 flex-1">
           <!-- Campo de Busca -->
           <div class="relative flex-1 max-w-md">
@@ -1302,7 +1462,7 @@ def get_admin_html(
               type="search"
               placeholder="Filtrar por vendedor, lead, rota..."
               oninput="debounceAudit()"
-              class="w-full h-10 rounded-xl border border-slate-300/80 bg-slate-50/50 hover:bg-white focus:bg-white px-3.5 pl-9 text-xs sm:text-sm font-medium text-navy-900 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition"
+              class="w-full h-10 rounded-xl border border-slate-300/80 dark:border-white/15 bg-white dark:bg-[#0F1A2A] hover:border-slate-400 dark:hover:border-white/25 focus:bg-white dark:focus:bg-[#0F1A2A] px-3.5 pl-9 text-xs sm:text-sm font-medium text-navy-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition"
             />
             <svg class="w-4 h-4 text-slate-400 absolute left-3 top-3 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -1316,7 +1476,7 @@ def get_admin_html(
               type="button"
               id="btn-app-dropdown"
               onclick="toggleDropdown('menu-app-dropdown', 'arrow-app-dropdown')"
-              class="h-10 w-full sm:w-56 px-3 rounded-xl border border-slate-300/80 bg-white hover:bg-slate-50 text-xs sm:text-sm font-bold text-navy-900 flex items-center justify-between gap-2 shadow-2xs transition focus:outline-none focus:ring-2 focus:ring-gold-500/25 active:scale-98"
+              class="h-10 w-full sm:w-56 px-3 rounded-xl border border-slate-300/80 dark:border-white/15 bg-white dark:bg-[#0F1A2A] hover:bg-slate-50 dark:hover:bg-white/5 text-xs sm:text-sm font-bold text-navy-900 dark:text-white flex items-center justify-between gap-2 shadow-2xs transition focus:outline-none focus:ring-2 focus:ring-gold-500/25 active:scale-98"
             >
               <div class="flex items-center gap-2 truncate">
                 <span class="w-2 h-2 rounded-full bg-gold-500 shrink-0"></span>
@@ -1328,30 +1488,30 @@ def get_admin_html(
             </button>
             <div
               id="menu-app-dropdown"
-              class="hidden absolute left-0 sm:left-auto sm:right-0 top-full mt-1.5 w-64 rounded-2xl bg-white/98 border border-slate-200 shadow-2xl p-1.5 z-50 animate-in fade-in zoom-in-95 backdrop-blur-md space-y-0.5"
+              class="hidden absolute left-0 sm:left-auto sm:right-0 top-full mt-1.5 w-64 rounded-2xl bg-white/98 dark:bg-[#0F1A2A]/98 border border-slate-200 dark:border-white/15 shadow-2xl p-1.5 z-50 animate-in fade-in zoom-in-95 backdrop-blur-md space-y-0.5"
             >
-              <div class="px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 border-b border-slate-100">
+              <div class="px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 border-b border-slate-100 dark:border-white/10">
                 Filtrar por Módulo
               </div>
-              <button type="button" onclick="selectAppFilter('TODOS', 'Todos os Aplicativos')" class="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between hover:bg-slate-100 transition opt-app bg-gold-50 text-navy-950 font-bold" data-val="TODOS">
+              <button type="button" onclick="selectAppFilter('TODOS', 'Todos os Aplicativos')" class="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between hover:bg-slate-100 dark:hover:bg-white/10 transition opt-app bg-gold-50 dark:bg-[#C59B27]/20 text-navy-950 dark:text-[#DDBB5C] font-bold" data-val="TODOS">
                 <span>Todos os Aplicativos</span>
-                <span class="check-icon text-gold-600 font-bold">✓</span>
+                <span class="check-icon text-gold-600 dark:text-[#DDBB5C] font-bold">✓</span>
               </button>
-              <button type="button" onclick="selectAppFilter('painel-vendedor', 'Painel de Vendas')" class="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between hover:bg-slate-100 transition opt-app text-slate-700" data-val="painel-vendedor">
+              <button type="button" onclick="selectAppFilter('painel-vendedor', 'Painel de Vendas')" class="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between hover:bg-slate-100 dark:hover:bg-white/10 transition opt-app text-slate-700 dark:text-slate-200" data-val="painel-vendedor">
                 <span>Painel de Vendas</span>
-                <span class="check-icon text-gold-600 font-bold hidden">✓</span>
+                <span class="check-icon text-gold-600 dark:text-[#DDBB5C] font-bold hidden">✓</span>
               </button>
-              <button type="button" onclick="selectAppFilter('gold-db-api', 'API de Leads & Carteira')" class="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between hover:bg-slate-100 transition opt-app text-slate-700" data-val="gold-db-api">
+              <button type="button" onclick="selectAppFilter('gold-db-api', 'API de Leads & Carteira')" class="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between hover:bg-slate-100 dark:hover:bg-white/10 transition opt-app text-slate-700 dark:text-slate-200" data-val="gold-db-api">
                 <span>API de Leads & Carteira</span>
-                <span class="check-icon text-gold-600 font-bold hidden">✓</span>
+                <span class="check-icon text-gold-600 dark:text-[#DDBB5C] font-bold hidden">✓</span>
               </button>
-              <button type="button" onclick="selectAppFilter('gold-auth', 'Portal de Acesso (Logins)')" class="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between hover:bg-slate-100 transition opt-app text-slate-700" data-val="gold-auth">
+              <button type="button" onclick="selectAppFilter('gold-auth', 'Portal de Acesso (Logins)')" class="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between hover:bg-slate-100 dark:hover:bg-white/10 transition opt-app text-slate-700 dark:text-slate-200" data-val="gold-auth">
                 <span>Portal de Acesso (Logins)</span>
-                <span class="check-icon text-gold-600 font-bold hidden">✓</span>
+                <span class="check-icon text-gold-600 dark:text-[#DDBB5C] font-bold hidden">✓</span>
               </button>
-              <button type="button" onclick="selectAppFilter('cotador-web', 'Simulador / Cotador')" class="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between hover:bg-slate-100 transition opt-app text-slate-700" data-val="cotador-web">
+              <button type="button" onclick="selectAppFilter('cotador-web', 'Simulador / Cotador')" class="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between hover:bg-slate-100 dark:hover:bg-white/10 transition opt-app text-slate-700 dark:text-slate-200" data-val="cotador-web">
                 <span>Simulador / Cotador</span>
-                <span class="check-icon text-gold-600 font-bold hidden">✓</span>
+                <span class="check-icon text-gold-600 dark:text-[#DDBB5C] font-bold hidden">✓</span>
               </button>
             </div>
           </div>
@@ -1363,7 +1523,7 @@ def get_admin_html(
               type="button"
               id="btn-user-dropdown"
               onclick="toggleDropdown('menu-user-dropdown', 'arrow-user-dropdown')"
-              class="h-10 w-full sm:w-56 px-3 rounded-xl border border-slate-300/80 bg-white hover:bg-slate-50 text-xs sm:text-sm font-bold text-navy-900 flex items-center justify-between gap-2 shadow-2xs transition focus:outline-none focus:ring-2 focus:ring-gold-500/25 active:scale-98"
+              class="h-10 w-full sm:w-56 px-3 rounded-xl border border-slate-300/80 dark:border-white/15 bg-white dark:bg-[#0F1A2A] hover:bg-slate-50 dark:hover:bg-white/5 text-xs sm:text-sm font-bold text-navy-900 dark:text-white flex items-center justify-between gap-2 shadow-2xs transition focus:outline-none focus:ring-2 focus:ring-gold-500/25 active:scale-98"
             >
               <div class="flex items-center gap-2 truncate">
                 <span class="w-2 h-2 rounded-full bg-slate-400 shrink-0"></span>
@@ -1375,44 +1535,49 @@ def get_admin_html(
             </button>
             <div
               id="menu-user-dropdown"
-              class="hidden absolute left-0 sm:left-auto sm:right-0 top-full mt-1.5 w-72 max-h-64 overflow-y-auto rounded-2xl bg-white/98 border border-slate-200 shadow-2xl p-1.5 z-50 animate-in fade-in zoom-in-95 backdrop-blur-md space-y-0.5"
+              class="hidden absolute left-0 sm:left-auto sm:right-0 top-full mt-1.5 w-72 max-h-64 overflow-y-auto rounded-2xl bg-white/98 dark:bg-[#0F1A2A]/98 border border-slate-200 dark:border-white/15 shadow-2xl p-1.5 z-50 animate-in fade-in zoom-in-95 backdrop-blur-md space-y-0.5"
             >
-              <div class="px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 border-b border-slate-100">
+              <div class="px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 border-b border-slate-100 dark:border-white/10">
                 Filtrar por Usuário
               </div>
-              <button type="button" onclick="selectUserFilterByEmail('TODOS')" class="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between hover:bg-slate-100 transition opt-user bg-gold-50 text-navy-950 font-bold" data-val="TODOS">
+              <button type="button" onclick="selectUserFilterByEmail('TODOS')" class="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between hover:bg-slate-100 dark:hover:bg-white/10 transition opt-user bg-gold-50 dark:bg-[#C59B27]/20 text-navy-950 dark:text-[#DDBB5C] font-bold" data-val="TODOS">
                 <span>Todos os Usuários</span>
-                <span class="check-icon text-gold-600 font-bold">✓</span>
+                <span class="check-icon text-gold-600 dark:text-[#DDBB5C] font-bold">✓</span>
               </button>
               <!-- Preenchido via carregarUsuarios() -->
             </div>
           </div>
         </div>
 
-        <div class="flex items-center gap-2 text-xs text-slate-500 font-medium self-end sm:self-center">
+        <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-medium self-end sm:self-center">
           <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
           <span>Ao vivo (10s)</span>
-          <button type="button" onclick="carregarAuditoria()" title="Atualizar auditoria agora" class="btn-tactile ml-1 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-navy-900 text-xs font-bold border border-slate-200">Atualizar</button>
+          <button type="button" onclick="carregarAuditoria()" title="Atualizar auditoria agora" class="btn-tactile ml-1 px-2.5 py-1 rounded-lg bg-white dark:bg-white/10 hover:bg-slate-100 dark:hover:bg-white/15 text-navy-900 dark:text-white text-xs font-bold border border-slate-200 dark:border-white/10">Atualizar</button>
         </div>
       </div>
 
       <!-- DESKTOP: Tabela Corporativa (>= md) -->
-      <div class="hidden md:block bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+      <div class="hidden md:block bg-white dark:bg-[#162235]/60 rounded-2xl border border-slate-200/90 dark:border-white/10 overflow-hidden shadow-xs">
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse">
             <thead>
-              <tr class="bg-slate-50/80 border-b border-slate-200 text-[11px] font-extrabold text-slate-600 uppercase tracking-wider">
-                <th class="py-3 px-4 w-36">Horário</th>
-                <th class="py-3 px-4 w-52">Usuário / Cargo</th>
-                <th class="py-3 px-4 w-36">Aplicativo</th>
-                <th class="py-3 px-4 w-44">Ação Executada</th>
-                <th class="py-3 px-4">Detalhes do Evento</th>
-                <th class="py-3 px-4 w-28 text-right">IP</th>
+              <tr class="bg-slate-50/90 dark:bg-[#0F1A2A]/80 border-b border-slate-200 dark:border-white/10 text-[11px] font-extrabold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                <th class="py-3.5 px-4 w-36">Horário</th>
+                <th class="py-3.5 px-4 w-52">Usuário / Cargo</th>
+                <th class="py-3.5 px-4 w-36">Aplicativo</th>
+                <th class="py-3.5 px-4 w-44">Ação Executada</th>
+                <th class="py-3.5 px-4">Detalhes do Evento</th>
+                <th class="py-3.5 px-4 w-28 text-right">IP</th>
               </tr>
             </thead>
-            <tbody id="audit-tbody" class="divide-y divide-slate-100 text-xs sm:text-sm">
-              <tr>
-                <td colspan="6" class="py-12 text-center text-slate-500 font-medium">Carregando registros de atividade...</td>
+            <tbody id="audit-tbody" class="divide-y divide-slate-100 dark:divide-white/5 text-xs sm:text-sm">
+              <tr class="animate-pulse">
+                <td class="py-4 px-4"><div class="h-3.5 bg-slate-200 dark:bg-white/10 rounded w-24"></div></td>
+                <td class="py-4 px-4"><div class="h-4 bg-slate-200 dark:bg-white/10 rounded w-36 mb-1.5"></div><div class="h-3 bg-slate-100 dark:bg-white/5 rounded w-28"></div></td>
+                <td class="py-4 px-4"><div class="h-6 bg-slate-200 dark:bg-white/10 rounded-lg w-24"></div></td>
+                <td class="py-4 px-4"><div class="h-5 bg-slate-200 dark:bg-white/10 rounded-md w-28"></div></td>
+                <td class="py-4 px-4"><div class="h-4 bg-slate-200 dark:bg-white/10 rounded w-48"></div></td>
+                <td class="py-4 px-4 text-right"><div class="h-3.5 bg-slate-200 dark:bg-white/10 rounded w-20 ml-auto"></div></td>
               </tr>
             </tbody>
           </table>
@@ -1421,7 +1586,7 @@ def get_admin_html(
 
       <!-- MOBILE & TABLET: Cards Adaptativos (< md) -->
       <div id="audit-cards-mobile" class="md:hidden space-y-3">
-        <div class="py-10 text-center text-slate-500 font-medium bg-white rounded-2xl border border-slate-200 p-6">
+        <div class="py-10 text-center text-slate-500 dark:text-slate-400 font-medium bg-white dark:bg-[#162235]/80 rounded-2xl border border-slate-200 dark:border-white/10 p-6">
           Carregando registros de atividade...
         </div>
       </div>
@@ -1431,37 +1596,45 @@ def get_admin_html(
     <!-- ABA 2: GESTÃO DE USUÁRIOS / VENDEDORES     -->
     <!-- ========================================== -->
     <section id="tab-usuarios" class="{section_usuarios_class}">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white rounded-2xl border border-slate-200 p-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/70 dark:bg-[#162235]/80 rounded-2xl border border-slate-200/90 dark:border-white/10 p-4 sm:p-5">
         <div>
-          <h2 class="text-base font-extrabold text-navy-900">Gestão da Equipe & Colaboradores</h2>
-          <p class="text-xs text-slate-600">Altere nome ou e-mail de login, envie senhas temporárias (com troca obrigatória no 1º acesso), encerre sessões abertas ou bloqueie contas.</p>
+          <h2 class="text-base font-extrabold text-navy-900 dark:text-white">Gestão da Equipe & Colaboradores</h2>
+          <p class="text-xs text-slate-600 dark:text-slate-400 mt-0.5">Altere nome ou e-mail de login, envie senhas temporárias (com troca obrigatória no 1º acesso), encerre sessões abertas ou bloqueie contas.</p>
         </div>
         <button
           type="button"
           onclick="abrirModalUsuario()"
-          class="btn-tactile h-10 px-4 rounded-xl bg-navy-900 hover:bg-navy-800 text-gold-400 font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 shrink-0"
+          class="btn-tactile h-10 px-4 rounded-xl bg-[#C59B27] hover:bg-[#DDBB5C] text-[#0F1A2A] font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 shrink-0 shadow-sm cursor-pointer"
         >
-          <span>+ Novo Colaborador</span>
+          <svg class="w-4 h-4 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          <span>Novo Colaborador</span>
         </button>
       </div>
 
       <!-- Desktop Table (>= md) -->
-      <div class="hidden md:block bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+      <div class="hidden md:block bg-white dark:bg-[#162235]/60 rounded-2xl border border-slate-200/90 dark:border-white/10 overflow-hidden shadow-xs">
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse">
             <thead>
-              <tr class="bg-slate-50/80 border-b border-slate-200 text-[11px] font-extrabold text-slate-600 uppercase tracking-wider">
-                <th class="py-3 px-4">Nome & E-mail</th>
-                <th class="py-3 px-4">Cargo</th>
-                <th class="py-3 px-4">Aplicativos Liberados</th>
-                <th class="py-3 px-4">Status / Sessões</th>
-                <th class="py-3 px-4">Último Login</th>
-                <th class="py-3 px-4 text-right">Ações Administrativas</th>
+              <tr class="bg-slate-50/90 dark:bg-[#0F1A2A]/80 border-b border-slate-200 dark:border-white/10 text-[11px] font-extrabold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                <th class="py-3.5 px-4">Nome & E-mail</th>
+                <th class="py-3.5 px-4">Cargo</th>
+                <th class="py-3.5 px-4">Aplicativos Liberados</th>
+                <th class="py-3.5 px-4">Status / Sessões</th>
+                <th class="py-3.5 px-4">Último Login</th>
+                <th class="py-3.5 px-4 text-right">Ações Administrativas</th>
               </tr>
             </thead>
-            <tbody id="users-tbody" class="divide-y divide-slate-100 text-xs sm:text-sm">
-              <tr>
-                <td colspan="6" class="py-10 text-center text-slate-500 font-medium">Carregando equipe...</td>
+            <tbody id="users-tbody" class="divide-y divide-slate-100 dark:divide-white/5 text-xs sm:text-sm">
+              <tr class="animate-pulse">
+                <td class="py-4 px-4"><div class="h-4 bg-slate-200 dark:bg-white/10 rounded w-40 mb-1.5"></div><div class="h-3 bg-slate-100 dark:bg-white/5 rounded w-48"></div></td>
+                <td class="py-4 px-4"><div class="h-6 bg-slate-200 dark:bg-white/10 rounded-lg w-24"></div></td>
+                <td class="py-4 px-4"><div class="h-5 bg-slate-200 dark:bg-white/10 rounded-md w-36"></div></td>
+                <td class="py-4 px-4"><div class="h-6 bg-slate-200 dark:bg-white/10 rounded-full w-28"></div></td>
+                <td class="py-4 px-4"><div class="h-3.5 bg-slate-200 dark:bg-white/10 rounded w-24"></div></td>
+                <td class="py-4 px-4 text-right"><div class="h-7 bg-slate-200 dark:bg-white/10 rounded-lg w-44 ml-auto"></div></td>
               </tr>
             </tbody>
           </table>
@@ -1470,7 +1643,7 @@ def get_admin_html(
 
       <!-- Mobile Cards (< md) -->
       <div id="users-cards-mobile" class="md:hidden space-y-3">
-        <div class="py-10 text-center text-slate-500 font-medium bg-white rounded-2xl border border-slate-200 p-6">
+        <div class="py-10 text-center text-slate-500 dark:text-slate-400 font-medium bg-white dark:bg-[#162235]/80 rounded-2xl border border-slate-200 dark:border-white/10 p-6">
           Carregando equipe...
         </div>
       </div>
@@ -1480,21 +1653,24 @@ def get_admin_html(
     <!-- ABA 3: CARGOS & PERMISSÕES DINÂMICAS       -->
     <!-- ========================================== -->
     <section id="tab-cargos" class="hidden space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white rounded-2xl border border-slate-200 p-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/70 dark:bg-[#162235]/80 rounded-2xl border border-slate-200/90 dark:border-white/10 p-4 sm:p-5">
         <div>
-          <h2 class="text-base font-extrabold text-navy-900">Cargos e Permissões Customizáveis</h2>
-          <p class="text-xs text-slate-600">Crie novos cargos (ex: Financeiro, Pós-Venda, Auditor) e defina quais aplicativos e permissões são liberados por padrão.</p>
+          <h2 class="text-base font-extrabold text-navy-900 dark:text-white">Cargos e Permissões Customizáveis</h2>
+          <p class="text-xs text-slate-600 dark:text-slate-400 mt-0.5">Crie novos cargos (ex: Financeiro, Pós-Venda, Auditor) e defina quais aplicativos e permissões são liberados por padrão.</p>
         </div>
         <button
           type="button"
           onclick="abrirModalCargo()"
-          class="btn-tactile h-10 px-4 rounded-xl bg-navy-900 hover:bg-navy-800 text-gold-400 font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 shrink-0"
+          class="btn-tactile h-10 px-4 rounded-xl bg-[#C59B27] hover:bg-[#DDBB5C] text-[#0F1A2A] font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 shrink-0 shadow-sm cursor-pointer"
         >
-          <span>+ Criar Novo Cargo</span>
+          <svg class="w-4 h-4 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          <span>Criar Novo Cargo</span>
         </button>
       </div>
 
-      <div id="roles-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div id="roles-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
         <!-- Renderizado via JS -->
       </div>
     </section>
@@ -1503,43 +1679,46 @@ def get_admin_html(
 {'''    <!-- ABA 4: E-MAIL DA GOLD & RECUPERAÇÃO        -->
     <!-- ========================================== -->
     <section id="tab-email" class="hidden space-y-4">
-      <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-6">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-4">
+      <div class="bg-slate-50/70 dark:bg-[#162235]/80 rounded-2xl border border-slate-200/90 dark:border-white/10 p-6 shadow-xs space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-white/10 pb-4">
           <div>
-            <h2 class="text-lg font-extrabold text-navy-900">Envio de E-mail Institucional (Resend / SMTP)</h2>
-            <p class="text-xs sm:text-sm text-slate-600 mt-0.5">
+            <h2 class="text-lg font-extrabold text-navy-900 dark:text-white">Envio de E-mail Institucional (Resend / SMTP)</h2>
+            <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-0.5">
               O envio de e-mails de acesso e senhas temporárias é gerenciado exclusivamente via variáveis de ambiente (.env).
             </p>
           </div>
-          <span id="smtp-status-badge" class="px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-slate-100 text-slate-700 border border-slate-200 self-start sm:self-auto">
+          <span id="smtp-status-badge" class="px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10 self-start sm:self-auto">
             Verificando SMTP...
           </span>
         </div>
 
         <!-- Cards informativos sobre a configuração via .env -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
-            <span class="text-[11px] font-bold uppercase text-slate-500 block mb-1">Provedor SMTP</span>
-            <div id="info-smtp-host" class="text-sm font-mono font-bold text-navy-900">smtp.resend.com</div>
-            <span class="text-[11px] text-slate-500">Porta 587 (TLS Ativo)</span>
+          <div class="bg-white dark:bg-[#0F1A2A]/80 border border-slate-200 dark:border-white/10 rounded-xl p-4">
+            <span class="text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 block mb-1">Provedor SMTP</span>
+            <div id="info-smtp-host" class="text-sm font-mono font-bold text-navy-900 dark:text-white">smtp.resend.com</div>
+            <span class="text-[11px] text-slate-500 dark:text-slate-400">Porta 587 (TLS Ativo)</span>
           </div>
 
-          <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
-            <span class="text-[11px] font-bold uppercase text-slate-500 block mb-1">Remetente Oficial</span>
-            <div id="info-from-email" class="text-sm font-bold text-navy-900 truncate">acesso@goldcorretora.com.br</div>
-            <span id="info-from-name" class="text-[11px] text-slate-500 truncate block">Gold Corretora de Seguros</span>
+          <div class="bg-white dark:bg-[#0F1A2A]/80 border border-slate-200 dark:border-white/10 rounded-xl p-4">
+            <span class="text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 block mb-1">Remetente Oficial</span>
+            <div id="info-from-email" class="text-sm font-bold text-navy-900 dark:text-white truncate">acesso@goldcorretora.com.br</div>
+            <span id="info-from-name" class="text-[11px] text-slate-500 dark:text-slate-400 truncate block">Gold Corretora de Seguros</span>
           </div>
 
-          <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
-            <span class="text-[11px] font-bold uppercase text-slate-500 block mb-1">E-mail de Suporte</span>
-            <div id="info-support-email" class="text-sm font-bold text-navy-900 truncate">suporte@goldcorretora.com.br</div>
-            <span class="text-[11px] text-slate-500">Exibido na recuperação de senha</span>
+          <div class="bg-white dark:bg-[#0F1A2A]/80 border border-slate-200 dark:border-white/10 rounded-xl p-4">
+            <span class="text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 block mb-1">E-mail de Suporte</span>
+            <div id="info-support-email" class="text-sm font-bold text-navy-900 dark:text-white truncate">suporte@goldcorretora.com.br</div>
+            <span class="text-[11px] text-slate-500 dark:text-slate-400">Exibido na recuperação de senha</span>
           </div>
         </div>
 
-        <div class="bg-amber-50/70 border border-amber-200 rounded-xl p-4 text-xs text-amber-950 space-y-1">
-          <div class="font-extrabold flex items-center gap-1.5 text-amber-900">
-            <span>🔒 Segurança & Zero-Knowledge:</span>
+        <div class="bg-amber-50/70 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 rounded-xl p-4 text-xs text-amber-950 dark:text-amber-200 space-y-1">
+          <div class="font-extrabold flex items-center gap-1.5 text-amber-900 dark:text-[#DDBB5C]">
+            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            <span>Segurança & Zero-Knowledge:</span>
           </div>
           <p>
             As credenciais do Resend ficam salvas exclusivamente no arquivo <code>.env</code> do servidor. 
@@ -1548,9 +1727,9 @@ def get_admin_html(
         </div>
 
         <!-- Bloco de Teste de Disparo -->
-        <div class="pt-4 border-t border-slate-200 space-y-3">
-          <h3 class="text-xs font-extrabold uppercase tracking-wider text-navy-900">Testar Disparo de E-mail com Resend</h3>
-          <p class="text-xs text-slate-600">
+        <div class="pt-4 border-t border-slate-200 dark:border-white/10 space-y-3">
+          <h3 class="text-xs font-extrabold uppercase tracking-wider text-navy-900 dark:text-white">Testar Disparo de E-mail com Resend</h3>
+          <p class="text-xs text-slate-600 dark:text-slate-400">
             Insira qualquer e-mail para enviar uma mensagem de verificação e validar se o Resend está autorizado a disparar mensagens:
           </p>
           <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-w-lg">
@@ -1558,13 +1737,13 @@ def get_admin_html(
               id="test-email-dest"
               type="email"
               placeholder="Digite seu e-mail pessoal para testar..."
-              class="h-10 rounded-xl border border-slate-300 px-3 text-xs font-mono text-navy-900 flex-1 focus:outline-none focus:border-gold-500"
+              class="h-10 rounded-xl border border-slate-300 dark:border-white/15 bg-white dark:bg-[#0F1A2A] px-3 text-xs font-mono text-navy-900 dark:text-white flex-1 focus:outline-none focus:border-gold-500"
             />
             <button
               type="button"
               id="btn-test-smtp"
               onclick="dispararTesteEmail()"
-              class="btn-tactile h-10 px-4 rounded-xl bg-navy-900 hover:bg-navy-800 text-gold-400 font-extrabold text-xs shrink-0"
+              class="btn-tactile h-10 px-4 rounded-xl bg-[#C59B27] hover:bg-[#DDBB5C] text-[#0F1A2A] font-extrabold text-xs shrink-0 cursor-pointer"
             >
               Testar Disparo de E-mail
             </button>
@@ -1573,93 +1752,196 @@ def get_admin_html(
         </div>
       </div>
     </section>''' if is_ti else ''}
+      </div>
+    </div>
+
+    <!-- Rodapé Corporativo Gold Hub -->
+    <footer class="mx-auto px-4 sm:px-6 lg:px-8 max-w-[1600px] w-full mt-10 pt-6 border-t border-slate-200/60 dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-[#C59B27]"></span>
+        <span class="font-bold text-navy-900 dark:text-slate-200">Gold Corretora de Seguros</span>
+        <span>• Portal Central de Acessos & Identidade (SSO)</span>
+      </div>
+      <div class="font-mono text-[11px] text-slate-400 dark:text-slate-500">
+        Ambiente Corporativo Protegido
+      </div>
+    </footer>
   </main>
 
-  <!-- MODAL: CRIAR / EDITAR USUÁRIO -->
-  <div id="user-modal" class="hidden fixed inset-0 z-50 bg-navy-950/70 backdrop-blur-xs flex items-center justify-center p-4" role="dialog" aria-modal="true">
-    <div class="modal-panel bg-white rounded-2xl border border-slate-200 max-w-lg w-full p-6 shadow-2xl space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
-        <h3 id="user-modal-title" class="text-lg font-extrabold text-navy-900">Novo Vendedor / Usuário</h3>
-        <button type="button" onclick="fecharModalUsuario()" class="w-8 h-8 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 flex items-center justify-center font-bold">✕</button>
+  <!-- MODAL: CRIAR / EDITAR COLABORADOR (REDESENHADO COM ARQUITETURA GOLD HUB) -->
+  <div id="user-modal" class="hidden fixed inset-0 z-50 bg-navy-950/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="user-modal-title">
+    <div class="modal-panel bg-white dark:bg-[#0F1A2A] rounded-3xl border border-slate-200 dark:border-white/10 max-w-2xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- Cabeçalho Fixo do Modal -->
+      <div class="flex items-center justify-between border-b border-slate-200 dark:border-white/10 px-5 sm:px-6 py-4 bg-slate-50/80 dark:bg-[#162235]/80 shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-[#FBF7EB] dark:bg-[#C59B27]/15 border border-[#EAD084]/80 dark:border-[#C59B27]/30 flex items-center justify-center text-[#A67F18] dark:text-[#DDBB5C] shrink-0">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+          </div>
+          <div>
+            <h3 id="user-modal-title" class="text-base sm:text-lg font-black text-navy-900 dark:text-white leading-tight">Novo Colaborador</h3>
+            <p id="user-modal-subtitle" class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Configure dados de acesso, cargo, sistemas liberados e credenciais Zero-Knowledge.</p>
+          </div>
+        </div>
+        <button type="button" onclick="fecharModalUsuario()" aria-label="Fechar modal" class="w-8 h-8 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-white/10 flex items-center justify-center font-bold text-sm transition cursor-pointer">✕</button>
       </div>
 
-      <form id="user-form" class="space-y-4">
+      <form id="user-form" class="flex flex-col flex-1 overflow-hidden">
         <input type="hidden" id="u-id" />
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label for="u-nome" class="block text-xs font-bold text-slate-700 mb-1">Nome Completo</label>
-            <input id="u-nome" type="text" placeholder="Nome completo (opcional: preenchido no 1º login)" class="w-full h-10 rounded-xl border border-slate-300 px-3 text-sm font-medium text-navy-900 focus:outline-none focus:border-gold-500" />
-          </div>
-          <div>
-            <label for="u-email" class="block text-xs font-bold text-slate-700 mb-1">E-mail de Login</label>
-            <input id="u-email" type="email" required placeholder="joao@goldcorretora.com.br" class="w-full h-10 rounded-xl border border-slate-300 px-3 text-sm font-medium text-navy-900 focus:outline-none focus:border-gold-500" />
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label for="u-cargo" class="block text-xs font-bold text-slate-700 mb-1">Cargo</label>
-            <select id="u-cargo" onchange="aoMudarCargoNoModal()" class="w-full h-10 rounded-xl border border-slate-300 px-3 text-sm font-bold text-navy-900 bg-white focus:outline-none focus:border-gold-500"></select>
-          </div>
-          <div>
-            <div class="flex items-center justify-between mb-1">
-              <label for="u-senha" class="block text-xs font-bold text-slate-700">Senha <span id="u-senha-hint" class="text-[11px] font-normal text-slate-500"></span></label>
-              <button type="button" onclick="preencherSenhaTemporariaNoModal()" class="text-[11px] font-extrabold text-gold-700 hover:underline">Gerar manual</button>
+        
+        <!-- Corpo Rolável Organizado em Seções Numeradas -->
+        <div class="p-5 sm:p-6 space-y-5 overflow-y-auto flex-1">
+          
+          <!-- SEÇÃO 1: IDENTIFICAÇÃO & CARGO (Alinhamento Milimétrico h-5 + h-11) -->
+          <div class="space-y-3.5">
+            <div class="flex items-center justify-between">
+              <span class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">1. Identificação & Cargo</span>
+              <span class="text-[11px] text-slate-400 dark:text-slate-500 font-medium">Dados corporativos de login</span>
             </div>
-            <input id="u-senha" type="text" placeholder="Automática por e-mail (Zero-Knowledge)" class="w-full h-10 rounded-xl border border-slate-300 px-3 text-sm font-mono font-semibold text-navy-900 focus:outline-none focus:border-gold-500" />
-          </div>
-        </div>
 
-        <div class="bg-amber-50/70 border border-amber-200 rounded-xl p-3 space-y-2">
-          <label class="inline-flex items-center gap-2 text-xs font-bold text-navy-900 cursor-pointer">
-            <input id="u-force-change" type="checkbox" checked class="w-4 h-4 rounded text-gold-600" />
-            <span>Exigir que a pessoa troque esta senha no primeiro acesso (Senha Temporária)</span>
-          </label>
-          <label id="u-send-email-wrap" class="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
-            <input id="u-send-email" type="checkbox" checked onchange="aoAlternarEnvioEmailNoModal()" class="w-4 h-4 rounded text-gold-600" />
-            <span>Enviar credenciais por e-mail automaticamente ao salvar (se o SMTP estiver ativo)</span>
-          </label>
-        </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+              <div class="flex flex-col">
+                <label for="u-nome" class="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-200 h-5 mb-1.5">
+                  <span>Nome Completo</span>
+                  <span class="text-[10px] font-normal text-slate-400">Opcional no 1º acesso</span>
+                </label>
+                <input id="u-nome" type="text" placeholder="Ex: João da Silva" class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-semibold text-navy-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 bg-white dark:bg-[#162235] transition shadow-2xs" />
+              </div>
 
-        <div>
-          <span class="block text-xs font-bold text-slate-700 mb-1.5">Aplicativos Liberados para este Usuário</span>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs font-semibold text-navy-900">
-            <label class="flex items-center gap-2"><input type="checkbox" name="u-app" value="painel-vendedor" checked class="rounded text-gold-600" /> Painel de Vendas</label>
-            <label class="flex items-center gap-2"><input type="checkbox" name="u-app" value="cotador-web" checked class="rounded text-gold-600" /> Simulador / Cotador</label>
-            <label class="flex items-center gap-2"><input type="checkbox" name="u-app" value="carteira" class="rounded text-gold-600" /> Módulo Carteira Geral</label>
-            <label class="flex items-center gap-2 sm:col-span-2 text-gold-800 font-extrabold"><input type="checkbox" name="u-app" value="*" class="rounded text-gold-600" /> Todos os Aplicativos Presentes e Futuros (*)</label>
-          </div>
-          <p class="text-[11px] text-slate-500 mt-1">O acesso às APIs de dados é liberado de forma integrada e automática.</p>
-        </div>
-
-        <div>
-          <label for="u-perms" class="block text-xs font-bold text-slate-700 mb-1">Permissões Extras Específicas (separadas por vírgula)</label>
-          <input id="u-perms" type="text" placeholder="Ex: leads.delete, relatorios.export" class="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs font-mono text-navy-900 focus:outline-none focus:border-gold-500" />
-        </div>
-
-        <!-- Férias & Ausência da Roleta -->
-        <div class="bg-amber-50/60 border border-amber-200 rounded-xl p-3 space-y-2">
-          <label class="inline-flex items-center gap-2 text-xs font-bold text-navy-900 cursor-pointer">
-            <input id="u-ferias" type="checkbox" onchange="alternarCamposFeriasNoModal()" class="w-4 h-4 rounded text-amber-600" />
-            <span>🏖️ Vendedor em Férias (Pausar recebimento automático na roleta)</span>
-          </label>
-          <div id="u-ferias-wrap" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-3 pl-6 pt-1">
-            <div>
-              <label for="u-ferias-inicio" class="text-xs font-semibold text-slate-700 block mb-1">Data de Início:</label>
-              <input id="u-ferias-inicio" type="date" class="w-full h-9 rounded-lg border border-slate-300 px-2 text-xs font-bold text-navy-900 bg-white focus:outline-none focus:border-gold-500" />
+              <div class="flex flex-col">
+                <label for="u-email" class="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-200 h-5 mb-1.5">
+                  <span>E-mail Corporativo</span>
+                  <span class="text-[10px] font-semibold text-gold-700 dark:text-[#DDBB5C]">Obrigatório *</span>
+                </label>
+                <input id="u-email" type="email" required placeholder="joao@goldcorretora.com.br" class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-medium text-navy-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 bg-white dark:bg-[#162235] transition shadow-2xs" />
+              </div>
             </div>
-            <div>
-              <label for="u-ferias-retorno" class="text-xs font-semibold text-slate-700 block mb-1">Data de Retorno (opcional):</label>
-              <input id="u-ferias-retorno" type="date" class="w-full h-9 rounded-lg border border-slate-300 px-2 text-xs font-bold text-navy-900 bg-white focus:outline-none focus:border-gold-500" />
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+              <div class="flex flex-col">
+                <label for="u-cargo" class="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-200 h-5 mb-1.5">
+                  <span>Cargo & Perfil</span>
+                  <span class="text-[10px] font-normal text-slate-400">Define permissões base</span>
+                </label>
+                <select id="u-cargo" onchange="aoMudarCargoNoModal()" class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-bold text-navy-900 dark:text-white bg-white dark:bg-[#162235] focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition shadow-2xs cursor-pointer"></select>
+              </div>
+
+              <div class="flex flex-col">
+                <div class="flex items-center justify-between h-5 mb-1.5">
+                  <label for="u-senha" class="text-xs font-bold text-slate-700 dark:text-slate-200 truncate">
+                    Senha <span id="u-senha-hint" class="text-[10px] font-normal text-slate-400"></span>
+                  </label>
+                  <button type="button" onclick="preencherSenhaTemporariaNoModal()" class="text-[11px] font-extrabold text-[#A67F18] dark:text-[#DDBB5C] hover:underline shrink-0 cursor-pointer">
+                    Gerar manual
+                  </button>
+                </div>
+                <input id="u-senha" type="text" placeholder="Automática por e-mail (Zero-Knowledge)" class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-mono font-semibold text-navy-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 bg-white dark:bg-[#162235] transition shadow-2xs" />
+              </div>
             </div>
           </div>
+
+          <!-- SEÇÃO 2: CREDENCIAIS & POLÍTICA DE SEGURANÇA -->
+          <div class="space-y-2">
+            <span class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">2. Política de Senha & Entrega</span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 bg-slate-50/90 dark:bg-[#162235]/60 p-3.5 rounded-2xl border border-slate-200 dark:border-white/10">
+              <label id="u-send-email-wrap" class="flex items-start gap-2.5 p-2.5 rounded-xl bg-white dark:bg-[#0F1A2A] border border-slate-200/80 dark:border-white/10 cursor-pointer hover:border-gold-400 transition shadow-2xs">
+                <input id="u-send-email" type="checkbox" checked onchange="aoAlternarEnvioEmailNoModal()" class="w-4 h-4 mt-0.5 rounded text-gold-600 cursor-pointer focus:ring-gold-400 shrink-0" />
+                <div class="min-w-0 flex-1">
+                  <span class="block text-xs font-bold text-navy-900 dark:text-white leading-tight">Envio Zero-Knowledge por E-mail</span>
+                  <span class="block text-[10px] text-slate-500 dark:text-slate-400 leading-normal mt-0.5">Dispara a senha direto ao colaborador ao salvar.</span>
+                </div>
+              </label>
+
+              <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-white dark:bg-[#0F1A2A] border border-slate-200/80 dark:border-white/10 cursor-pointer hover:border-gold-400 transition shadow-2xs">
+                <input id="u-force-change" type="checkbox" checked class="w-4 h-4 mt-0.5 rounded text-gold-600 cursor-pointer focus:ring-gold-400 shrink-0" />
+                <div class="min-w-0 flex-1">
+                  <span class="block text-xs font-bold text-navy-900 dark:text-white leading-tight">Exigir Troca no 1º Acesso</span>
+                  <span class="block text-[10px] text-slate-500 dark:text-slate-400 leading-normal mt-0.5">Obriga a criar senha pessoal definitiva ao entrar.</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- SEÇÃO 3: APLICATIVOS LIBERADOS (Mesmo Padrão Visual do Modal de Cargos) -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">3. Aplicativos Liberados</span>
+              <span class="text-[11px] text-slate-400 dark:text-slate-500">APIs de dados integradas automaticamente</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 bg-slate-50/90 dark:bg-[#162235]/60 p-3.5 rounded-2xl border border-slate-200 dark:border-white/10 text-xs font-bold text-navy-900 dark:text-white">
+              <label class="flex items-center gap-2.5 p-2.5 rounded-xl bg-white dark:bg-[#0F1A2A] border border-slate-200/80 dark:border-white/10 cursor-pointer hover:border-gold-400 hover:bg-gold-50/30 dark:hover:bg-white/5 transition shadow-2xs">
+                <input type="checkbox" name="u-app" value="painel-vendedor" checked class="w-4 h-4 rounded text-gold-600 cursor-pointer focus:ring-gold-400" />
+                <span class="select-none">Painel de Vendas</span>
+              </label>
+              <label class="flex items-center gap-2.5 p-2.5 rounded-xl bg-white dark:bg-[#0F1A2A] border border-slate-200/80 dark:border-white/10 cursor-pointer hover:border-gold-400 hover:bg-gold-50/30 dark:hover:bg-white/5 transition shadow-2xs">
+                <input type="checkbox" name="u-app" value="cotador-web" checked class="w-4 h-4 rounded text-gold-600 cursor-pointer focus:ring-gold-400" />
+                <span class="select-none">Simulador / Cotador</span>
+              </label>
+              <label class="flex items-center gap-2.5 p-2.5 rounded-xl bg-white dark:bg-[#0F1A2A] border border-slate-200/80 dark:border-white/10 cursor-pointer hover:border-gold-400 hover:bg-gold-50/30 dark:hover:bg-white/5 transition shadow-2xs">
+                <input type="checkbox" name="u-app" value="carteira" class="w-4 h-4 rounded text-gold-600 cursor-pointer focus:ring-gold-400" />
+                <span class="select-none">Módulo Carteira Geral</span>
+              </label>
+              <label class="flex items-center gap-2.5 p-2.5 rounded-xl bg-gold-50/80 dark:bg-[#C59B27]/15 border border-gold-300 dark:border-[#C59B27]/40 text-gold-900 dark:text-[#DDBB5C] cursor-pointer hover:bg-gold-100/70 transition shadow-2xs font-extrabold">
+                <input type="checkbox" name="u-app" value="*" class="w-4 h-4 rounded text-gold-600 cursor-pointer focus:ring-gold-400" />
+                <span class="select-none truncate">Todos os Aplicativos (*)</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- SEÇÃO 4: PERMISSÕES EXTRAS & ESCALA DE FÉRIAS -->
+          <div class="space-y-3.5 pt-1">
+            <div class="flex flex-col">
+              <label for="u-perms" class="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-200 h-5 mb-1.5">
+                <span>Permissões Extras Específicas</span>
+                <span class="text-[10px] font-normal text-slate-400">Opcional (separadas por vírgula)</span>
+              </label>
+              <input id="u-perms" type="text" placeholder="Ex: leads.delete, relatorios.export" class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs font-mono text-navy-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 bg-white dark:bg-[#162235] transition shadow-2xs" />
+            </div>
+
+            <!-- Card de Férias & Ausência da Roleta -->
+            <div class="bg-amber-50/70 dark:bg-amber-500/10 border border-amber-200/90 dark:border-amber-500/30 rounded-2xl p-3.5 space-y-3">
+              <label class="flex items-center justify-between gap-3 cursor-pointer">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-8 h-8 rounded-xl bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <span class="block text-xs font-extrabold text-navy-900 dark:text-white leading-tight">Ausência / Férias na Roleta de Leads</span>
+                    <span class="block text-[11px] text-slate-600 dark:text-slate-400">Pausa o envio automático de leads durante o período configurado.</span>
+                  </div>
+                </div>
+                <input id="u-ferias" type="checkbox" onchange="alternarCamposFeriasNoModal()" class="w-4 h-4 rounded text-amber-600 cursor-pointer shrink-0" />
+              </label>
+
+              <div id="u-ferias-wrap" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-amber-200/60 dark:border-amber-500/20">
+                <div>
+                  <label for="u-ferias-inicio" class="text-xs font-bold text-slate-700 dark:text-slate-200 block mb-1">Data de Início:</label>
+                  <input id="u-ferias-inicio" type="date" class="w-full h-10 rounded-xl border border-slate-300 dark:border-white/15 px-3 text-xs font-bold text-navy-900 dark:text-white bg-white dark:bg-[#0F1A2A] focus:outline-none focus:border-gold-500" />
+                </div>
+                <div>
+                  <label for="u-ferias-retorno" class="text-xs font-bold text-slate-700 dark:text-slate-200 block mb-1">Data de Retorno (opcional):</label>
+                  <input id="u-ferias-retorno" type="date" class="w-full h-10 rounded-xl border border-slate-300 dark:border-white/15 px-3 text-xs font-bold text-navy-900 dark:text-white bg-white dark:bg-[#0F1A2A] focus:outline-none focus:border-gold-500" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="user-form-error" class="hidden text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-xl p-3"></div>
         </div>
 
-        <div id="user-form-error" class="hidden text-xs font-bold text-red-600 bg-red-50 border border-red-200 rounded-xl p-2.5"></div>
-
-        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-200">
-          <button type="button" onclick="fecharModalUsuario()" class="btn-tactile px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100">Cancelar</button>
-          <button type="submit" class="btn-tactile px-5 py-2 rounded-xl text-xs font-extrabold bg-navy-900 hover:bg-navy-800 text-gold-400">Salvar Usuário</button>
+        <!-- Rodapé Fixo de Ações -->
+        <div class="flex items-center justify-between px-5 sm:px-6 py-4 bg-slate-50/80 dark:bg-[#162235]/80 border-t border-slate-200 dark:border-white/10 shrink-0">
+          <button type="button" onclick="fecharModalUsuario()" class="btn-tactile px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-white/10 transition cursor-pointer">Cancelar</button>
+          <button type="submit" class="btn-tactile px-6 py-2.5 rounded-xl text-xs sm:text-sm font-black bg-[#C59B27] hover:bg-[#DDBB5C] text-[#0F1A2A] shadow-md active:scale-98 transition flex items-center gap-2 cursor-pointer">
+            <svg class="w-4 h-4 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+            <span>Salvar Colaborador</span>
+          </button>
         </div>
       </form>
     </div>
@@ -1667,28 +1949,28 @@ def get_admin_html(
 
   <!-- MODAL: SENHA TEMPORÁRIA GERADA / ENVIAR POR E-MAIL -->
   <div id="temp-pw-modal" class="hidden fixed inset-0 z-50 bg-navy-950/75 backdrop-blur-xs flex items-center justify-center p-4" role="dialog" aria-modal="true">
-    <div class="modal-panel bg-white rounded-2xl border border-slate-200 max-w-md w-full p-6 shadow-2xl space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
-        <h3 class="text-lg font-extrabold text-navy-900">Senha Temporária de Recuperação</h3>
-        <button type="button" onclick="fecharModalSenhaTemp()" class="w-8 h-8 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 flex items-center justify-center font-bold">✕</button>
+    <div class="modal-panel bg-white dark:bg-[#0F1A2A] rounded-3xl border border-slate-200 dark:border-white/10 max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-3">
+        <h3 class="text-lg font-extrabold text-navy-900 dark:text-white">Senha Temporária de Recuperação</h3>
+        <button type="button" onclick="fecharModalSenhaTemp()" class="w-8 h-8 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 flex items-center justify-center font-bold">✕</button>
       </div>
 
-      <div class="space-y-3 text-xs text-slate-600">
-        <p>Uma nova senha temporária foi configurada para <strong id="tp-user-name" class="text-navy-900"></strong> (<span id="tp-user-email" class="font-mono text-navy-900"></span>).</p>
-        <p class="bg-amber-50 border border-amber-200 text-amber-900 p-2.5 rounded-xl font-semibold">
+      <div class="space-y-3 text-xs text-slate-600 dark:text-slate-300">
+        <p>Uma nova senha temporária foi configurada para <strong id="tp-user-name" class="text-navy-900 dark:text-white"></strong> (<span id="tp-user-email" class="font-mono text-navy-900 dark:text-slate-200"></span>).</p>
+        <p class="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 text-amber-900 dark:text-amber-200 p-2.5 rounded-xl font-semibold">
           Assim que a pessoa entrar com esta senha, o portal pedirá automaticamente para ela escolher uma nova senha pessoal.
         </p>
 
-        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex items-center justify-between">
+        <div class="bg-slate-50 dark:bg-[#162235] border border-slate-200 dark:border-white/10 rounded-xl p-3.5 flex items-center justify-between">
           <div>
-            <span class="text-[11px] font-bold text-slate-500 uppercase block">Senha Temporária Gerada</span>
-            <strong id="tp-password-val" class="text-lg font-mono font-extrabold text-navy-900 tracking-wider"></strong>
+            <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase block">Senha Temporária Gerada</span>
+            <strong id="tp-password-val" class="text-lg font-mono font-extrabold text-navy-900 dark:text-white tracking-wider"></strong>
           </div>
           <button
             type="button"
             onclick="copiarSenhaTemporaria()"
             id="btn-copy-tp"
-            class="btn-tactile px-3 py-1.5 rounded-lg bg-navy-900 text-gold-400 font-bold text-xs"
+            class="btn-tactile px-3 py-1.5 rounded-lg bg-[#C59B27] hover:bg-[#DDBB5C] text-[#0F1A2A] font-extrabold text-xs cursor-pointer"
           >
             Copiar Texto
           </button>
@@ -1697,18 +1979,18 @@ def get_admin_html(
         <div id="tp-smtp-status" class="rounded-xl p-3 font-bold"></div>
       </div>
 
-      <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-200">
+      <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-200 dark:border-white/10">
         <a
           id="tp-mailto-link"
           href="#"
-          class="btn-tactile px-3.5 py-2 rounded-xl border border-slate-300 hover:bg-slate-100 text-xs font-bold text-navy-900"
+          class="btn-tactile px-3.5 py-2 rounded-xl border border-slate-300 dark:border-white/15 hover:bg-slate-100 dark:hover:bg-white/10 text-xs font-bold text-navy-900 dark:text-white"
         >
           Abrir no Aplicativo de E-mail
         </a>
         <button
           type="button"
           onclick="fecharModalSenhaTemp()"
-          class="btn-tactile px-4 py-2 rounded-xl bg-navy-900 text-white text-xs font-extrabold"
+          class="btn-tactile px-4 py-2 rounded-xl bg-[#C59B27] hover:bg-[#DDBB5C] text-[#0F1A2A] text-xs font-extrabold cursor-pointer"
         >
           Concluir
         </button>
@@ -1718,15 +2000,15 @@ def get_admin_html(
 
   <!-- MODAL: CRIAR / EDITAR CARGO COM CATÁLOGO VISUAL DE PERMISSÕES -->
   <div id="role-modal" class="hidden fixed inset-0 z-50 bg-navy-950/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true">
-    <div class="modal-panel bg-white rounded-3xl border border-slate-200 max-w-2xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+    <div class="modal-panel bg-white dark:bg-[#0F1A2A] rounded-3xl border border-slate-200 dark:border-white/10 max-w-2xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
       
       <!-- Cabeçalho do Modal -->
-      <div class="flex items-center justify-between border-b border-slate-200 px-5 sm:px-6 py-4 bg-slate-50/70 shrink-0">
+      <div class="flex items-center justify-between border-b border-slate-200 dark:border-white/10 px-5 sm:px-6 py-4 bg-slate-50/80 dark:bg-[#162235]/80 shrink-0">
         <div>
-          <h3 id="role-modal-title" class="text-base sm:text-lg font-black text-navy-900">Configurar Cargo & Permissões</h3>
-          <p class="text-[11px] text-slate-500 mt-0.5">Defina os acessos por módulo de forma visual sem precisar adivinhar comandos técnicos.</p>
+          <h3 id="role-modal-title" class="text-base sm:text-lg font-black text-navy-900 dark:text-white">Configurar Cargo & Permissões</h3>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Defina os acessos por módulo de forma visual sem precisar adivinhar comandos técnicos.</p>
         </div>
-        <button type="button" onclick="fecharModalCargo()" class="w-8 h-8 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-200/60 flex items-center justify-center font-bold text-sm transition">✕</button>
+        <button type="button" onclick="fecharModalCargo()" class="w-8 h-8 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-white/10 flex items-center justify-center font-bold text-sm transition cursor-pointer">✕</button>
       </div>
 
       <form id="role-form" class="flex flex-col flex-1 overflow-hidden">
@@ -1734,44 +2016,44 @@ def get_admin_html(
           <!-- Dados Básicos com Labels e Inputs Perfeitamente Alinhados -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
             <div class="flex flex-col">
-              <label for="r-codigo" class="flex items-center justify-between text-xs font-bold text-slate-700 h-5 mb-1.5">
+              <label for="r-codigo" class="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-200 h-5 mb-1.5">
                 <span>Código Identificador</span>
                 <span class="text-[10px] font-normal text-slate-400 uppercase tracking-tight">Ex: TI, VENDAS</span>
               </label>
-              <input id="r-codigo" type="text" required placeholder="ADMINISTRATIVO" class="w-full h-11 rounded-xl border border-slate-300 px-3.5 text-xs font-mono font-bold uppercase text-navy-900 placeholder:text-slate-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 bg-white transition shadow-2xs" />
+              <input id="r-codigo" type="text" required placeholder="ADMINISTRATIVO" class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs font-mono font-bold uppercase text-navy-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 bg-white dark:bg-[#162235] transition shadow-2xs" />
             </div>
             <div class="flex flex-col">
-              <label for="r-nome" class="flex items-center justify-between text-xs font-bold text-slate-700 h-5 mb-1.5">
+              <label for="r-nome" class="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-200 h-5 mb-1.5">
                 <span>Nome de Exibição</span>
                 <span class="text-[10px] font-normal text-slate-400">Título amigável</span>
               </label>
-              <input id="r-nome" type="text" required placeholder="Administrativo" class="w-full h-11 rounded-xl border border-slate-300 px-3.5 text-xs sm:text-sm font-semibold text-navy-900 placeholder:text-slate-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 bg-white transition shadow-2xs" />
+              <input id="r-nome" type="text" required placeholder="Administrativo" class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-semibold text-navy-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 bg-white dark:bg-[#162235] transition shadow-2xs" />
             </div>
           </div>
 
           <div class="flex flex-col">
-            <label for="r-desc" class="block text-xs font-bold text-slate-700 mb-1.5">Descrição e Responsabilidades</label>
-            <input id="r-desc" type="text" placeholder="Visualização operacional ampla, relatórios de carteira e gestão de leads" class="w-full h-11 rounded-xl border border-slate-300 px-3.5 text-xs sm:text-sm text-navy-900 placeholder:text-slate-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 bg-white transition shadow-2xs" />
+            <label for="r-desc" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Descrição e Responsabilidades</label>
+            <input id="r-desc" type="text" placeholder="Visualização operacional ampla, relatórios de carteira e gestão de leads" class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm text-navy-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 bg-white dark:bg-[#162235] transition shadow-2xs" />
           </div>
 
           <!-- Aplicativos Liberados -->
           <div class="space-y-2">
-            <span class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider text-[10px]">1. Aplicativos Padrão Liberados</span>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 bg-slate-50/90 p-3.5 rounded-2xl border border-slate-200 text-xs font-bold text-navy-900">
-              <label class="flex items-center gap-2.5 p-2 rounded-xl bg-white border border-slate-200/80 cursor-pointer hover:border-gold-400 hover:bg-gold-50/30 transition shadow-2xs">
+            <span class="block text-xs font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-[10px]">1. Aplicativos Padrão Liberados</span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 bg-slate-50/90 dark:bg-[#162235]/60 p-3.5 rounded-2xl border border-slate-200 dark:border-white/10 text-xs font-bold text-navy-900 dark:text-white">
+              <label class="flex items-center gap-2.5 p-2 rounded-xl bg-white dark:bg-[#0F1A2A] border border-slate-200/80 dark:border-white/10 cursor-pointer hover:border-gold-400 hover:bg-gold-50/30 dark:hover:bg-white/5 transition shadow-2xs">
                 <input type="checkbox" name="r-app" value="painel-vendedor" checked class="w-4 h-4 rounded text-gold-600 cursor-pointer focus:ring-gold-400" />
                 <span class="select-none">Painel de Vendas</span>
               </label>
-              <label class="flex items-center gap-2.5 p-2 rounded-xl bg-white border border-slate-200/80 cursor-pointer hover:border-gold-400 hover:bg-gold-50/30 transition shadow-2xs">
+              <label class="flex items-center gap-2.5 p-2 rounded-xl bg-white dark:bg-[#0F1A2A] border border-slate-200/80 dark:border-white/10 cursor-pointer hover:border-gold-400 hover:bg-gold-50/30 dark:hover:bg-white/5 transition shadow-2xs">
                 <input type="checkbox" name="r-app" value="cotador-web" checked class="w-4 h-4 rounded text-gold-600 cursor-pointer focus:ring-gold-400" />
                 <span class="select-none">Simulador / Cotador</span>
               </label>
-              <label class="flex items-center gap-2.5 p-2 rounded-xl bg-white border border-slate-200/80 cursor-pointer hover:border-gold-400 hover:bg-gold-50/30 transition shadow-2xs">
+              <label class="flex items-center gap-2.5 p-2 rounded-xl bg-white dark:bg-[#0F1A2A] border border-slate-200/80 dark:border-white/10 cursor-pointer hover:border-gold-400 hover:bg-gold-50/30 dark:hover:bg-white/5 transition shadow-2xs">
                 <input type="checkbox" name="r-app" value="carteira" class="w-4 h-4 rounded text-gold-600 cursor-pointer focus:ring-gold-400" />
                 <span class="select-none">Carteira Geral</span>
               </label>
               
-              <label class="flex items-center gap-2.5 p-2 rounded-xl bg-gold-50/70 border border-gold-300 text-gold-900 cursor-pointer hover:bg-gold-100/70 transition shadow-2xs font-extrabold">
+              <label class="flex items-center gap-2.5 p-2 rounded-xl bg-gold-50/70 dark:bg-[#C59B27]/15 border border-gold-300 dark:border-[#C59B27]/40 text-gold-900 dark:text-[#DDBB5C] cursor-pointer hover:bg-gold-100/70 transition shadow-2xs font-extrabold">
                 <input type="checkbox" name="r-app" value="*" class="w-4 h-4 rounded text-gold-600 cursor-pointer focus:ring-gold-400" />
                 <span class="select-none truncate">Todos os Aplicativos (*)</span>
               </label>
@@ -1781,26 +2063,26 @@ def get_admin_html(
           <!-- Matriz Visual de Permissões -->
           <div class="space-y-2.5">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
-              <span class="block text-xs font-extrabold text-slate-700 uppercase tracking-wider text-[10px]">2. Matriz de Permissões do Cargo</span>
-              <span class="text-[11px] text-slate-500 font-medium">Selecione os módulos autorizados:</span>
+              <span class="block text-xs font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-[10px]">2. Matriz de Permissões do Cargo</span>
+              <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Selecione os módulos autorizados:</span>
             </div>
 
             <!-- Toggle Acesso Completo (*) -->
-            <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between shadow-2xs">
+            <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-[#162235]/80 border border-slate-200 dark:border-white/10 flex items-center justify-between shadow-2xs">
               <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-xl bg-navy-900 text-emerald-400 flex items-center justify-center font-black text-sm shrink-0 shadow-xs">
+                <div class="w-8 h-8 rounded-xl bg-navy-900 dark:bg-[#0F1A2A] text-emerald-400 flex items-center justify-center font-black text-sm shrink-0 shadow-xs border border-white/10">
                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
                 <div>
-                  <div class="text-xs font-black text-navy-900">Acesso Completo (*)</div>
-                  <div class="text-[11px] text-slate-600 leading-tight">Acesso completo aos sistemas e visualização técnica (padrão TI).</div>
+                  <div class="text-xs font-black text-navy-900 dark:text-white">Acesso Completo (*)</div>
+                  <div class="text-[11px] text-slate-600 dark:text-slate-400 leading-tight">Acesso completo aos sistemas e visualização técnica (padrão TI).</div>
                 </div>
               </div>
               <label class="relative inline-flex items-center cursor-pointer shrink-0 ml-3">
                 <input type="checkbox" id="perm-master-toggle" onchange="aoAlternarPermissaoMestre(this.checked)" class="sr-only peer" />
-                <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-navy-900"></div>
+                <div class="w-11 h-6 bg-slate-300 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#C59B27]"></div>
               </label>
             </div>
 
@@ -1812,9 +2094,12 @@ def get_admin_html(
         </div>
 
         <!-- Rodapé de Ações -->
-        <div class="flex items-center justify-between px-5 sm:px-6 py-4 bg-slate-50/80 border-t border-slate-200 shrink-0">
-          <button type="button" onclick="fecharModalCargo()" class="btn-tactile px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-200/70 transition">Cancelar</button>
-          <button type="submit" class="btn-tactile px-6 py-2.5 rounded-xl text-xs sm:text-sm font-black bg-navy-900 hover:bg-navy-800 text-gold-400 shadow-md active:scale-98 transition flex items-center gap-2">
+        <div class="flex items-center justify-between px-5 sm:px-6 py-4 bg-slate-50/80 dark:bg-[#162235]/80 border-t border-slate-200 dark:border-white/10 shrink-0">
+          <button type="button" onclick="fecharModalCargo()" class="btn-tactile px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-white/10 transition cursor-pointer">Cancelar</button>
+          <button type="submit" class="btn-tactile px-6 py-2.5 rounded-xl text-xs sm:text-sm font-black bg-[#C59B27] hover:bg-[#DDBB5C] text-[#0F1A2A] shadow-md active:scale-98 transition flex items-center gap-2 cursor-pointer">
+            <svg class="w-4 h-4 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
             <span>Salvar Cargo & Permissões</span>
           </button>
         </div>
@@ -1824,42 +2109,46 @@ def get_admin_html(
 
   <!-- MODAL: MARCAR / GERENCIAR FÉRIAS -->
   <div id="ferias-modal" class="hidden fixed inset-0 z-50 bg-navy-950/70 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden animate-scale-up">
-      <div class="p-5 border-b border-slate-200 flex items-center justify-between bg-amber-50/60">
-        <div class="flex items-center gap-2">
-          <span class="text-xl">🏖️</span>
-          <h3 class="text-base font-extrabold text-navy-900" id="ferias-modal-title">Configurar Férias</h3>
+    <div class="bg-white dark:bg-[#0F1A2A] rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 dark:border-white/10 overflow-hidden animate-scale-up">
+      <div class="p-5 border-b border-slate-200 dark:border-white/10 flex items-center justify-between bg-amber-50/60 dark:bg-amber-500/10">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 flex items-center justify-center">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h3 class="text-base font-extrabold text-navy-900 dark:text-white" id="ferias-modal-title">Configurar Férias</h3>
         </div>
-        <button type="button" onclick="fecharModalFeriasRapido()" class="w-8 h-8 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-white flex items-center justify-center font-bold">✕</button>
+        <button type="button" onclick="fecharModalFeriasRapido()" class="w-8 h-8 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-white dark:hover:bg-white/10 flex items-center justify-center font-bold cursor-pointer">✕</button>
       </div>
 
       <form id="ferias-form" class="p-5 space-y-4">
         <input type="hidden" id="ferias-user-id" />
-        <p class="text-xs text-slate-600 leading-relaxed">
+        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
           Defina o período de ausência. Durante as férias ativas, a <strong>Roleta de Leads</strong> pula o consultor automaticamente, reativando-o na data de retorno. Férias com data futura ficam agendadas.
         </p>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label for="ferias-data-inicio" class="block text-xs font-bold text-slate-700 mb-1">Data de Início:</label>
-            <input id="ferias-data-inicio" type="date" required class="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs sm:text-sm font-bold text-navy-900 bg-white focus:outline-none focus:border-gold-500" />
-            <span class="text-[11px] text-slate-500 mt-1 block">Quando as férias começam.</span>
+            <label for="ferias-data-inicio" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Data de Início:</label>
+            <input id="ferias-data-inicio" type="date" required class="w-full h-10 rounded-xl border border-slate-300 dark:border-white/15 px-3 text-xs sm:text-sm font-bold text-navy-900 dark:text-white bg-white dark:bg-[#162235] focus:outline-none focus:border-gold-500" />
+            <span class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 block">Quando as férias começam.</span>
           </div>
 
           <div>
-            <label for="ferias-data-retorno" class="block text-xs font-bold text-slate-700 mb-1">Data de Retorno (opcional):</label>
-            <input id="ferias-data-retorno" type="date" class="w-full h-10 rounded-xl border border-slate-300 px-3 text-xs sm:text-sm font-bold text-navy-900 bg-white focus:outline-none focus:border-gold-500" />
-            <span class="text-[11px] text-slate-500 mt-1 block">Dia do retorno à roleta.</span>
+            <label for="ferias-data-retorno" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Data de Retorno (opcional):</label>
+            <input id="ferias-data-retorno" type="date" class="w-full h-10 rounded-xl border border-slate-300 dark:border-white/15 px-3 text-xs sm:text-sm font-bold text-navy-900 dark:text-white bg-white dark:bg-[#162235] focus:outline-none focus:border-gold-500" />
+            <span class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 block">Dia do retorno à roleta.</span>
           </div>
         </div>
 
-        <div id="ferias-form-error" class="hidden text-xs font-bold text-red-600 bg-red-50 border border-red-200 rounded-xl p-2.5"></div>
+        <div id="ferias-form-error" class="hidden text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-xl p-2.5"></div>
 
-        <div class="flex items-center justify-between gap-2 pt-3 border-t border-slate-200">
-          <button type="button" id="ferias-btn-encerrar" onclick="acionarEncerramentoModal()" class="hidden btn-tactile px-3 py-2 rounded-xl text-xs font-bold text-red-700 bg-red-50 hover:bg-red-100 border border-red-200">Encerrar Férias Agora</button>
+        <div class="flex items-center justify-between gap-2 pt-3 border-t border-slate-200 dark:border-white/10">
+          <button type="button" id="ferias-btn-encerrar" onclick="acionarEncerramentoModal()" class="hidden btn-tactile px-3 py-2 rounded-xl text-xs font-bold text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-500/15 hover:bg-red-100 border border-red-200 dark:border-red-500/30 cursor-pointer">Encerrar Férias Agora</button>
           <div class="flex items-center gap-2 ml-auto">
-            <button type="button" onclick="fecharModalFeriasRapido()" class="btn-tactile px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100">Cancelar</button>
-            <button type="submit" id="ferias-btn-salvar" class="btn-tactile px-5 py-2 rounded-xl text-xs font-extrabold bg-amber-500 hover:bg-amber-600 text-white shadow-xs">Salvar Férias</button>
+            <button type="button" onclick="fecharModalFeriasRapido()" class="btn-tactile px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10 cursor-pointer">Cancelar</button>
+            <button type="submit" id="ferias-btn-salvar" class="btn-tactile px-5 py-2 rounded-xl text-xs font-extrabold bg-[#C59B27] hover:bg-[#DDBB5C] text-[#0F1A2A] shadow-xs cursor-pointer">Salvar Férias</button>
           </div>
         </div>
       </form>
@@ -1868,39 +2157,39 @@ def get_admin_html(
 
   <!-- MODAL DE CONFIRMAÇÃO ELEGANTE (BLOQUEAR, REATIVAR E EXCLUIR) -->
   <div id="confirm-action-modal" class="hidden fixed inset-0 z-50 bg-navy-950/75 backdrop-blur-xs flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="confirm-action-title">
-    <div class="modal-panel bg-white rounded-3xl border border-slate-200 max-w-md w-full p-6 sm:p-7 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200">
+    <div class="modal-panel bg-white dark:bg-[#0F1A2A] rounded-3xl border border-slate-200 dark:border-white/10 max-w-md w-full p-6 sm:p-7 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200">
       <div class="flex items-start gap-4">
         <div id="confirm-action-icon-wrap" class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 text-xl font-bold shadow-xs">
-          <span id="confirm-action-icon">⚠️</span>
+          <span id="confirm-action-icon">!</span>
         </div>
         <div class="min-w-0 flex-1">
-          <h3 id="confirm-action-title" class="text-base sm:text-lg font-extrabold text-navy-950 leading-snug">Confirmar Ação</h3>
-          <p id="confirm-action-desc" class="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">Você tem certeza que deseja executar esta ação?</p>
+          <h3 id="confirm-action-title" class="text-base sm:text-lg font-extrabold text-navy-950 dark:text-white leading-snug">Confirmar Ação</h3>
+          <p id="confirm-action-desc" class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">Você tem certeza que deseja executar esta ação?</p>
         </div>
       </div>
 
-      <div id="confirm-action-target-card" class="bg-slate-50 rounded-2xl p-3.5 border border-slate-200/80 flex items-center gap-3">
+      <div id="confirm-action-target-card" class="bg-slate-50 dark:bg-[#162235] rounded-2xl p-3.5 border border-slate-200/80 dark:border-white/10 flex items-center gap-3">
         <div id="confirm-action-avatar" class="w-9 h-9 rounded-xl bg-navy-900 text-gold-400 flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
           U
         </div>
         <div class="min-w-0 flex-1">
-          <div id="confirm-action-user-name" class="font-extrabold text-navy-950 text-xs sm:text-sm truncate">Nome do Usuário</div>
-          <div id="confirm-action-user-email" class="text-[11px] text-slate-500 font-mono truncate">email@goldcorretora.com.br</div>
+          <div id="confirm-action-user-name" class="font-extrabold text-navy-950 dark:text-white text-xs sm:text-sm truncate">Nome do Usuário</div>
+          <div id="confirm-action-user-email" class="text-[11px] text-slate-500 dark:text-slate-400 font-mono truncate">email@goldcorretora.com.br</div>
         </div>
       </div>
 
-      <div class="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-100">
+      <div class="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-100 dark:border-white/10">
         <button
           type="button"
           onclick="fecharModalConfirmacao()"
-          class="btn-tactile px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-100 transition"
+          class="btn-tactile px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10 transition cursor-pointer"
         >
           Cancelar
         </button>
         <button
           type="button"
           id="confirm-action-btn-exec"
-          class="btn-tactile px-5 py-2.5 rounded-xl text-xs sm:text-sm font-black shadow-md transition flex items-center gap-2"
+          class="btn-tactile px-5 py-2.5 rounded-xl text-xs sm:text-sm font-black shadow-md transition flex items-center gap-2 cursor-pointer"
         >
           <span id="confirm-action-btn-label">Confirmar</span>
         </button>
@@ -1914,7 +2203,7 @@ def get_admin_html(
     let stateUsers = [];
     let stateRoles = [];
     let stateAudit = [];
-        let stateEmailCfg = {{}};
+    let stateEmailCfg = {{}};
     const APP_NAMES = {{
       'painel-vendedor': 'Painel de Vendas',
       'cotador-web': 'Simulador / Cotador',
@@ -1922,10 +2211,52 @@ def get_admin_html(
       '*': 'Todos os Aplicativos (*)'
     }};
 
+    // Controle de Tema (Claro / Escuro) sincronizado com o Gold Hub
+    function atualizarIconesTema() {{
+      const isDark = document.documentElement.classList.contains('dark');
+      const sun = document.getElementById('theme-icon-sun');
+      const moon = document.getElementById('theme-icon-moon');
+      if (sun && moon) {{
+        sun.classList.toggle('hidden', !isDark);
+        moon.classList.toggle('hidden', isDark);
+      }}
+    }}
+
+    function alternarTema() {{
+      const isDark = document.documentElement.classList.toggle('dark');
+      try {{
+        localStorage.setItem('gold-hub-theme', isDark ? 'dark' : 'light');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      }} catch (e) {{}}
+      atualizarIconesTema();
+    }}
+    atualizarIconesTema();
+
+    // Física da Dynamic Island (Encolhe suavemente no scroll > 10px igual ao Gold Hub)
+    function atualizarDynamicIslandScroll() {{
+      const scrolled = window.scrollY > 10;
+      const wrap = document.getElementById('dynamic-island-wrap');
+      const header = document.getElementById('dynamic-island-header');
+      const blurZone = document.getElementById('top-blur-zone');
+      const blurGrad = document.getElementById('top-blur-gradient');
+      if (wrap) wrap.style.paddingTop = scrolled ? '0.75rem' : '1.5rem';
+      if (header) {{
+        header.style.height = scrolled ? '56px' : '62px';
+        header.style.maxWidth = scrolled ? '1320px' : '1600px';
+      }}
+      if (blurZone) blurZone.classList.toggle('is-active', scrolled);
+      if (blurGrad) {{
+        blurGrad.classList.toggle('opacity-100', scrolled);
+        blurGrad.classList.toggle('opacity-0', !scrolled);
+      }}
+    }}
+    window.addEventListener('scroll', atualizarDynamicIslandScroll, {{ passive: true }});
+    atualizarDynamicIslandScroll();
+
     function formatAppBadges(apps) {{
       if (!apps || !apps.length) return '<span class="text-[11px] text-slate-400 italic">Nenhum</span>';
       if (apps.includes('*')) {{
-        return '<span class="text-[11px] font-bold px-2 py-0.5 rounded-md bg-gold-50 text-gold-900 border border-gold-300">Todos os Aplicativos (*)</span>';
+        return '<span class="text-[11px] font-bold px-2.5 py-0.5 rounded-md bg-gold-50 dark:bg-[#C59B27]/15 text-gold-900 dark:text-[#DDBB5C] border border-gold-300 dark:border-[#C59B27]/35">Todos os Aplicativos (*)</span>';
       }}
       const visiveis = apps.filter(a => a !== 'gold-db-api' && a !== 'gold-auth' && a !== 'gold-apps' && a !== 'conciliacao');
       if (!visiveis.length) {{
@@ -1933,7 +2264,7 @@ def get_admin_html(
       }}
       return visiveis.map(a => {{
         const nome = APP_NAMES[a] || a;
-        return `<span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200">${{nome}}</span>`;
+        return `<span class="text-[11px] font-semibold px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-white/10">${{nome}}</span>`;
       }}).join(' ');
     }}
     let ultimoResultadoSenhaTemp = null;
@@ -1964,8 +2295,8 @@ def get_admin_html(
       document.querySelectorAll('.tab-btn').forEach(btn => {{
         const isCurrent = btn.getAttribute('data-tab') === tab;
         btn.className = isCurrent
-          ? 'tab-btn btn-tactile px-3.5 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-navy-900 text-white'
-          : 'tab-btn btn-tactile px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-100';
+          ? 'tab-btn btn-tactile px-3.5 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-[#C59B27] text-[#0F1A2A] shadow-sm cursor-pointer'
+          : 'tab-btn btn-tactile px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-white/10 cursor-pointer';
       }});
     }}
 
@@ -2221,16 +2552,16 @@ def get_admin_html(
       container.innerHTML = PERMISSIONS_CATALOG.map(cat => {{
         const todasDoGrupoMarcadas = cat.itens.every(it => permissoesAtuais.includes(it.key) || temMaster);
         return `
-          <div class="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-2xs">
-            <div class="flex items-center justify-between px-3.5 py-2.5 bg-slate-50/80 border-b border-slate-100">
+          <div class="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#162235]/60 overflow-hidden shadow-2xs">
+            <div class="flex items-center justify-between px-3.5 py-2.5 bg-slate-50/80 dark:bg-[#0F1A2A]/70 border-b border-slate-100 dark:border-white/10">
               <div class="flex items-center gap-2">
-                <span class="text-base">${{cat.icone}}</span>
-                <span class="text-xs font-black text-navy-900">${{cat.titulo}}</span>
+                <span class="w-2 h-2 rounded-full bg-[#C59B27]"></span>
+                <span class="text-xs font-black text-navy-900 dark:text-white">${{cat.titulo}}</span>
               </div>
               <button
                 type="button"
                 onclick="toggleGrupoPermissoes('${{cat.modulo}}')"
-                class="text-[11px] font-bold text-slate-500 hover:text-navy-900 transition underline decoration-slate-300"
+                class="text-[11px] font-bold text-slate-500 dark:text-slate-400 hover:text-navy-900 dark:hover:text-[#DDBB5C] transition underline decoration-slate-300 dark:decoration-white/20 cursor-pointer"
               >
                 ${{todasDoGrupoMarcadas ? 'Desmarcar módulo' : 'Marcar todas'}}
               </button>
@@ -2239,7 +2570,7 @@ def get_admin_html(
               ${{cat.itens.map(it => {{
                 const checked = temMaster || permissoesAtuais.includes(it.key);
                 return `
-                  <label class="flex items-start gap-2.5 p-2.5 rounded-xl border transition cursor-pointer select-none h-full ${{checked ? 'bg-amber-50/60 border-amber-300 shadow-2xs' : 'bg-white border-slate-200/70 hover:border-slate-300 hover:bg-slate-50/50 shadow-2xs'}}">
+                  <label class="flex items-start gap-2.5 p-2.5 rounded-xl border transition cursor-pointer select-none h-full ${{checked ? 'bg-amber-50/60 dark:bg-[#C59B27]/15 border-amber-300 dark:border-[#C59B27]/40 shadow-2xs' : 'bg-white dark:bg-[#0F1A2A] border-slate-200/70 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 hover:bg-slate-50/50 dark:hover:bg-white/5 shadow-2xs'}}">
                     <input
                       type="checkbox"
                       name="r-perm-item"
@@ -2250,8 +2581,8 @@ def get_admin_html(
                       class="w-4 h-4 mt-0.5 rounded text-gold-600 shrink-0 cursor-pointer focus:ring-gold-400"
                     />
                     <div class="min-w-0 flex-1">
-                      <div class="text-xs font-bold text-navy-900 leading-tight">${{it.label}}</div>
-                      <div class="text-[10px] text-slate-500 leading-normal mt-0.5">${{it.desc}}</div>
+                      <div class="text-xs font-bold text-navy-900 dark:text-white leading-tight">${{it.label}}</div>
+                      <div class="text-[10px] text-slate-500 dark:text-slate-400 leading-normal mt-0.5">${{it.desc}}</div>
                     </div>
                   </label>
                 `;
@@ -2270,7 +2601,7 @@ def get_admin_html(
       document.querySelectorAll('input[name="r-perm-item"]').forEach(cb => {{
         const card = cb.closest('label');
         if (card) {{
-          card.className = `flex items-start gap-2.5 p-2.5 rounded-xl border transition cursor-pointer select-none h-full ${{cb.checked ? 'bg-amber-50/60 border-amber-300 shadow-2xs' : 'bg-white border-slate-200/70 hover:border-slate-300 hover:bg-slate-50/50 shadow-2xs'}}`;
+          card.className = `flex items-start gap-2.5 p-2.5 rounded-xl border transition cursor-pointer select-none h-full ${{cb.checked ? 'bg-amber-50/60 dark:bg-[#C59B27]/15 border-amber-300 dark:border-[#C59B27]/40 shadow-2xs' : 'bg-white dark:bg-[#0F1A2A] border-slate-200/70 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 hover:bg-slate-50/50 dark:hover:bg-white/5 shadow-2xs'}}`;
         }}
       }});
     }}
@@ -2282,7 +2613,7 @@ def get_admin_html(
         cb.checked = !todosMarcados;
         const card = cb.closest('label');
         if (card) {{
-          card.className = `flex items-start gap-2.5 p-2 rounded-xl border transition cursor-pointer select-none ${{cb.checked ? 'bg-amber-50/50 border-amber-300' : 'bg-white border-slate-100 hover:border-slate-200 hover:bg-slate-50/50'}}`;
+          card.className = `flex items-start gap-2.5 p-2.5 rounded-xl border transition cursor-pointer select-none h-full ${{cb.checked ? 'bg-amber-50/60 dark:bg-[#C59B27]/15 border-amber-300 dark:border-[#C59B27]/40 shadow-2xs' : 'bg-white dark:bg-[#0F1A2A] border-slate-200/70 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 hover:bg-slate-50/50 dark:hover:bg-white/5 shadow-2xs'}}`;
         }}
       }});
       aoMudarPermissaoItem();
@@ -2297,7 +2628,7 @@ def get_admin_html(
       todos.forEach(cb => {{
         const card = cb.closest('label');
         if (card) {{
-          card.className = `flex items-start gap-2.5 p-2 rounded-xl border transition cursor-pointer select-none ${{cb.checked ? 'bg-amber-50/50 border-amber-300' : 'bg-white border-slate-100 hover:border-slate-200 hover:bg-slate-50/50'}}`;
+          card.className = `flex items-start gap-2.5 p-2.5 rounded-xl border transition cursor-pointer select-none h-full ${{cb.checked ? 'bg-amber-50/60 dark:bg-[#C59B27]/15 border-amber-300 dark:border-[#C59B27]/40 shadow-2xs' : 'bg-white dark:bg-[#0F1A2A] border-slate-200/70 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 hover:bg-slate-50/50 dark:hover:bg-white/5 shadow-2xs'}}`;
         }}
       }});
     }}
@@ -2316,42 +2647,45 @@ def get_admin_html(
       if (!grid) return;
 
       grid.innerHTML = stateRoles.map(r => `
-        <div class="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 flex flex-col justify-between gap-4 shadow-xs hover:border-slate-300 transition-all">
+        <div class="glass-card glass-card-hover bg-white dark:bg-[#162235]/80 rounded-2xl border border-slate-200/90 dark:border-white/10 p-5 sm:p-6 flex flex-col justify-between gap-4 shadow-xs transition-all">
           <div>
             <div class="flex items-center justify-between gap-2">
-              <h3 class="text-base font-black text-navy-900 tracking-tight">${{r.nome}}</h3>
-              ${{r.codigo === 'TI' ? '' : `
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-[#C59B27]"></span>
+                <h3 class="text-base font-black text-navy-900 dark:text-white tracking-tight">${{r.nome}}</h3>
+              </div>
+              ${{r.codigo === 'TI' ? '<span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-navy-900 text-[#DDBB5C] border border-[#C59B27]/30">MESTRE</span>' : `
                 <button
                   type="button"
                   onclick="removerCargo('${{r.codigo}}')"
-                  class="text-xs font-extrabold text-red-600 hover:text-red-700 hover:underline px-2 py-1 rounded-lg hover:bg-red-50 transition"
+                  class="text-xs font-extrabold text-red-600 dark:text-red-400 hover:text-red-700 hover:underline px-2 py-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/15 transition cursor-pointer"
                 >
                   Excluir
                 </button>
               `}}
             </div>
-            <p class="text-xs text-slate-600 mt-1 leading-relaxed">${{r.descricao || 'Sem descrição cadastrada.'}}</p>
+            <p class="text-xs text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed">${{r.descricao || 'Sem descrição cadastrada.'}}</p>
           </div>
 
-          <div class="pt-3 border-t border-slate-100 space-y-2.5">
+          <div class="pt-3 border-t border-slate-100 dark:border-white/10 space-y-2.5">
             <div>
-              <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block mb-1">Apps Liberados</span>
+              <span class="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">Apps Liberados</span>
               <div class="flex flex-wrap gap-1">
-                ${{(r.apps_padrao || []).filter(a => a !== 'gold-db-api' && a !== 'gold-auth' && a !== 'gold-apps' && a !== 'conciliacao').map(a => `<span class="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-gold-50 text-gold-800 border border-gold-200">${{a === '*' ? 'Todos (*)' : a}}</span>`).join('') || '<span class="text-xs text-slate-400 italic">Nenhum aplicativo</span>'}}
+                ${{(r.apps_padrao || []).filter(a => a !== 'gold-db-api' && a !== 'gold-auth' && a !== 'gold-apps' && a !== 'conciliacao').map(a => `<span class="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-gold-50 dark:bg-[#C59B27]/15 text-gold-900 dark:text-[#DDBB5C] border border-gold-200 dark:border-[#C59B27]/35">${{a === '*' ? 'Todos (*)' : (APP_NAMES[a] || a)}}</span>`).join('') || '<span class="text-xs text-slate-400 italic">Nenhum aplicativo</span>'}}
               </div>
             </div>
             <div>
-              <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block mb-1">Permissões do Cargo</span>
+              <span class="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">Permissões do Cargo</span>
               <div class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
                 ${{r.permissoes?.includes('*')
-                  ? '<span class="text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200">Acesso Completo (*)</span>'
-                  : (r.permissoes || []).map(p => `<span class="font-mono text-[11px] px-2 py-0.5 rounded-lg bg-slate-100 text-slate-700 border border-slate-200">${{p}}</span>`).join('') || '<span class="text-xs text-slate-400 italic">Nenhuma permissão específica</span>'}}
+                  ? '<span class="text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-emerald-50 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30">Acesso Completo (*)</span>'
+                  : (r.permissoes || []).map(p => `<span class="font-mono text-[11px] px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10">${{p}}</span>`).join('') || '<span class="text-xs text-slate-400 italic">Nenhuma permissão específica</span>'}}
               </div>
             </div>
             <button
               type="button"
               onclick='editarCargo(${{JSON.stringify(r)}})'
-              class="mt-2 w-full py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-black text-navy-900 transition active:scale-98 shadow-2xs"
+              class="btn-tactile mt-2 w-full py-2.5 rounded-xl border border-slate-200 dark:border-white/15 bg-slate-50/70 dark:bg-white/5 hover:bg-[#C59B27] hover:text-[#0F1A2A] hover:border-[#C59B27] dark:hover:bg-[#C59B27] dark:hover:text-[#0F1A2A] text-xs font-black text-navy-900 dark:text-white transition shadow-2xs cursor-pointer"
             >
               Editar Cargo & Permissões
             </button>
@@ -2391,7 +2725,7 @@ def get_admin_html(
       if (lbl) lbl.textContent = label;
       document.querySelectorAll('#menu-app-dropdown .opt-app').forEach(btn => {{
         const isCurrent = btn.getAttribute('data-val') === val;
-        btn.className = 'w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between hover:bg-slate-100 transition opt-app ' + (isCurrent ? 'bg-gold-50 text-navy-950 font-bold' : 'text-slate-700');
+        btn.className = 'w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between hover:bg-slate-100 dark:hover:bg-white/10 transition opt-app ' + (isCurrent ? 'bg-gold-50 dark:bg-[#C59B27]/20 text-navy-950 dark:text-[#DDBB5C] font-bold' : 'text-slate-700 dark:text-slate-200');
         const icon = btn.querySelector('.check-icon');
         if (icon) icon.classList.toggle('hidden', !isCurrent);
       }});
@@ -2413,7 +2747,7 @@ def get_admin_html(
       }}
       document.querySelectorAll('#menu-user-dropdown .opt-user').forEach(btn => {{
         const isCurrent = btn.getAttribute('data-val') === email;
-        btn.className = 'w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between hover:bg-slate-100 transition opt-user ' + (isCurrent ? 'bg-gold-50 text-navy-950 font-bold' : 'text-slate-700');
+        btn.className = 'w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between hover:bg-slate-100 dark:hover:bg-white/10 transition opt-user ' + (isCurrent ? 'bg-gold-50 dark:bg-[#C59B27]/20 text-navy-950 dark:text-[#DDBB5C] font-bold' : 'text-slate-700 dark:text-slate-200');
         const icon = btn.querySelector('.check-icon');
         if (icon) icon.classList.toggle('hidden', !isCurrent);
       }});
@@ -2456,7 +2790,7 @@ def get_admin_html(
 
       document.getElementById('confirm-action-title').textContent = title;
       document.getElementById('confirm-action-desc').textContent = desc;
-      document.getElementById('confirm-action-icon').textContent = icon;
+      document.getElementById('confirm-action-icon').innerHTML = icon;
       document.getElementById('confirm-action-icon-wrap').className = 'w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 text-xl font-bold shadow-xs ' + iconWrapClass;
 
       if (user) {{
@@ -2470,7 +2804,7 @@ def get_admin_html(
 
       const btnExec = document.getElementById('confirm-action-btn-exec');
       document.getElementById('confirm-action-btn-label').textContent = btnLabel;
-      btnExec.className = 'btn-tactile px-5 py-2.5 rounded-xl text-xs sm:text-sm font-black shadow-md transition flex items-center gap-2 ' + btnClass;
+      btnExec.className = 'btn-tactile px-5 py-2.5 rounded-xl text-xs sm:text-sm font-black shadow-md transition flex items-center gap-2 cursor-pointer ' + btnClass;
       btnExec.disabled = false;
 
       btnExec.onclick = async () => {{
@@ -2500,8 +2834,8 @@ def get_admin_html(
         abrirModalConfirmacao({{
           title: 'Bloquear Acesso do Usuário?',
           desc: 'O usuário não conseguirá mais fazer login ou acessar nenhuma ferramenta da Gold até ser reativado.',
-          icon: '🔒',
-          iconWrapClass: 'bg-red-100 text-red-700 border border-red-200',
+          icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>',
+          iconWrapClass: 'bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-500/30',
           btnLabel: 'Sim, Bloquear Usuário',
           btnClass: 'bg-red-600 hover:bg-red-700 text-white',
           user: u,
@@ -2514,8 +2848,8 @@ def get_admin_html(
         abrirModalConfirmacao({{
           title: 'Reativar Acesso do Usuário?',
           desc: 'O colaborador voltará a ter permissão de acesso normal às ferramentas da Gold.',
-          icon: '✅',
-          iconWrapClass: 'bg-emerald-100 text-emerald-700 border border-emerald-200',
+          icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>',
+          iconWrapClass: 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30',
           btnLabel: 'Sim, Reativar Usuário',
           btnClass: 'bg-emerald-600 hover:bg-emerald-700 text-white',
           user: u,
@@ -2533,8 +2867,8 @@ def get_admin_html(
       abrirModalConfirmacao({{
         title: 'Excluir Usuário Permanentemente?',
         desc: 'Esta ação não pode ser desfeita. Se você deseja apenas impedir o acesso mantendo o histórico, recomendamos usar a opção Bloquear.',
-        icon: '🗑️',
-        iconWrapClass: 'bg-rose-100 text-rose-700 border border-rose-200',
+        icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>',
+        iconWrapClass: 'bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-500/30',
         btnLabel: 'Excluir Definitivamente',
         btnClass: 'bg-rose-700 hover:bg-rose-800 text-white',
         user: u,
@@ -2562,8 +2896,8 @@ def get_admin_html(
       abrirModalConfirmacao({{
         title: 'Derrubar Sessões Ativas?',
         desc: 'Todas as sessões e tokens deste usuário serão revogados imediatamente, forçando um novo login.',
-        icon: '⚡',
-        iconWrapClass: 'bg-amber-100 text-amber-800 border border-amber-200',
+        icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>',
+        iconWrapClass: 'bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30',
         btnLabel: 'Derrubar Sessões',
         btnClass: 'bg-amber-600 hover:bg-amber-700 text-white',
         user: u,
@@ -2589,7 +2923,7 @@ def get_admin_html(
       if (!res.ok) return;
       stateUsers = await res.json();
 
-                  const total = stateUsers.length;
+      const total = stateUsers.length;
       const ativos = stateUsers.filter(u => u.ativo).length;
       const pendentes = stateUsers.filter(u => u.precisa_trocar_senha || !u.ativo).length;
 
@@ -2603,10 +2937,10 @@ def get_admin_html(
       if (kpiPending) kpiPending.textContent = pendentes;
       if (badgePending) {{
         if (pendentes > 0) {{
-          badgePending.className = 'px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 text-xs font-bold border border-amber-200';
+          badgePending.className = 'px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-500/15 text-amber-800 dark:text-amber-300 text-xs font-bold border border-amber-200 dark:border-amber-500/30';
           badgePending.textContent = `${{pendentes}} com pendência`;
         }} else {{
-          badgePending.className = 'px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200';
+          badgePending.className = 'px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-xs font-bold border border-emerald-200 dark:border-emerald-500/30';
           badgePending.textContent = 'Tudo em dia';
         }}
       }}
@@ -2616,23 +2950,23 @@ def get_admin_html(
       if (uMenu) {{
         const curUser = (document.getElementById('audit-user-filter') || {{}}).value || 'TODOS';
         let userHtml = `
-          <div class="px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 border-b border-slate-100">
+          <div class="px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 border-b border-slate-100 dark:border-white/10">
             Filtrar por Usuário
           </div>
-          <button type="button" onclick="selectUserFilterByEmail('TODOS')" class="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between hover:bg-slate-100 transition opt-user ${{curUser === 'TODOS' ? 'bg-gold-50 text-navy-950 font-bold' : 'text-slate-700'}}" data-val="TODOS">
+          <button type="button" onclick="selectUserFilterByEmail('TODOS')" class="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between hover:bg-slate-100 dark:hover:bg-white/10 transition opt-user ${{curUser === 'TODOS' ? 'bg-gold-50 dark:bg-[#C59B27]/20 text-navy-950 dark:text-[#DDBB5C] font-bold' : 'text-slate-700 dark:text-slate-200'}}" data-val="TODOS">
             <span>Todos os Usuários</span>
-            <span class="check-icon text-gold-600 font-bold ${{curUser === 'TODOS' ? '' : 'hidden'}}">✓</span>
+            <span class="check-icon text-gold-600 dark:text-[#DDBB5C] font-bold ${{curUser === 'TODOS' ? '' : 'hidden'}}">✓</span>
           </button>
         `;
         stateUsers.forEach(u => {{
           const isSel = curUser === u.email;
           userHtml += `
-            <button type="button" onclick="selectUserFilterByEmail('${{u.email}}')" class="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between hover:bg-slate-100 transition opt-user ${{isSel ? 'bg-gold-50 text-navy-950 font-bold' : 'text-slate-700'}}" data-val="${{u.email}}">
+            <button type="button" onclick="selectUserFilterByEmail('${{u.email}}')" class="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between hover:bg-slate-100 dark:hover:bg-white/10 transition opt-user ${{isSel ? 'bg-gold-50 dark:bg-[#C59B27]/20 text-navy-950 dark:text-[#DDBB5C] font-bold' : 'text-slate-700 dark:text-slate-200'}}" data-val="${{u.email}}">
               <div class="truncate pr-2">
-                <span class="block font-bold text-navy-950 truncate">${{u.nome}}</span>
-                <span class="block text-[11px] text-slate-500 font-mono truncate">${{u.email}}</span>
+                <span class="block font-bold text-navy-950 dark:text-white truncate">${{u.nome}}</span>
+                <span class="block text-[11px] text-slate-500 dark:text-slate-400 font-mono truncate">${{u.email}}</span>
               </div>
-              <span class="check-icon text-gold-600 font-bold shrink-0 ${{isSel ? '' : 'hidden'}}">✓</span>
+              <span class="check-icon text-gold-600 dark:text-[#DDBB5C] font-bold shrink-0 ${{isSel ? '' : 'hidden'}}">✓</span>
             </button>
           `;
         }});
@@ -2643,28 +2977,31 @@ def get_admin_html(
       const mobileCards = document.getElementById('users-cards-mobile');
 
       if (stateUsers.length === 0) {{
-        const emptyMsg = '<div class="py-12 text-center text-slate-500 font-medium">Nenhum usuário cadastrado.</div>';
-        if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="py-12 text-center text-slate-500 font-medium">Nenhum usuário cadastrado.</td></tr>';
+        const emptyMsg = '<div class="py-12 text-center text-slate-500 dark:text-slate-400 font-medium">Nenhum usuário cadastrado.</div>';
+        if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="py-12 text-center text-slate-500 dark:text-slate-400 font-medium">Nenhum usuário cadastrado.</td></tr>';
         if (mobileCards) mobileCards.innerHTML = emptyMsg;
         return;
       }}
+
+      const iconMail = `<svg class="w-3.5 h-3.5 shrink-0 text-[#A67F18] dark:text-[#DDBB5C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>`;
+      const iconCalendar = `<svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>`;
 
       // Desktop Table
       if (tbody) {{
         tbody.innerHTML = stateUsers.map(u => {{
           const isSelf = stateMe && stateMe.id === u.id;
           return `
-          <tr class="hover:bg-slate-50/80 transition-colors">
+          <tr class="hover:bg-slate-50/80 dark:hover:bg-white/[0.03] transition-colors">
             <td class="py-3.5 px-4">
-              <div class="font-bold text-navy-900 flex items-center gap-1.5">
+              <div class="font-bold text-navy-900 dark:text-white flex items-center gap-1.5">
                 <span>${{u.nome}}</span>
-                ${{isSelf ? '<span class="text-[10px] px-1.5 py-0.5 rounded-full bg-gold-100 text-gold-800 font-extrabold border border-gold-300">Você</span>' : ''}}
+                ${{isSelf ? '<span class="text-[10px] px-1.5 py-0.5 rounded-full bg-gold-100 dark:bg-[#C59B27]/20 text-gold-900 dark:text-[#DDBB5C] font-extrabold border border-gold-300 dark:border-[#C59B27]/40">Você</span>' : ''}}
               </div>
-              <div class="text-xs text-slate-600 font-mono">${{u.email}}</div>
-              ${{u.precisa_trocar_senha ? '<span class="inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200">Aguardando troca de senha</span>' : ''}}
+              <div class="text-xs text-slate-600 dark:text-slate-400 font-mono">${{u.email}}</div>
+              ${{u.precisa_trocar_senha ? '<span class="inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-500/15 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30">Aguardando troca de senha</span>' : ''}}
             </td>
             <td class="py-3.5 px-4">
-              <span class="font-mono text-xs font-bold px-2.5 py-1 rounded-lg ${{['TI', 'ADMIN'].includes(u.cargo) ? 'bg-navy-900 text-gold-400 font-black' : u.cargo === 'ADMINISTRATIVO' ? 'bg-blue-50 text-blue-900 border border-blue-200 font-bold' : 'bg-slate-100 text-slate-800 border border-slate-200'}}">
+              <span class="font-mono text-xs font-bold px-2.5 py-1 rounded-lg ${{['TI', 'ADMIN'].includes(u.cargo) ? 'bg-navy-900 dark:bg-[#C59B27]/20 text-gold-400 dark:text-[#DDBB5C] border border-transparent dark:border-[#C59B27]/40 font-black' : u.cargo === 'ADMINISTRATIVO' ? 'bg-blue-50 dark:bg-blue-500/15 text-blue-900 dark:text-blue-300 border border-blue-200 dark:border-blue-500/30 font-bold' : 'bg-slate-100 dark:bg-white/10 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-white/10'}}">
                 ${{u.cargo}}
               </span>
             </td>
@@ -2676,11 +3013,11 @@ def get_admin_html(
             <td class="py-3.5 px-4">
               <div class="flex flex-col items-start gap-1">
                 ${{u.ativo
-                  ? `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Ativo (${{u.sessoes_ativas || 0}} sessões)</span>`
-                  : `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-50 text-red-700 border border-red-200">Bloqueado</span>`
+                  ? `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Ativo (${{u.sessoes_ativas || 0}} sessões)</span>`
+                  : `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-50 dark:bg-red-500/15 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-500/30">Bloqueado</span>`
                 }}
                 ${{(u.sessoes_ativas > 0) ? `
-                  <button type="button" onclick="revogarSessoesPorId(${{u.id}})" class="text-[11px] font-bold text-amber-800 hover:underline">
+                  <button type="button" onclick="revogarSessoesPorId(${{u.id}})" class="text-[11px] font-bold text-amber-800 dark:text-amber-400 hover:underline cursor-pointer">
                     Derrubar sessões
                   </button>
                 ` : ''}}
@@ -2689,20 +3026,20 @@ def get_admin_html(
                   const isAgendada = u.ferias_inicio && u.ferias_inicio > hoje;
                   if (isAgendada) {{
                     return `
-                      <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-100 text-blue-900 border border-blue-300" title="Férias agendadas a partir de ${{fmtDataSoDia(u.ferias_inicio)}}">
-                        📅 Agendadas: ${{fmtDataSoDia(u.ferias_inicio)}}${{u.ferias_retorno ? ` a ${{fmtDataSoDia(u.ferias_retorno)}}` : ''}}
+                      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-100 dark:bg-blue-500/20 text-blue-900 dark:text-blue-300 border border-blue-300 dark:border-blue-500/30" title="Férias agendadas a partir de ${{fmtDataSoDia(u.ferias_inicio)}}">
+                        ${{iconCalendar}} Agendadas: ${{fmtDataSoDia(u.ferias_inicio)}}${{u.ferias_retorno ? ` a ${{fmtDataSoDia(u.ferias_retorno)}}` : ''}}
                       </span>
                     `;
                   }}
                   return `
-                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-900 border border-amber-300">
-                      🏖️ Em Férias ${{u.ferias_retorno ? `(Volta: ${{fmtDataSoDia(u.ferias_retorno)}})` : (u.ferias_inicio ? `(Desde: ${{fmtDataSoDia(u.ferias_inicio)}})` : '')}}
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 dark:bg-amber-500/20 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-500/30">
+                      ${{iconCalendar}} Em Férias ${{u.ferias_retorno ? `(Volta: ${{fmtDataSoDia(u.ferias_retorno)}})` : (u.ferias_inicio ? `(Desde: ${{fmtDataSoDia(u.ferias_inicio)}})` : '')}}
                     </span>
                   `;
                 }})() : ''}}
               </div>
             </td>
-            <td class="py-3.5 px-4 text-xs text-slate-600 tabular-nums">
+            <td class="py-3.5 px-4 text-xs text-slate-600 dark:text-slate-400 tabular-nums">
               ${{fmtData(u.ultimo_login)}}
             </td>
             <td class="py-3.5 px-4 text-right space-x-1 whitespace-nowrap">
@@ -2710,14 +3047,15 @@ def get_admin_html(
                 type="button"
                 onclick="gerarEEnviarSenhaTemporaria(${{u.id}})"
                 title="Gera uma nova senha temporária e envia diretamente por e-mail para o usuário (Zero-Knowledge)"
-                class="btn-tactile px-2.5 py-1.5 rounded-lg bg-gold-50 hover:bg-gold-100 border border-gold-300 text-xs font-extrabold text-navy-900"
+                class="btn-tactile inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gold-50 dark:bg-[#C59B27]/15 hover:bg-gold-100 dark:hover:bg-[#C59B27]/25 border border-gold-300 dark:border-[#C59B27]/40 text-xs font-extrabold text-navy-900 dark:text-[#DDBB5C] cursor-pointer"
               >
-                ✉️ Enviar Senha
+                ${{iconMail}}
+                <span>Enviar Senha</span>
               </button>
               <button
                 type="button"
                 onclick="editarUsuarioPorId(${{u.id}})"
-                class="btn-tactile px-2.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-xs font-bold text-navy-900"
+                class="btn-tactile px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-white/15 bg-white dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-xs font-bold text-navy-900 dark:text-white cursor-pointer"
               >
                 Editar
               </button>
@@ -2725,17 +3063,18 @@ def get_admin_html(
                 <button
                   type="button"
                   onclick="handleFeriasRapido(${{u.id}})"
-                  class="btn-tactile px-2.5 py-1.5 rounded-lg text-xs font-bold ${{u.em_ferias ? 'bg-amber-100 text-amber-900 hover:bg-amber-200 border border-amber-300' : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-300'}}"
+                  class="btn-tactile inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold cursor-pointer ${{u.em_ferias ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-900 dark:text-amber-300 hover:bg-amber-200 border border-amber-300 dark:border-amber-500/30' : 'bg-slate-50 dark:bg-white/5 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10 border border-slate-300 dark:border-white/15'}}"
                   title="${{u.em_ferias ? 'Gerenciar ou encerrar férias deste consultor' : 'Configurar período de férias'}}"
                 >
-                  ${{u.em_ferias ? '🏖️ Férias (Ativas)' : '🏖️ Férias'}}
+                  ${{iconCalendar}}
+                  <span>${{u.em_ferias ? 'Férias (Ativas)' : 'Férias'}}</span>
                 </button>
               ` : ''}}
               ${{!isSelf ? `
                 <button
                   type="button"
                   onclick="solicitarBloqueioUsuario(${{u.id}}, ${{!u.ativo}})"
-                  class="btn-tactile px-2.5 py-1.5 rounded-lg text-xs font-bold ${{u.ativo ? 'bg-red-50 text-red-700 hover:bg-red-100 border border-red-200' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200'}}"
+                  class="btn-tactile px-2.5 py-1.5 rounded-lg text-xs font-bold cursor-pointer ${{u.ativo ? 'bg-red-50 dark:bg-red-500/15 text-red-700 dark:text-red-300 hover:bg-red-100 border border-red-200 dark:border-red-500/30' : 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 border border-emerald-200 dark:border-emerald-500/30'}}"
                 >
                   ${{u.ativo ? 'Bloquear' : 'Reativar'}}
                 </button>
@@ -2743,7 +3082,7 @@ def get_admin_html(
                   type="button"
                   onclick="solicitarExclusaoUsuario(${{u.id}})"
                   title="Excluir usuário"
-                  class="btn-tactile px-2 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:text-red-700 hover:bg-red-50"
+                  class="btn-tactile px-2 py-1.5 rounded-lg text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 cursor-pointer"
                 >
                   Excluir
                 </button>
@@ -2758,43 +3097,43 @@ def get_admin_html(
         mobileCards.innerHTML = stateUsers.map(u => {{
           const isSelf = stateMe && stateMe.id === u.id;
           return `
-          <div class="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-2xs space-y-3">
+          <div class="bg-white dark:bg-[#162235]/80 rounded-2xl border border-slate-200/90 dark:border-white/10 p-4 shadow-2xs space-y-3">
             <div class="flex items-start justify-between gap-2">
               <div class="flex items-center gap-2.5 min-w-0">
-                <div class="w-9 h-9 rounded-xl bg-navy-900 text-gold-400 flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+                <div class="w-9 h-9 rounded-xl bg-navy-900 text-gold-400 flex items-center justify-center font-bold text-xs shrink-0 shadow-xs border border-white/10">
                   ${{getInitials(u.nome)}}
                 </div>
                 <div class="min-w-0">
-                  <div class="font-extrabold text-navy-950 text-sm truncate flex items-center gap-1.5">
+                  <div class="font-extrabold text-navy-950 dark:text-white text-sm truncate flex items-center gap-1.5">
                     <span>${{u.nome}}</span>
-                    ${{isSelf ? '<span class="text-[9px] px-1.5 py-0.2 rounded-full bg-gold-100 text-gold-800 font-extrabold border border-gold-300">Você</span>' : ''}}
+                    ${{isSelf ? '<span class="text-[9px] px-1.5 py-0.2 rounded-full bg-gold-100 dark:bg-[#C59B27]/20 text-gold-800 dark:text-[#DDBB5C] font-extrabold border border-gold-300 dark:border-[#C59B27]/40">Você</span>' : ''}}
                   </div>
-                  <div class="text-[11px] text-slate-500 font-mono truncate">${{u.email}}</div>
+                  <div class="text-[11px] text-slate-500 dark:text-slate-400 font-mono truncate">${{u.email}}</div>
                 </div>
               </div>
-              <span class="font-mono text-[11px] font-bold px-2 py-0.5 rounded-lg ${{['TI', 'ADMIN'].includes(u.cargo) ? 'bg-navy-900 text-gold-400 font-black' : u.cargo === 'ADMINISTRATIVO' ? 'bg-blue-50 text-blue-900 border border-blue-200 font-bold' : 'bg-slate-100 text-slate-800 border border-slate-200'}} shrink-0">
+              <span class="font-mono text-[11px] font-bold px-2 py-0.5 rounded-lg ${{['TI', 'ADMIN'].includes(u.cargo) ? 'bg-navy-900 dark:bg-[#C59B27]/20 text-gold-400 dark:text-[#DDBB5C] font-black' : u.cargo === 'ADMINISTRATIVO' ? 'bg-blue-50 dark:bg-blue-500/15 text-blue-900 dark:text-blue-300 border border-blue-200 dark:border-blue-500/30 font-bold' : 'bg-slate-100 dark:bg-white/10 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-white/10'}} shrink-0">
                 ${{u.cargo}}
               </span>
             </div>
 
             <div class="flex flex-wrap items-center gap-1.5 pt-1">
               ${{u.ativo
-                ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Ativo (${{u.sessoes_ativas || 0}} sessões)</span>`
-                : `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-red-50 text-red-700 border border-red-200">Bloqueado</span>`
+                ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Ativo (${{u.sessoes_ativas || 0}} sessões)</span>`
+                : `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-red-50 dark:bg-red-500/15 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-500/30">Bloqueado</span>`
               }}
               ${{u.em_ferias ? (() => {{
                 const hoje = new Date().toISOString().split('T')[0];
                 const isAgendada = u.ferias_inicio && u.ferias_inicio > hoje;
                 if (isAgendada) {{
                   return `
-                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-100 text-blue-900 border border-blue-300">
-                      📅 Agendadas: ${{fmtDataSoDia(u.ferias_inicio)}}
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-100 dark:bg-blue-500/20 text-blue-900 dark:text-blue-300 border border-blue-300 dark:border-blue-500/30">
+                      ${{iconCalendar}} Agendadas: ${{fmtDataSoDia(u.ferias_inicio)}}
                     </span>
                   `;
                 }}
                 return `
-                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-900 border border-amber-300">
-                    🏖️ Em Férias
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 dark:bg-amber-500/20 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-500/30">
+                    ${{iconCalendar}} Em Férias
                   </span>
                 `;
               }})() : ''}}
@@ -2804,18 +3143,19 @@ def get_admin_html(
               ${{formatAppBadges(u.apps_permitidos)}}
             </div>
 
-            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100">
+            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 dark:border-white/10">
               <button
                 type="button"
                 onclick="gerarEEnviarSenhaTemporaria(${{u.id}})"
-                class="btn-tactile py-2 rounded-xl bg-gold-50 hover:bg-gold-100 border border-gold-300 text-xs font-extrabold text-navy-900 text-center"
+                class="btn-tactile py-2 rounded-xl bg-gold-50 dark:bg-[#C59B27]/15 hover:bg-gold-100 border border-gold-300 dark:border-[#C59B27]/40 text-xs font-extrabold text-navy-900 dark:text-[#DDBB5C] flex items-center justify-center gap-1.5"
               >
-                ✉️ Enviar Senha
+                ${{iconMail}}
+                <span>Enviar Senha</span>
               </button>
               <button
                 type="button"
                 onclick="editarUsuarioPorId(${{u.id}})"
-                class="btn-tactile py-2 rounded-xl border border-slate-200 hover:bg-slate-100 text-xs font-bold text-navy-900 text-center"
+                class="btn-tactile py-2 rounded-xl border border-slate-200 dark:border-white/15 hover:bg-slate-100 dark:hover:bg-white/10 text-xs font-bold text-navy-900 dark:text-white text-center"
               >
                 Editar
               </button>
@@ -2823,23 +3163,24 @@ def get_admin_html(
                 <button
                   type="button"
                   onclick="handleFeriasRapido(${{u.id}})"
-                  class="btn-tactile py-2 rounded-xl text-xs font-bold ${{u.em_ferias ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-slate-50 text-slate-700 border border-slate-300'}} text-center"
+                  class="btn-tactile py-2 rounded-xl text-xs font-bold ${{u.em_ferias ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-500/30' : 'bg-slate-50 dark:bg-white/5 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-white/15'}} flex items-center justify-center gap-1.5"
                 >
-                  ${{u.em_ferias ? '🏖️ Gerenciar Férias' : '🏖️ Configurar Férias'}}
+                  ${{iconCalendar}}
+                  <span>${{u.em_ferias ? 'Gerenciar Férias' : 'Configurar Férias'}}</span>
                 </button>
               ` : ''}}
               ${{!isSelf ? `
                 <button
                   type="button"
                   onclick="solicitarBloqueioUsuario(${{u.id}}, ${{!u.ativo}})"
-                  class="btn-tactile py-2 rounded-xl text-xs font-bold ${{u.ativo ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}} text-center"
+                  class="btn-tactile py-2 rounded-xl text-xs font-bold ${{u.ativo ? 'bg-red-50 dark:bg-red-500/15 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-500/30' : 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30'}} text-center"
                 >
                   ${{u.ativo ? 'Bloquear Acesso' : 'Reativar'}}
                 </button>
                 <button
                   type="button"
                   onclick="solicitarExclusaoUsuario(${{u.id}})"
-                  class="btn-tactile py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-red-700 hover:bg-red-50 border border-slate-200 text-center col-span-2"
+                  class="btn-tactile py-2 rounded-xl text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-500/10 border border-slate-200 dark:border-white/15 text-center col-span-2"
                 >
                   Excluir Usuário
                 </button>
@@ -2855,32 +3196,32 @@ def get_admin_html(
       let html = '';
 
       if (d.resumo) {{
-        html = `<span class="font-semibold text-navy-900">${{d.resumo}}</span>`;
+        html = `<span class="font-semibold text-navy-900 dark:text-slate-200">${{d.resumo}}</span>`;
       }} else if (d.lead_nome || d.novo_status) {{
         html = `
           <div class="flex flex-wrap items-center gap-1.5">
-            <span class="font-bold text-navy-900">Lead #${{d.lead_id || ''}} (${{d.lead_nome || ''}})</span>
+            <span class="font-bold text-navy-900 dark:text-white">Lead #${{d.lead_id || ''}} (${{d.lead_nome || ''}})</span>
             <span class="text-slate-400">→</span>
-            <span class="px-2 py-0.5 rounded-md bg-amber-100 text-amber-900 font-extrabold text-[11px] border border-amber-200">${{d.novo_status || ''}}</span>
-            ${{d.observacoes ? `<span class="text-slate-500 italic text-xs">"${{d.observacoes}}"</span>` : ''}}
+            <span class="px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-500/20 text-amber-900 dark:text-amber-300 font-extrabold text-[11px] border border-amber-200 dark:border-amber-500/30">${{d.novo_status || ''}}</span>
+            ${{d.observacoes ? `<span class="text-slate-500 dark:text-slate-400 italic text-xs">"${{d.observacoes}}"</span>` : ''}}
           </div>
         `;
       }} else if (item.acao === 'ACESSO_PAINEL_VENDEDOR' || (d.host && !d.user_agent)) {{
         html = `
           <div class="flex items-center gap-1.5 text-xs">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
-            <span class="text-slate-600">Acesso via</span>
-            <span class="font-mono font-semibold text-navy-900 bg-slate-100 px-1.5 py-0.5 rounded text-[11px]">${{d.host || 'vendas.goldcorretora.com.br'}}</span>
+            <span class="text-slate-600 dark:text-slate-400">Acesso via</span>
+            <span class="font-mono font-semibold text-navy-900 dark:text-slate-200 bg-slate-100 dark:bg-white/10 px-1.5 py-0.5 rounded text-[11px]">${{d.host || 'vendas.goldcorretora.com.br'}}</span>
           </div>
         `;
       }} else if (item.acao === 'LOGIN_SUCESSO' || d.user_agent) {{
         let dev = 'Navegador Web';
         const ua = d.user_agent || '';
-        if (ua.includes('Windows')) dev = '🖥️ Windows';
-        else if (ua.includes('Macintosh') || ua.includes('Mac OS')) dev = '🍏 macOS';
-        else if (ua.includes('iPhone')) dev = '📱 iPhone';
-        else if (ua.includes('Android')) dev = '📱 Android';
-        else if (ua.includes('Linux')) dev = '🐧 Linux';
+        if (ua.includes('Windows')) dev = 'Windows';
+        else if (ua.includes('Macintosh') || ua.includes('Mac OS')) dev = 'macOS';
+        else if (ua.includes('iPhone')) dev = 'iPhone';
+        else if (ua.includes('Android')) dev = 'Android';
+        else if (ua.includes('Linux')) dev = 'Linux';
 
         if (ua.includes('Chrome')) dev += ' • Chrome';
         else if (ua.includes('Firefox')) dev += ' • Firefox';
@@ -2890,28 +3231,28 @@ def get_admin_html(
         html = `
           <div class="space-y-1">
             <div class="flex items-center gap-2">
-              <span class="font-semibold text-navy-900">${{dev}}</span>
-              ${{d.permanecer_conectado ? '<span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">Sessão Salva</span>' : ''}}
+              <span class="font-semibold text-navy-900 dark:text-slate-200">${{dev}}</span>
+              ${{d.permanecer_conectado ? '<span class="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-500/15 px-1.5 py-0.2 rounded border border-emerald-200 dark:border-emerald-500/30">Sessão Salva</span>' : ''}}
             </div>
-            ${{d.senha_temporaria ? '<div class="text-[11px] text-amber-800 font-bold">⚠️ Usuário autenticou com Senha Temporária</div>' : ''}}
+            ${{d.senha_temporaria ? '<div class="text-[11px] text-amber-800 dark:text-amber-300 font-bold">Usuário autenticou com Senha Temporária</div>' : ''}}
           </div>
         `;
       }} else if (d.alvo_email) {{
-        html = `Usuário alvo: <span class="font-mono font-bold text-navy-900">${{d.alvo_email}}</span>`;
+        html = `<span class="text-slate-600 dark:text-slate-400">Usuário alvo:</span> <span class="font-mono font-bold text-navy-900 dark:text-white">${{d.alvo_email}}</span>`;
       }} else if (d.motivo) {{
-        html = `<span class="text-red-600 font-bold">${{d.motivo}}</span>`;
+        html = `<span class="text-red-600 dark:text-red-400 font-bold">${{d.motivo}}</span>`;
       }} else {{
         const keys = Object.keys(d);
         if (keys.length === 0) {{
-          html = `<span class="text-slate-500 font-mono text-xs">${{item.rota || '/'}}</span>`;
+          html = `<span class="text-slate-500 dark:text-slate-400 font-mono text-xs">${{item.rota || '/'}}</span>`;
         }} else {{
           html = `
             <details class="group cursor-pointer">
-              <summary class="text-[11px] font-bold text-slate-500 group-hover:text-gold-600 flex items-center gap-1 select-none">
+              <summary class="text-[11px] font-bold text-slate-500 dark:text-slate-400 group-hover:text-gold-600 dark:group-hover:text-[#DDBB5C] flex items-center gap-1 select-none">
                 <span>Ver parâmetros (${{keys.length}})</span>
                 <span class="text-[10px] font-mono text-slate-400">▾</span>
               </summary>
-              <pre class="mt-1 p-2 rounded-lg bg-slate-100 text-[11px] font-mono text-slate-700 overflow-x-auto whitespace-pre-wrap max-w-md border border-slate-200">${{JSON.stringify(d, null, 2)}}</pre>
+              <pre class="mt-1 p-2 rounded-lg bg-slate-100 dark:bg-[#0F1A2A] text-[11px] font-mono text-slate-700 dark:text-slate-300 overflow-x-auto whitespace-pre-wrap max-w-md border border-slate-200 dark:border-white/10">${{JSON.stringify(d, null, 2)}}</pre>
             </details>
           `;
         }}
@@ -2919,25 +3260,25 @@ def get_admin_html(
 
       if (item.acao === 'SOLICITACAO_REDEFINICAO_SENHA' && (d.alvo_email || item.usuario_email)) {{
         const emailAlvo = d.alvo_email || item.usuario_email;
-        html += ` <button type="button" onclick="resolverRecuperacaoPorEmail('${{emailAlvo}}')" class="btn-tactile mt-1 sm:mt-0 sm:ml-2 inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-navy-900 text-gold-400 font-extrabold text-[11px] hover:bg-navy-800 shadow-2xs">Gerar & Enviar Senha Temp.</button>`;
+        html += ` <button type="button" onclick="resolverRecuperacaoPorEmail('${{emailAlvo}}')" class="btn-tactile mt-1 sm:mt-0 sm:ml-2 inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#C59B27] text-[#0F1A2A] font-extrabold text-[11px] hover:bg-[#DDBB5C] shadow-2xs cursor-pointer">Gerar & Enviar Senha Temp.</button>`;
       }}
       return html;
     }}
 
     function badgeAcao(acao) {{
       if (acao.includes('FALHA') || acao.includes('NEGADO') || acao.includes('BLOQUEADO') || acao.includes('EXCLUIDO')) {{
-        return `<span class="px-2 py-0.5 rounded-md bg-red-50 text-red-700 border border-red-200 font-mono text-[11px] font-bold">${{acao}}</span>`;
+        return `<span class="px-2 py-0.5 rounded-md bg-red-50 dark:bg-red-500/15 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-500/30 font-mono text-[11px] font-bold">${{acao}}</span>`;
       }}
       if (acao.includes('REDEFINICAO_SENHA') || acao.includes('SENHA_TEMPORARIA')) {{
-        return `<span class="px-2 py-0.5 rounded-md bg-purple-50 text-purple-800 border border-purple-200 font-mono text-[11px] font-bold">${{acao}}</span>`;
+        return `<span class="px-2 py-0.5 rounded-md bg-purple-50 dark:bg-purple-500/15 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30 font-mono text-[11px] font-bold">${{acao}}</span>`;
       }}
       if (acao.includes('LEAD') || acao.includes('WHATSAPP') || acao.includes('CONVERTIDO')) {{
-        return `<span class="px-2 py-0.5 rounded-md bg-amber-50 text-amber-900 border border-amber-200 font-mono text-[11px] font-bold">${{acao}}</span>`;
+        return `<span class="px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-500/15 text-amber-900 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30 font-mono text-[11px] font-bold">${{acao}}</span>`;
       }}
       if (acao.includes('LOGIN_SUCESSO') || acao.includes('SENHA_ALTERADA')) {{
-        return `<span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono text-[11px] font-bold">${{acao}}</span>`;
+        return `<span class="px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 font-mono text-[11px] font-bold">${{acao}}</span>`;
       }}
-      return `<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200 font-mono text-[11px] font-bold">${{acao}}</span>`;
+      return `<span class="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10 font-mono text-[11px] font-bold">${{acao}}</span>`;
     }}
 
     async function carregarAuditoria() {{
@@ -2964,11 +3305,11 @@ def get_admin_html(
       if (stateAudit.length === 0) {{
         const emptyMsg = `
           <div class="py-12 text-center">
-            <p class="text-sm font-bold text-navy-900">Nenhuma atividade encontrada para este filtro</p>
-            <p class="text-xs text-slate-600 mt-1">Assim que os vendedores acessarem ou interagirem com os leads, os eventos aparecerão aqui.</p>
+            <p class="text-sm font-bold text-navy-900 dark:text-white">Nenhuma atividade encontrada para este filtro</p>
+            <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">Assim que os vendedores acessarem ou interagirem com os leads, os eventos aparecerão aqui.</p>
           </div>
         `;
-        if (tbody) tbody.innerHTML = `<tr><td colspan="6" class="py-12 text-center"><p class="text-sm font-bold text-navy-900">Nenhuma atividade encontrada para este filtro</p><p class="text-xs text-slate-600 mt-1">Assim que os vendedores acessarem ou interagirem com os leads, os eventos aparecerão aqui.</p></td></tr>`;
+        if (tbody) tbody.innerHTML = `<tr><td colspan="6" class="py-12 text-center"><p class="text-sm font-bold text-navy-900 dark:text-white">Nenhuma atividade encontrada para este filtro</p><p class="text-xs text-slate-600 dark:text-slate-400 mt-1">Assim que os vendedores acessarem ou interagirem com os leads, os eventos aparecerão aqui.</p></td></tr>`;
         if (mobileCards) mobileCards.innerHTML = emptyMsg;
         return;
       }}
@@ -2976,16 +3317,16 @@ def get_admin_html(
       // Desktop Table (>= md)
       if (tbody) {{
         tbody.innerHTML = stateAudit.map(item => `
-          <tr class="hover:bg-slate-50/80 transition-colors">
-            <td class="py-3 px-4 text-xs text-slate-600 tabular-nums whitespace-nowrap">
+          <tr class="hover:bg-slate-50/80 dark:hover:bg-white/[0.03] transition-colors">
+            <td class="py-3 px-4 text-xs text-slate-600 dark:text-slate-400 tabular-nums whitespace-nowrap">
               ${{fmtData(item.created_at)}}
             </td>
             <td class="py-3 px-4">
-              <div class="font-bold text-navy-900">${{item.usuario_nome || 'Visitante'}}</div>
-              <div class="text-[11px] text-slate-600 font-mono">${{item.usuario_email || '—'}} ${{item.usuario_cargo ? `• ${{item.usuario_cargo}}` : ''}}</div>
+              <div class="font-bold text-navy-900 dark:text-white">${{item.usuario_nome || 'Visitante'}}</div>
+              <div class="text-[11px] text-slate-600 dark:text-slate-400 font-mono">${{item.usuario_email || '—'}} ${{item.usuario_cargo ? `• ${{item.usuario_cargo}}` : ''}}</div>
             </td>
             <td class="py-3 px-4">
-              <span class="text-xs font-bold text-navy-900 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">
+              <span class="text-xs font-bold text-navy-900 dark:text-slate-200 bg-slate-100 dark:bg-white/10 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-white/10">
                 ${{item.app || 'gold-auth'}}
               </span>
             </td>
@@ -2995,7 +3336,7 @@ def get_admin_html(
             <td class="py-3 px-4 text-xs">
               ${{formatarDetalhesAuditoria(item)}}
             </td>
-            <td class="py-3 px-4 text-xs font-mono text-slate-500 tabular-nums text-right">
+            <td class="py-3 px-4 text-xs font-mono text-slate-500 dark:text-slate-400 tabular-nums text-right">
               ${{item.ip || '—'}}
             </td>
           </tr>
@@ -3005,27 +3346,27 @@ def get_admin_html(
       // Mobile Cards (< md)
       if (mobileCards) {{
         mobileCards.innerHTML = stateAudit.map(item => `
-          <div class="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-2xs space-y-2.5">
+          <div class="bg-white dark:bg-[#162235]/80 rounded-2xl border border-slate-200/90 dark:border-white/10 p-4 shadow-2xs space-y-2.5">
             <div class="flex items-start justify-between gap-2">
               <div class="flex items-center gap-2.5 min-w-0">
-                <div class="w-8 h-8 rounded-xl bg-navy-900 text-gold-400 flex items-center justify-center font-bold text-xs shrink-0 shadow-xs">
+                <div class="w-8 h-8 rounded-xl bg-navy-900 text-gold-400 flex items-center justify-center font-bold text-xs shrink-0 shadow-xs border border-white/10">
                   ${{getInitials(item.usuario_nome)}}
                 </div>
                 <div class="min-w-0">
-                  <div class="font-extrabold text-navy-950 text-xs truncate">${{item.usuario_nome || 'Visitante'}}</div>
-                  <div class="text-[10px] text-slate-500 font-mono truncate">${{item.usuario_email || '—'}}</div>
+                  <div class="font-extrabold text-navy-950 dark:text-white text-xs truncate">${{item.usuario_nome || 'Visitante'}}</div>
+                  <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono truncate">${{item.usuario_email || '—'}}</div>
                 </div>
               </div>
               <span class="text-[10px] font-semibold text-slate-400 tabular-nums shrink-0">${{fmtData(item.created_at)}}</span>
             </div>
 
-            <div class="flex flex-wrap items-center gap-1.5 pt-2 border-t border-slate-100">
+            <div class="flex flex-wrap items-center gap-1.5 pt-2 border-t border-slate-100 dark:border-white/10">
               ${{badgeAcao(item.acao)}}
-              <span class="text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">${{item.app || 'gold-auth'}}</span>
+              <span class="text-[10px] font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-white/10 px-2 py-0.5 rounded-md border border-slate-200 dark:border-white/10">${{item.app || 'gold-auth'}}</span>
               ${{item.ip ? `<span class="text-[10px] font-mono text-slate-400 ml-auto">${{item.ip}}</span>` : ''}}
             </div>
 
-            <div class="text-xs text-slate-700 bg-slate-50/80 rounded-xl p-2.5 border border-slate-100">
+            <div class="text-xs text-slate-700 dark:text-slate-200 bg-slate-50/80 dark:bg-[#0F1A2A]/70 rounded-xl p-2.5 border border-slate-100 dark:border-white/10">
               ${{formatarDetalhesAuditoria(item)}}
             </div>
           </div>
@@ -3040,7 +3381,9 @@ def get_admin_html(
 
     function abrirModalUsuario() {{
       document.getElementById('u-id').value = '';
-      document.getElementById('user-modal-title').textContent = 'Novo Vendedor / Usuário';
+      document.getElementById('user-modal-title').textContent = 'Novo Colaborador';
+      const sub = document.getElementById('user-modal-subtitle');
+      if (sub) sub.textContent = 'Configure dados de acesso, cargo, sistemas liberados e credenciais Zero-Knowledge.';
       document.getElementById('u-nome').value = '';
       document.getElementById('u-email').value = '';
       document.getElementById('u-senha').value = '';
@@ -3051,6 +3394,10 @@ def get_admin_html(
       document.getElementById('u-send-email').checked = true;
       document.getElementById('u-send-email-wrap').classList.remove('hidden');
       document.getElementById('u-perms').value = '';
+      document.getElementById('u-ferias').checked = false;
+      document.getElementById('u-ferias-inicio').value = '';
+      document.getElementById('u-ferias-retorno').value = '';
+      alternarCamposFeriasNoModal();
       document.getElementById('user-form-error').classList.add('hidden');
       document.querySelectorAll('input[name="u-app"]').forEach(cb => {{
         cb.checked = ['painel-vendedor', 'cotador-web'].includes(cb.value);
@@ -3060,12 +3407,15 @@ def get_admin_html(
 
     function editarUsuario(u) {{
       document.getElementById('u-id').value = u.id;
-      document.getElementById('user-modal-title').textContent = 'Editar ' + u.nome;
+      document.getElementById('user-modal-title').textContent = 'Editar Colaborador: ' + u.nome;
+      const sub = document.getElementById('user-modal-subtitle');
+      if (sub) sub.textContent = 'Altere o cargo, aplicativos liberados, permissões específicas ou escala de férias.';
       document.getElementById('u-nome').value = u.nome;
       document.getElementById('u-email').value = u.email;
       document.getElementById('u-cargo').value = u.cargo;
       document.getElementById('u-senha').value = '';
       document.getElementById('u-senha').required = false;
+      document.getElementById('u-senha').placeholder = 'Deixe em branco para manter a senha atual';
       document.getElementById('u-senha-hint').textContent = '(em branco mantém a atual)';
       document.getElementById('u-force-change').checked = Boolean(u.precisa_trocar_senha);
       document.getElementById('u-send-email-wrap').classList.add('hidden');
@@ -3166,7 +3516,7 @@ def get_admin_html(
       const codInput = document.getElementById('r-codigo');
       codInput.value = '';
       codInput.readOnly = false;
-      codInput.className = 'w-full h-10 rounded-xl border border-slate-300 px-3 text-xs font-mono font-bold uppercase text-navy-900 focus:outline-none focus:border-gold-500 bg-white';
+      codInput.className = 'w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs font-mono font-bold uppercase text-navy-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 bg-white dark:bg-[#162235] transition shadow-2xs';
       document.getElementById('r-nome').value = '';
       document.getElementById('r-desc').value = '';
 
@@ -3184,7 +3534,7 @@ def get_admin_html(
       const codInput = document.getElementById('r-codigo');
       codInput.value = r.codigo;
       codInput.readOnly = true;
-      codInput.className = 'w-full h-10 rounded-xl border border-slate-200 px-3 text-xs font-mono font-bold uppercase text-slate-500 bg-slate-100 cursor-not-allowed';
+      codInput.className = 'w-full h-11 rounded-xl border border-slate-200 dark:border-white/10 px-3.5 text-xs font-mono font-bold uppercase text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-[#0F1A2A] cursor-not-allowed';
       document.getElementById('r-nome').value = r.nome;
       document.getElementById('r-desc').value = r.descricao || '';
 
