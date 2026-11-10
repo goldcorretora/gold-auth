@@ -1582,12 +1582,74 @@ def get_admin_html(
             </tbody>
           </table>
         </div>
+        <!-- Paginação Desktop -->
+        <div id="audit-pagination-desktop" class="hidden px-5 py-3.5 bg-slate-50/90 dark:bg-[#0F1A2A]/80 border-t border-slate-200 dark:border-white/10 flex items-center justify-between text-xs text-slate-600 dark:text-slate-400">
+          <div class="flex items-center gap-2">
+            <span id="audit-page-info-desktop" class="font-medium text-slate-600 dark:text-slate-300 tabular-nums">Exibindo 0-0 de 0</span>
+            <div class="flex items-center gap-1.5 ml-2 border-l border-slate-200 dark:border-white/10 pl-3">
+              <span class="text-slate-400">Por página:</span>
+              <select id="audit-page-size" onchange="mudarAuditPageSize(this.value)" class="bg-white dark:bg-[#162235] border border-slate-200 dark:border-white/15 rounded-lg px-2 py-1 text-xs font-bold text-navy-900 dark:text-white focus:outline-none focus:border-gold-500 cursor-pointer">
+                <option value="15">15</option>
+                <option value="25" selected>25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <button
+              type="button"
+              id="audit-btn-prev"
+              onclick="irParaPaginaAuditoria(auditCurrentPage - 1)"
+              class="btn-tactile px-3 py-1.5 rounded-xl border border-slate-200 dark:border-white/15 bg-white dark:bg-[#162235] hover:bg-slate-100 dark:hover:bg-white/10 font-bold text-slate-700 dark:text-slate-200 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
+            >
+              ← Anterior
+            </button>
+            <div id="audit-page-numbers" class="flex items-center gap-1 font-mono font-bold text-xs">
+              <!-- Botões numéricos de páginas -->
+            </div>
+            <button
+              type="button"
+              id="audit-btn-next"
+              onclick="irParaPaginaAuditoria(auditCurrentPage + 1)"
+              class="btn-tactile px-3 py-1.5 rounded-xl border border-slate-200 dark:border-white/15 bg-white dark:bg-[#162235] hover:bg-slate-100 dark:hover:bg-white/10 font-bold text-slate-700 dark:text-slate-200 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
+            >
+              Próxima →
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- MOBILE & TABLET: Cards Adaptativos (< md) -->
       <div id="audit-cards-mobile" class="md:hidden space-y-3">
         <div class="py-10 text-center text-slate-500 dark:text-slate-400 font-medium bg-white dark:bg-[#162235]/80 rounded-2xl border border-slate-200 dark:border-white/10 p-6">
           Carregando registros de atividade...
+        </div>
+      </div>
+
+      <!-- Paginação Mobile -->
+      <div id="audit-pagination-mobile" class="hidden md:hidden bg-white dark:bg-[#162235]/80 rounded-2xl border border-slate-200 dark:border-white/10 p-3.5 shadow-2xs flex flex-col gap-2.5">
+        <div class="flex items-center justify-between text-xs font-medium text-slate-600 dark:text-slate-400">
+          <span id="audit-page-info-mobile">Página 1 de 1</span>
+          <span id="audit-total-mobile" class="font-bold text-navy-950 dark:text-white tabular-nums">0 registros</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            id="audit-btn-prev-mobile"
+            onclick="irParaPaginaAuditoria(auditCurrentPage - 1)"
+            class="btn-tactile py-2 rounded-xl border border-slate-200 dark:border-white/15 bg-slate-50 dark:bg-[#0F1A2A] text-xs font-bold text-slate-700 dark:text-slate-200 text-center disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            ← Anterior
+          </button>
+          <button
+            type="button"
+            id="audit-btn-next-mobile"
+            onclick="irParaPaginaAuditoria(auditCurrentPage + 1)"
+            class="btn-tactile py-2 rounded-xl border border-slate-200 dark:border-white/15 bg-slate-50 dark:bg-[#0F1A2A] text-xs font-bold text-slate-700 dark:text-slate-200 text-center disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Próxima →
+          </button>
         </div>
       </div>
     </section>''' if is_ti else ''}
@@ -2730,6 +2792,7 @@ def get_admin_html(
         if (icon) icon.classList.toggle('hidden', !isCurrent);
       }});
       fecharTodosDropdowns();
+      auditCurrentPage = 1;
       carregarAuditoria();
     }}
 
@@ -2752,6 +2815,7 @@ def get_admin_html(
         if (icon) icon.classList.toggle('hidden', !isCurrent);
       }});
       fecharTodosDropdowns();
+      auditCurrentPage = 1;
       carregarAuditoria();
     }}
 
@@ -3281,28 +3345,38 @@ def get_admin_html(
       return `<span class="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10 font-mono text-[11px] font-bold">${{acao}}</span>`;
     }}
 
-    async function carregarAuditoria() {{
-      if (!IS_TI) return;
-      const q = (document.getElementById('audit-search') || {{}}).value || '';
-      const app = (document.getElementById('audit-app-filter') || {{}}).value || 'TODOS';
-      const email = (document.getElementById('audit-user-filter') || {{}}).value || 'TODOS';
+    let auditCurrentPage = 1;
+    let auditPageSize = 25;
 
-      const params = new URLSearchParams();
-      if (q.trim()) params.set('q', q.trim());
-      if (app && app !== 'TODOS') params.set('app', app);
-      if (email && email !== 'TODOS') params.set('email', email);
+    function mudarAuditPageSize(novoTamanho) {{
+      auditPageSize = parseInt(novoTamanho, 10) || 25;
+      auditCurrentPage = 1;
+      renderizarAuditoriaPaginada();
+    }}
 
-      const res = await fetch('/api/admin/audit?' + params.toString());
-      if (!res.ok) return;
-      stateAudit = await res.json();
+    function irParaPaginaAuditoria(pagina) {{
+      const totalPaginas = Math.ceil(stateAudit.length / auditPageSize) || 1;
+      if (pagina < 1 || pagina > totalPaginas) return;
+      auditCurrentPage = pagina;
+      renderizarAuditoriaPaginada();
+    }}
 
-      const kpiCount = document.getElementById('kpi-audit-count');
-      if (kpiCount) kpiCount.textContent = stateAudit.length;
+    function renderizarAuditoriaPaginada() {{
+      const total = stateAudit.length;
+      const totalPaginas = Math.ceil(total / auditPageSize) || 1;
+      if (auditCurrentPage > totalPaginas) auditCurrentPage = totalPaginas;
+      if (auditCurrentPage < 1) auditCurrentPage = 1;
+
+      const inicio = (auditCurrentPage - 1) * auditPageSize;
+      const fim = Math.min(inicio + auditPageSize, total);
+      const itensPagina = stateAudit.slice(inicio, fim);
 
       const tbody = document.getElementById('audit-tbody');
       const mobileCards = document.getElementById('audit-cards-mobile');
+      const pagDesktop = document.getElementById('audit-pagination-desktop');
+      const pagMobile = document.getElementById('audit-pagination-mobile');
 
-      if (stateAudit.length === 0) {{
+      if (total === 0) {{
         const emptyMsg = `
           <div class="py-12 text-center">
             <p class="text-sm font-bold text-navy-900 dark:text-white">Nenhuma atividade encontrada para este filtro</p>
@@ -3311,12 +3385,14 @@ def get_admin_html(
         `;
         if (tbody) tbody.innerHTML = `<tr><td colspan="6" class="py-12 text-center"><p class="text-sm font-bold text-navy-900 dark:text-white">Nenhuma atividade encontrada para este filtro</p><p class="text-xs text-slate-600 dark:text-slate-400 mt-1">Assim que os vendedores acessarem ou interagirem com os leads, os eventos aparecerão aqui.</p></td></tr>`;
         if (mobileCards) mobileCards.innerHTML = emptyMsg;
+        if (pagDesktop) pagDesktop.classList.add('hidden');
+        if (pagMobile) pagMobile.classList.add('hidden');
         return;
       }}
 
       // Desktop Table (>= md)
       if (tbody) {{
-        tbody.innerHTML = stateAudit.map(item => `
+        tbody.innerHTML = itensPagina.map(item => `
           <tr class="hover:bg-slate-50/80 dark:hover:bg-white/[0.03] transition-colors">
             <td class="py-3 px-4 text-xs text-slate-600 dark:text-slate-400 tabular-nums whitespace-nowrap">
               ${{fmtData(item.created_at)}}
@@ -3345,7 +3421,7 @@ def get_admin_html(
 
       // Mobile Cards (< md)
       if (mobileCards) {{
-        mobileCards.innerHTML = stateAudit.map(item => `
+        mobileCards.innerHTML = itensPagina.map(item => `
           <div class="bg-white dark:bg-[#162235]/80 rounded-2xl border border-slate-200/90 dark:border-white/10 p-4 shadow-2xs space-y-2.5">
             <div class="flex items-start justify-between gap-2">
               <div class="flex items-center gap-2.5 min-w-0">
@@ -3372,11 +3448,97 @@ def get_admin_html(
           </div>
         `).join('');
       }}
+
+      // Atualiza Paginação Desktop
+      if (pagDesktop) {{
+        pagDesktop.classList.remove('hidden');
+        const infoEl = document.getElementById('audit-page-info-desktop');
+        if (infoEl) infoEl.textContent = `Exibindo ${{inicio + 1}}-${{fim}} de ${{total}} registros`;
+
+        const btnPrev = document.getElementById('audit-btn-prev');
+        const btnNext = document.getElementById('audit-btn-next');
+        if (btnPrev) btnPrev.disabled = auditCurrentPage <= 1;
+        if (btnNext) btnNext.disabled = auditCurrentPage >= totalPaginas;
+
+        const numbersContainer = document.getElementById('audit-page-numbers');
+        if (numbersContainer) {{
+          let btnsHtml = '';
+          const maxVisiblePages = 5;
+          let startPage = Math.max(1, auditCurrentPage - 2);
+          let endPage = Math.min(totalPaginas, startPage + maxVisiblePages - 1);
+          if (endPage - startPage < maxVisiblePages - 1) {{
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+          }}
+
+          if (startPage > 1) {{
+            btnsHtml += `<button type="button" onclick="irParaPaginaAuditoria(1)" class="w-8 h-8 rounded-lg font-bold flex items-center justify-center hover:bg-slate-200 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 transition cursor-pointer">1</button>`;
+            if (startPage > 2) btnsHtml += `<span class="px-1 text-slate-400">…</span>`;
+          }}
+
+          for (let p = startPage; p <= endPage; p++) {{
+            const isCurr = p === auditCurrentPage;
+            btnsHtml += `
+              <button
+                type="button"
+                onclick="irParaPaginaAuditoria(${{p}})"
+                class="w-8 h-8 rounded-lg font-extrabold flex items-center justify-center transition cursor-pointer ${{isCurr ? 'bg-[#C59B27] text-[#0F1A2A] shadow-xs' : 'hover:bg-slate-200 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200'}}"
+              >
+                ${{p}}
+              </button>
+            `;
+          }}
+
+          if (endPage < totalPaginas) {{
+            if (endPage < totalPaginas - 1) btnsHtml += `<span class="px-1 text-slate-400">…</span>`;
+            btnsHtml += `<button type="button" onclick="irParaPaginaAuditoria(${{totalPaginas}})" class="w-8 h-8 rounded-lg font-bold flex items-center justify-center hover:bg-slate-200 dark:hover:bg-white/10 text-slate-700 dark:text-slate-200 transition cursor-pointer">${{totalPaginas}}</button>`;
+          }}
+          numbersContainer.innerHTML = btnsHtml;
+        }}
+      }}
+
+      // Atualiza Paginação Mobile
+      if (pagMobile) {{
+        pagMobile.classList.remove('hidden');
+        const infoMob = document.getElementById('audit-page-info-mobile');
+        if (infoMob) infoMob.textContent = `Página ${{auditCurrentPage}} de ${{totalPaginas}} (${{inicio + 1}}-${{fim}})`;
+        const totMob = document.getElementById('audit-total-mobile');
+        if (totMob) totMob.textContent = `${{total}} registros`;
+
+        const btnPrevM = document.getElementById('audit-btn-prev-mobile');
+        const btnNextM = document.getElementById('audit-btn-next-mobile');
+        if (btnPrevM) btnPrevM.disabled = auditCurrentPage <= 1;
+        if (btnNextM) btnNextM.disabled = auditCurrentPage >= totalPaginas;
+      }}
+    }}
+
+    async function carregarAuditoria() {{
+      if (!IS_TI) return;
+      const q = (document.getElementById('audit-search') || {{}}).value || '';
+      const app = (document.getElementById('audit-app-filter') || {{}}).value || 'TODOS';
+      const email = (document.getElementById('audit-user-filter') || {{}}).value || 'TODOS';
+
+      const params = new URLSearchParams();
+      if (q.trim()) params.set('q', q.trim());
+      if (app && app !== 'TODOS') params.set('app', app);
+      if (email && email !== 'TODOS') params.set('email', email);
+      params.set('limite', '300'); // Limite ampliado para permitir paginação suave de centenas de registros recentes
+
+      const res = await fetch('/api/admin/audit?' + params.toString());
+      if (!res.ok) return;
+      stateAudit = await res.json();
+
+      const kpiCount = document.getElementById('kpi-audit-count');
+      if (kpiCount) kpiCount.textContent = stateAudit.length;
+
+      renderizarAuditoriaPaginada();
     }}
 
     function debounceAudit() {{
       clearTimeout(auditDebounceTimer);
-      auditDebounceTimer = setTimeout(carregarAuditoria, 250);
+      auditDebounceTimer = setTimeout(() => {{
+        auditCurrentPage = 1;
+        carregarAuditoria();
+      }}, 250);
     }}
 
     function abrirModalUsuario() {{
