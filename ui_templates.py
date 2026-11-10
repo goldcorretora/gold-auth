@@ -1255,16 +1255,16 @@ def get_admin_html(
 
       <!-- Lado Direito: Atalho Gold Hub + Alternador de Tema + Menu do Usuário -->
       <div class="flex items-center gap-2 sm:gap-2.5">
-        <!-- Botão Atalho Rápido: Gold Hub -->
+        <!-- Botão Atalho Rápido: Hub de Aplicativos -->
         <a
           href="{default_redirect}"
-          class="btn-tactile hidden sm:inline-flex items-center gap-2 h-9 px-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#C59B27]/40 text-xs font-bold text-slate-200 hover:text-[#DDBB5C] transition-colors"
+          class="btn-tactile inline-flex items-center gap-2 h-9 px-2.5 sm:px-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#C59B27]/40 text-xs font-bold text-slate-200 hover:text-[#DDBB5C] transition-colors"
           title="Voltar para a Central de Aplicativos (Hub de Aplicativos)"
         >
           <svg class="w-4 h-4 text-[#DDBB5C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
           </svg>
-          <span>Hub de Aplicativos</span>
+          <span class="hidden sm:inline">Hub de Aplicativos</span>
         </a>
 
         <!-- Botão de Alternar Tema (Claro / Escuro) Direto na Dynamic Island -->
@@ -1337,20 +1337,9 @@ def get_admin_html(
             <div class="my-1.5 border-t border-white/10"></div>
 
             <a
-              href="{default_redirect}"
-              role="menuitem"
-              class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-200 hover:text-[#DDBB5C] hover:bg-white/5 transition-colors duration-150 cursor-pointer"
-            >
-              <svg class="w-4 h-4 text-[#DDBB5C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-              </svg>
-              <span>Ir para o Hub de Aplicativos</span>
-            </a>
-
-            <a
               href="/api/auth/logout"
               role="menuitem"
-              class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-300 hover:text-rose-200 hover:bg-rose-500/15 border border-transparent hover:border-rose-500/30 transition-colors duration-150 cursor-pointer mt-0.5"
+              class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-300 hover:text-rose-200 hover:bg-rose-500/15 border border-transparent hover:border-rose-500/30 transition-colors duration-150 cursor-pointer"
             >
               <svg class="w-4 h-4 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
