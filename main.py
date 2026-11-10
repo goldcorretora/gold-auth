@@ -20,6 +20,7 @@ from database import (
     buscar_usuario_por_id,
     definir_senha_temporaria_usuario,
     trocar_propria_senha,
+    atualizar_proprio_perfil,
     obter_configuracoes_email,
     salvar_configuracoes_email,
     enviar_email_recuperacao_senha,
@@ -43,7 +44,7 @@ from database import (
     listar_auditoria,
     expurgar_auditoria_antiga
 )
-from ui_templates import get_login_html, get_admin_html
+from ui_templates import get_login_html, get_admin_html, get_profile_html
 
 load_dotenv()
 
@@ -74,7 +75,12 @@ def _resolve_safe_redirect(rd: Optional[str]) -> Optional[str]:
     if not rd:
         return None
     cleaned = rd.strip()
-    if cleaned.startswith("/admin") or "auth.goldcorretora.com.br/admin" in cleaned:
+    if (
+        cleaned.startswith("/admin")
+        or cleaned.startswith("/perfil")
+        or "auth.goldcorretora.com.br/admin" in cleaned
+        or "auth.goldcorretora.com.br/perfil" in cleaned
+    ):
         return cleaned
     if "auth.goldcorretora.com.br" not in cleaned:
         return cleaned
@@ -217,7 +223,7 @@ def user_can_access_app(user: Dict[str, Any], app_slug: str) -> bool:
     if cargo in ("ADMIN", "TI", "ADMINISTRATIVO"):
         return True
     apps = user.get("apps_permitidos") or []
-    if "*" in apps or app_slug in apps or app_slug in ("gold-auth", "gold-apps", "conciliacao", "gold-db-api"):
+    if "*" in apps or app_slug in apps or app_slug in ("gold-auth", "gold-apps", "gold-db-api"):
         return True
     return False
 
@@ -365,6 +371,37 @@ async def admin_page(request: Request):
         )
     )
 
+@app.get("/perfil", response_class=HTMLResponse, include_in_schema=False)
+async def profile_page(
+    request: Request,
+    rd: Optional[str] = Query(None)
+):
+    user = get_current_user(request)
+    clean_rd = _resolve_safe_redirect(rd)
+    if not user:
+        target = f"/login?rd={quote(f'/perfil?rd={quote(clean_rd)}' if clean_rd else '/perfil')}"
+        return RedirectResponse(url=target, status_code=302)
+    if user.get("precisa_trocar_senha"):
+        target = f"/login?force_pw_change=1&rd={quote(clean_rd or '/perfil')}"
+        return RedirectResponse(url=target, status_code=302)
+
+    perms = user.get("permissoes") or []
+    cargo = (user.get("cargo") or "").upper()
+    is_admin_or_ti = cargo in ("TI", "ADMIN", "ADMINISTRATIVO") or "*" in perms or "admin.manage" in perms
+
+    return HTMLResponse(
+        content=get_profile_html(
+            default_redirect=clean_rd or DEFAULT_REDIRECT_URL,
+            hub_url=DEFAULT_REDIRECT_URL,
+            is_admin_or_ti=is_admin_or_ti
+        ),
+        headers={
+            "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+            "Pragma": "no-cache",
+            "Expires": "0"
+        }
+    )
+
 # ==========================================================
 # TRAEFIK FORWARDAUTH ENDPOINT (/api/auth/verify)
 # ==========================================================
@@ -502,8 +539,27 @@ class ChangePasswordIn(BaseModel):
     confirmar_senha: Optional[str] = None
     senha_atual: Optional[str] = None
     nome: Optional[str] = None
+    apelido: Optional[str] = None
     telefone: Optional[str] = None
     data_nascimento: Optional[str] = None
+
+class ProfileUpdateIn(BaseModel):
+    nome: Optional[str] = None
+    apelido: Optional[str] = None
+    telefone: Optional[str] = None
+    data_nascimento: Optional[str] = None
+    genero: Optional[str] = None
+    cidade: Optional[str] = None
+    uf: Optional[str] = None
+    bairro: Optional[str] = None
+    modelo_trabalho: Optional[str] = None
+    escolaridade: Optional[str] = None
+    curso: Optional[str] = None
+    estuda_atualmente: Optional[bool] = None
+    certificacoes: Optional[str] = None
+    senha_atual: Optional[str] = None
+    nova_senha: Optional[str] = None
+    confirmar_senha: Optional[str] = None
 
 class AuditEventIn(BaseModel):
     app: str = Field(default="painel-vendedor")
@@ -597,6 +653,7 @@ async def api_change_password(payload: ChangePasswordIn, request: Request):
         nova,
         payload.senha_atual,
         nome=payload.nome,
+        apelido=payload.apelido,
         telefone=payload.telefone,
         data_nascimento=payload.data_nascimento
     )
@@ -619,6 +676,7 @@ async def api_change_password(payload: ChangePasswordIn, request: Request):
         rota="/api/auth/change-password",
         detalhes={
             "resumo": resumo_audit,
+            "apelido_preenchido": bool(payload.apelido),
             "telefone_preenchido": bool(payload.telefone),
             "data_nascimento_preenchida": bool(payload.data_nascimento)
         },
@@ -766,6 +824,40 @@ async def api_me(request: Request):
         "auth_url": PUBLIC_AUTH_URL
     }
 
+@app.put("/api/auth/me/profile")
+@app.patch("/api/auth/me/profile")
+async def api_update_my_profile(payload: ProfileUpdateIn, request: Request):
+    user = get_current_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Sessão expirada. Faça login novamente.")
+
+    nova = (payload.nova_senha or "").strip()
+    if nova and payload.confirmar_senha is not None and nova != payload.confirmar_senha.strip():
+        raise HTTPException(status_code=400, detail="A confirmação de senha não confere.")
+
+    dados = payload.model_dump(exclude_unset=True)
+    atualizado, erro = atualizar_proprio_perfil(user["id"], dados)
+    if erro or not atualizado:
+        raise HTTPException(status_code=400, detail=erro or "Não foi possível salvar seu perfil.")
+
+    registrar_auditoria(
+        acao="PERFIL_ATUALIZADO_PELO_USUARIO",
+        usuario=atualizado,
+        app="gold-auth",
+        metodo=request.method,
+        rota="/api/auth/me/profile",
+        detalhes={
+            "resumo": f"{atualizado['nome']} atualizou seus dados de perfil.",
+            "trocou_senha": bool(nova)
+        },
+        ip=get_client_ip(request)
+    )
+    return {
+        "ok": True,
+        "user": atualizado,
+        "message": "Perfil atualizado com sucesso!"
+    }
+
 @app.post("/api/auth/audit")
 async def api_record_audit(payload: AuditEventIn, request: Request):
     """Permite que o Painel do Vendedor ou a Gold DB API registrem eventos de negócio detalhados."""
@@ -800,6 +892,12 @@ class UsuarioCreateIn(BaseModel):
     permissoes_extras: List[str] = []
     precisa_trocar_senha: bool = False
     enviar_por_email: bool = False
+    # Etapa 3: Dados Funcionais / RH (100% Opcionais)
+    data_admissao: Optional[str] = None
+    setor: Optional[str] = None
+    gestor_direto: Optional[str] = None
+    tipo_vinculo: Optional[str] = None
+    unidade: Optional[str] = None
 
 class UsuarioUpdateIn(BaseModel):
     nome: Optional[str] = None
@@ -813,6 +911,15 @@ class UsuarioUpdateIn(BaseModel):
     em_ferias: Optional[bool] = None
     ferias_inicio: Optional[str] = None
     ferias_retorno: Optional[str] = None
+    # Etapa 3: Dados Funcionais / RH (100% Opcionais)
+    apelido: Optional[str] = None
+    telefone: Optional[str] = None
+    data_nascimento: Optional[str] = None
+    data_admissao: Optional[str] = None
+    setor: Optional[str] = None
+    gestor_direto: Optional[str] = None
+    tipo_vinculo: Optional[str] = None
+    unidade: Optional[str] = None
 
 class SendTempPasswordIn(BaseModel):
     senha_personalizada: Optional[str] = None

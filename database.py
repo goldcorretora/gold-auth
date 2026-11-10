@@ -207,6 +207,51 @@ def init_db():
             ALTER TABLE schema_auth.usuarios
             ADD COLUMN IF NOT EXISTS cpf VARCHAR(20);
 
+            ALTER TABLE schema_auth.usuarios
+            ADD COLUMN IF NOT EXISTS apelido VARCHAR(120);
+
+            ALTER TABLE schema_auth.usuarios
+            ADD COLUMN IF NOT EXISTS genero VARCHAR(50);
+
+            ALTER TABLE schema_auth.usuarios
+            ADD COLUMN IF NOT EXISTS cidade VARCHAR(120);
+
+            ALTER TABLE schema_auth.usuarios
+            ADD COLUMN IF NOT EXISTS uf VARCHAR(10);
+
+            ALTER TABLE schema_auth.usuarios
+            ADD COLUMN IF NOT EXISTS bairro VARCHAR(120);
+
+            ALTER TABLE schema_auth.usuarios
+            ADD COLUMN IF NOT EXISTS modelo_trabalho VARCHAR(50);
+
+            ALTER TABLE schema_auth.usuarios
+            ADD COLUMN IF NOT EXISTS escolaridade VARCHAR(100);
+
+            ALTER TABLE schema_auth.usuarios
+            ADD COLUMN IF NOT EXISTS curso VARCHAR(150);
+
+            ALTER TABLE schema_auth.usuarios
+            ADD COLUMN IF NOT EXISTS estuda_atualmente BOOLEAN;
+
+            ALTER TABLE schema_auth.usuarios
+            ADD COLUMN IF NOT EXISTS certificacoes TEXT;
+
+            ALTER TABLE schema_auth.usuarios
+            ADD COLUMN IF NOT EXISTS data_admissao DATE;
+
+            ALTER TABLE schema_auth.usuarios
+            ADD COLUMN IF NOT EXISTS setor VARCHAR(100);
+
+            ALTER TABLE schema_auth.usuarios
+            ADD COLUMN IF NOT EXISTS gestor_direto VARCHAR(150);
+
+            ALTER TABLE schema_auth.usuarios
+            ADD COLUMN IF NOT EXISTS tipo_vinculo VARCHAR(60);
+
+            ALTER TABLE schema_auth.usuarios
+            ADD COLUMN IF NOT EXISTS unidade VARCHAR(120);
+
             CREATE TABLE IF NOT EXISTS schema_auth.sessoes (
                 id SERIAL PRIMARY KEY,
                 usuario_id INTEGER REFERENCES schema_auth.usuarios(id) ON DELETE CASCADE,
@@ -338,11 +383,20 @@ def init_db():
             cur.execute("ALTER TABLE auth_usuarios ADD COLUMN ferias_retorno TEXT;")
         except Exception:
             pass
-        for col_name in ["telefone", "data_nascimento", "cpf"]:
+        for col_name in [
+            "telefone", "data_nascimento", "cpf",
+            "apelido", "genero", "cidade", "uf", "bairro", "modelo_trabalho",
+            "escolaridade", "curso", "certificacoes",
+            "data_admissao", "setor", "gestor_direto", "tipo_vinculo", "unidade"
+        ]:
             try:
                 cur.execute(f"ALTER TABLE auth_usuarios ADD COLUMN {col_name} TEXT;")
             except Exception:
                 pass
+        try:
+            cur.execute("ALTER TABLE auth_usuarios ADD COLUMN estuda_atualmente INTEGER;")
+        except Exception:
+            pass
 
     conn.commit()
 
@@ -442,6 +496,36 @@ def _parse_json_field(val: Any, default: Any):
             return default
     return default
 
+def _calcular_idade(data_nasc_str: str) -> Optional[int]:
+    if not data_nasc_str:
+        return None
+    try:
+        parts = str(data_nasc_str).split("T")[0].split("-")
+        if len(parts) != 3:
+            return None
+        ano, mes, dia = int(parts[0]), int(parts[1]), int(parts[2])
+        hoje = datetime.now(timezone.utc).date()
+        idade = hoje.year - ano - ((hoje.month, hoje.day) < (mes, dia))
+        return idade if 0 <= idade <= 120 else None
+    except Exception:
+        return None
+
+def _calcular_tempo_casa_meses(data_adm_str: str) -> Optional[int]:
+    if not data_adm_str:
+        return None
+    try:
+        parts = str(data_adm_str).split("T")[0].split("-")
+        if len(parts) != 3:
+            return None
+        ano, mes, dia = int(parts[0]), int(parts[1]), int(parts[2])
+        hoje = datetime.now(timezone.utc).date()
+        meses = (hoje.year - ano) * 12 + (hoje.month - mes)
+        if hoje.day < dia:
+            meses -= 1
+        return max(0, meses)
+    except Exception:
+        return None
+
 def _normalize_user(row: Any, is_pg: bool) -> Dict[str, Any]:
     d = dict(row)
     d.pop("senha_hash", None)
@@ -456,6 +540,32 @@ def _normalize_user(row: Any, is_pg: bool) -> Dict[str, Any]:
     d["telefone"] = str(d["telefone"]) if d.get("telefone") else ""
     d["data_nascimento"] = str(d["data_nascimento"]) if d.get("data_nascimento") else ""
     d["cpf"] = str(d["cpf"]) if d.get("cpf") else ""
+
+    # Etapa 2 & Etapa 4 (Perfil do Usuário)
+    d["apelido"] = str(d["apelido"]).strip() if d.get("apelido") else ""
+    d["genero"] = str(d["genero"]).strip() if d.get("genero") else ""
+    d["cidade"] = str(d["cidade"]).strip() if d.get("cidade") else ""
+    d["uf"] = str(d["uf"]).strip().upper() if d.get("uf") else ""
+    d["bairro"] = str(d["bairro"]).strip() if d.get("bairro") else ""
+    d["modelo_trabalho"] = str(d["modelo_trabalho"]).strip() if d.get("modelo_trabalho") else ""
+    d["escolaridade"] = str(d["escolaridade"]).strip() if d.get("escolaridade") else ""
+    d["curso"] = str(d["curso"]).strip() if d.get("curso") else ""
+    raw_estuda = d.get("estuda_atualmente")
+    d["estuda_atualmente"] = None if raw_estuda is None else bool(raw_estuda)
+    d["certificacoes"] = str(d["certificacoes"]).strip() if d.get("certificacoes") else ""
+
+    # Etapa 3 (Dados Funcionais / RH — 100% Opcionais)
+    d["data_admissao"] = str(d["data_admissao"]) if d.get("data_admissao") else ""
+    d["setor"] = str(d["setor"]).strip() if d.get("setor") else ""
+    d["gestor_direto"] = str(d["gestor_direto"]).strip() if d.get("gestor_direto") else ""
+    d["tipo_vinculo"] = str(d["tipo_vinculo"]).strip() if d.get("tipo_vinculo") else ""
+    d["unidade"] = str(d["unidade"]).strip() if d.get("unidade") else ""
+
+    # Etapa 5 (Métricas Calculadas Automaticamente)
+    d["idade"] = _calcular_idade(d["data_nascimento"])
+    d["tempo_casa_meses"] = _calcular_tempo_casa_meses(d["data_admissao"])
+    primeiro_nome = d["nome"].strip().split()[0] if d.get("nome") and d["nome"].strip() else "Colaborador"
+    d["nome_exibicao"] = d["apelido"] or primeiro_nome
     return d
 
 def _normalize_role(row: Any) -> Dict[str, Any]:
@@ -953,6 +1063,7 @@ def trocar_propria_senha(
     nova_senha: str,
     senha_atual: Optional[str] = None,
     nome: Optional[str] = None,
+    apelido: Optional[str] = None,
     telefone: Optional[str] = None,
     data_nascimento: Optional[str] = None
 ) -> Tuple[bool, str]:
@@ -996,6 +1107,9 @@ def trocar_propria_senha(
     if nome and nome.strip():
         updates.append(f"nome = {ph}")
         params.append(nome.strip())
+    if apelido is not None and apelido.strip():
+        updates.append(f"apelido = {ph}")
+        params.append(apelido.strip())
     if telefone is not None and telefone.strip():
         updates.append(f"telefone = {ph}")
         params.append(telefone.strip())
@@ -1009,6 +1123,86 @@ def trocar_propria_senha(
     conn.commit()
     conn.close()
     return True, "Senha atualizada com sucesso!"
+
+def atualizar_proprio_perfil(usuario_id: int, dados: Dict[str, Any]) -> Tuple[Optional[Dict[str, Any]], Optional[str]]:
+    """
+    Permite ao próprio colaborador atualizar seus dados pessoais e opcionais de pesquisa (Etapas 2 e 4),
+    além de trocar sua senha opcionalmente se desejar.
+    """
+    ensure_db_initialized()
+    conn, is_pg = get_connection()
+    cur = conn.cursor()
+    tb_users = "schema_auth.usuarios" if is_pg else "auth_usuarios"
+    ph = "%s" if is_pg else "?"
+
+    cur.execute(f"SELECT * FROM {tb_users} WHERE id = {ph};", (usuario_id,))
+    row = cur.fetchone()
+    if not row:
+        conn.close()
+        return None, "Usuário não encontrado."
+
+    atual_dict = dict(row)
+    sets = []
+    params = []
+
+    if "nome" in dados and dados["nome"] is not None:
+        nome_limpo = str(dados["nome"]).strip()
+        if not nome_limpo:
+            conn.close()
+            return None, "O nome completo não pode ficar em branco."
+        sets.append(f"nome = {ph}")
+        params.append(nome_limpo)
+
+    for str_col in [
+        "apelido", "telefone", "genero", "cidade", "uf", "bairro",
+        "modelo_trabalho", "escolaridade", "curso", "certificacoes"
+    ]:
+        if str_col in dados:
+            val = (str(dados[str_col]).strip() if dados[str_col] is not None else "") or None
+            if str_col == "uf" and val:
+                val = val.upper()[:10]
+            sets.append(f"{str_col} = {ph}")
+            params.append(val)
+
+    if "data_nascimento" in dados:
+        val_nasc = (str(dados["data_nascimento"]).strip() if dados["data_nascimento"] else "") or None
+        sets.append(f"data_nascimento = {ph}")
+        params.append(val_nasc)
+
+    if "estuda_atualmente" in dados:
+        raw_est = dados["estuda_atualmente"]
+        if raw_est is None or raw_est == "":
+            val_est = None
+        else:
+            bool_est = bool(raw_est) if not isinstance(raw_est, str) else raw_est.lower() in ("true", "1", "sim")
+            val_est = bool_est if is_pg else (1 if bool_est else 0)
+        sets.append(f"estuda_atualmente = {ph}")
+        params.append(val_est)
+
+    # Troca opcional de senha dentro da página Editar Perfil
+    nova_senha = (dados.get("nova_senha") or "").strip()
+    if nova_senha:
+        if len(nova_senha) < 4:
+            conn.close()
+            return None, "A nova senha deve ter pelo menos 4 caracteres."
+        senha_atual = (dados.get("senha_atual") or "").strip()
+        if not senha_atual:
+            conn.close()
+            return None, "Informe sua senha atual para definir uma nova senha."
+        if not verify_password(senha_atual, atual_dict.get("senha_hash", "")):
+            conn.close()
+            return None, "A senha atual informada está incorreta."
+        sets.append(f"senha_hash = {ph}")
+        params.append(hash_password(nova_senha))
+
+    if sets:
+        sets.append("updated_at = CURRENT_TIMESTAMP")
+        params.append(usuario_id)
+        cur.execute(f"UPDATE {tb_users} SET {', '.join(sets)} WHERE id = {ph};", tuple(params))
+        conn.commit()
+
+    conn.close()
+    return buscar_usuario_por_id(usuario_id), None
 
 def criar_sessao(usuario_id: int, ip: str = "", user_agent: str = "", dias_validade: int = 7) -> str:
     ensure_db_initialized()
@@ -1194,7 +1388,19 @@ def criar_usuario(dados: Dict[str, Any]) -> Dict[str, Any]:
 
     conn.commit()
     conn.close()
-    return _normalize_user(row, is_pg)
+    novo = _normalize_user(row, is_pg)
+
+    # Se o Admin já informou campos opcionais da Etapa 3 no momento da criação, salva também
+    campos_etapa3 = {
+        k: dados.get(k)
+        for k in ("data_admissao", "setor", "gestor_direto", "tipo_vinculo", "unidade")
+        if dados.get(k)
+    }
+    if campos_etapa3 and novo.get("id"):
+        atualizado = atualizar_usuario(novo["id"], campos_etapa3)
+        if atualizado:
+            return atualizado
+    return novo
 
 def atualizar_usuario(usuario_id: int, dados: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     ensure_db_initialized()
@@ -1272,6 +1478,16 @@ def atualizar_usuario(usuario_id: int, dados: Dict[str, Any]) -> Optional[Dict[s
     if "ferias_retorno" in dados:
         sets.append(f"ferias_retorno = {ph}")
         params.append(dados["ferias_retorno"] or None)
+
+    # Etapa 3 (Dados Funcionais / RH — 100% Opcionais) + dados de perfil
+    for opt_col in [
+        "apelido", "telefone", "data_nascimento",
+        "data_admissao", "setor", "gestor_direto", "tipo_vinculo", "unidade"
+    ]:
+        if opt_col in dados:
+            val_opt = (str(dados[opt_col]).strip() if dados[opt_col] else "") or None
+            sets.append(f"{opt_col} = {ph}")
+            params.append(val_opt)
 
     if not sets:
         conn.close()
