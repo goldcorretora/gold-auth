@@ -506,38 +506,54 @@ def get_login_html(
       </div>
 
       <form id="force-pw-form" class="space-y-3.5">
-        <div>
-          <label for="onboarding-nome" class="block text-xs font-extrabold text-slate-700 mb-1">
-            Seu Nome Completo
-          </label>
-          <input
-            id="onboarding-nome"
-            type="text"
-            required
-            placeholder="Ex: Gabriel Rodrigues de Souza"
-            class="input-corporate w-full h-11 rounded-xl bg-slate-50 border border-slate-300 px-3.5 text-sm font-semibold text-navy-900 focus:outline-none focus:border-gold-500"
-          />
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label for="onboarding-nome" class="block text-xs font-extrabold text-slate-700 mb-1">
+              Seu Nome Completo *
+            </label>
+            <input
+              id="onboarding-nome"
+              type="text"
+              required
+              placeholder="Ex: Gabriel Rodrigues de Souza"
+              class="input-corporate w-full h-11 rounded-xl bg-slate-50 border border-slate-300 px-3.5 text-sm font-semibold text-navy-900 focus:outline-none focus:border-gold-500"
+            />
+          </div>
+          <div>
+            <label for="onboarding-apelido" class="block text-xs font-extrabold text-slate-700 mb-1">
+              Como prefere ser chamado? *
+            </label>
+            <input
+              id="onboarding-apelido"
+              type="text"
+              required
+              placeholder="Ex: Gabriel"
+              class="input-corporate w-full h-11 rounded-xl bg-slate-50 border border-slate-300 px-3.5 text-sm font-semibold text-navy-900 focus:outline-none focus:border-gold-500"
+            />
+          </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label for="onboarding-tel" class="block text-xs font-extrabold text-slate-700 mb-1">
-              WhatsApp / Celular
+              WhatsApp / Celular *
             </label>
             <input
               id="onboarding-tel"
               type="tel"
+              required
               placeholder="(11) 98765-4321"
               class="input-corporate w-full h-11 rounded-xl bg-slate-50 border border-slate-300 px-3.5 text-sm font-semibold text-navy-900 focus:outline-none focus:border-gold-500"
             />
           </div>
           <div>
             <label for="onboarding-nasc" class="block text-xs font-extrabold text-slate-700 mb-1">
-              Data de Nascimento
+              Data de Nascimento *
             </label>
             <input
               id="onboarding-nasc"
               type="date"
+              required
               class="input-corporate w-full h-11 rounded-xl bg-slate-50 border border-slate-300 px-3.5 text-sm font-semibold text-navy-900 focus:outline-none focus:border-gold-500"
             />
           </div>
@@ -864,14 +880,19 @@ def get_login_html(
       const modal = document.getElementById('force-pw-modal');
       const emailSpan = document.getElementById('force-pw-email');
       const nomeInput = document.getElementById('onboarding-nome');
+      const apelidoInput = document.getElementById('onboarding-apelido');
       if (emailUsuario && emailSpan) emailSpan.textContent = emailUsuario;
       if (nomeInput && nomeUsuario && !nomeUsuario.includes('Novo Colaborador')) {{
         nomeInput.value = nomeUsuario;
+        if (apelidoInput && !apelidoInput.value) {{
+          apelidoInput.value = nomeUsuario.trim().split(/\\s+/)[0] || '';
+        }}
       }}
       modal.classList.remove('hidden');
       modal.classList.add('flex');
       setTimeout(() => {{
         if (nomeInput && !nomeInput.value) nomeInput.focus();
+        else if (apelidoInput && !apelidoInput.value) apelidoInput.focus();
         else document.getElementById('new-password').focus();
       }}, 80);
     }}
@@ -879,6 +900,7 @@ def get_login_html(
     document.getElementById('force-pw-form').addEventListener('submit', async (e) => {{
       e.preventDefault();
       const nome = document.getElementById('onboarding-nome').value.trim();
+      const apelido = document.getElementById('onboarding-apelido').value.trim();
       const telefone = document.getElementById('onboarding-tel').value.trim();
       const data_nascimento = document.getElementById('onboarding-nasc').value.trim();
       const nova_senha = document.getElementById('new-password').value.trim();
@@ -890,6 +912,24 @@ def get_login_html(
       if (!nome) {{
         fb.className = 'rounded-xl p-3 text-xs font-bold bg-red-50 text-red-800 border border-red-200';
         fb.textContent = 'Por favor, informe seu nome completo.';
+        fb.classList.remove('hidden');
+        return;
+      }}
+      if (!apelido) {{
+        fb.className = 'rounded-xl p-3 text-xs font-bold bg-red-50 text-red-800 border border-red-200';
+        fb.textContent = 'Informe como prefere ser chamado.';
+        fb.classList.remove('hidden');
+        return;
+      }}
+      if (!telefone) {{
+        fb.className = 'rounded-xl p-3 text-xs font-bold bg-red-50 text-red-800 border border-red-200';
+        fb.textContent = 'Por favor, informe seu celular ou WhatsApp.';
+        fb.classList.remove('hidden');
+        return;
+      }}
+      if (!data_nascimento) {{
+        fb.className = 'rounded-xl p-3 text-xs font-bold bg-red-50 text-red-800 border border-red-200';
+        fb.textContent = 'Por favor, informe sua data de nascimento.';
         fb.classList.remove('hidden');
         return;
       }}
@@ -916,6 +956,7 @@ def get_login_html(
             nova_senha,
             confirmar_senha,
             nome,
+            apelido,
             telefone,
             data_nascimento
           }})
@@ -1335,6 +1376,17 @@ def get_admin_html(
             </div>
 
             <div class="my-1.5 border-t border-white/10"></div>
+
+            <a
+              href="/perfil?rd=/admin"
+              role="menuitem"
+              class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-200 hover:text-[#DDBB5C] hover:bg-white/10 border border-transparent hover:border-[#C59B27]/30 transition-colors duration-150 cursor-pointer mb-1"
+            >
+              <svg class="w-4 h-4 text-[#DDBB5C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              <span>Editar perfil</span>
+            </a>
 
             <a
               href="/api/auth/logout"
@@ -2058,6 +2110,52 @@ def get_admin_html(
                 </div>
               </div>
             </div>
+
+            <!-- SEÇÃO 5: DADOS FUNCIONAIS / RH (ETAPA 3 - 100% OPCIONAIS) -->
+            <div class="bg-slate-50/90 dark:bg-[#162235]/60 p-4 rounded-2xl border border-slate-200 dark:border-white/10 space-y-3.5">
+              <div class="flex items-center justify-between">
+                <span class="block text-[10px] font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider">5. Dados Funcionais / RH</span>
+                <span class="text-[10px] font-semibold text-slate-400">100% Opcionais</span>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label for="u-data-admissao" class="text-xs font-bold text-slate-700 dark:text-slate-200 block mb-1">Data de Admissão na Gold</label>
+                  <input id="u-data-admissao" type="date" class="w-full h-10 rounded-xl border border-slate-300 dark:border-white/15 px-3 text-xs font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#0F1A2A] focus:outline-none focus:border-gold-500" />
+                </div>
+                <div>
+                  <label for="u-setor" class="text-xs font-bold text-slate-700 dark:text-slate-200 block mb-1">Setor / Departamento</label>
+                  <select id="u-setor" class="w-full h-10 rounded-xl border border-slate-300 dark:border-white/15 px-3 text-xs font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#0F1A2A] focus:outline-none focus:border-gold-500">
+                    <option value="">Não informado</option>
+                    <option value="Comercial / Vendas">Comercial / Vendas</option>
+                    <option value="Administrativo">Administrativo</option>
+                    <option value="Operacional / Pós-Venda">Operacional / Pós-Venda</option>
+                    <option value="Financeiro">Financeiro</option>
+                    <option value="TI / Tecnologia">TI / Tecnologia</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Diretoria">Diretoria</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="u-tipo-vinculo" class="text-xs font-bold text-slate-700 dark:text-slate-200 block mb-1">Tipo de Vínculo</label>
+                  <select id="u-tipo-vinculo" class="w-full h-10 rounded-xl border border-slate-300 dark:border-white/15 px-3 text-xs font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#0F1A2A] focus:outline-none focus:border-gold-500">
+                    <option value="">Não informado</option>
+                    <option value="CLT">CLT</option>
+                    <option value="PJ">PJ</option>
+                    <option value="Estágio">Estágio</option>
+                    <option value="Corretor Parceiro">Corretor Parceiro</option>
+                    <option value="Sócio / Diretor">Sócio / Diretor</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="u-gestor-direto" class="text-xs font-bold text-slate-700 dark:text-slate-200 block mb-1">Gestor Direto / Líder</label>
+                  <input id="u-gestor-direto" type="text" placeholder="Ex: Gabriel Gold" class="w-full h-10 rounded-xl border border-slate-300 dark:border-white/15 px-3 text-xs font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#0F1A2A] placeholder:text-slate-400 focus:outline-none focus:border-gold-500" />
+                </div>
+                <div class="sm:col-span-2">
+                  <label for="u-unidade" class="text-xs font-bold text-slate-700 dark:text-slate-200 block mb-1">Unidade / Filial</label>
+                  <input id="u-unidade" type="text" placeholder="Ex: Matriz Goiânia" class="w-full h-10 rounded-xl border border-slate-300 dark:border-white/15 px-3 text-xs font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#0F1A2A] placeholder:text-slate-400 focus:outline-none focus:border-gold-500" />
+                </div>
+              </div>
+            </div>
           </div>
 
           <div id="user-form-error" class="hidden text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-xl p-3"></div>
@@ -2484,7 +2582,7 @@ def get_admin_html(
           const elDropAvatar = document.getElementById('dropdown-avatar-initials');
           if (elDropAvatar) elDropAvatar.textContent = initials;
           const elName = document.getElementById('header-user-name');
-          if (elName) elName.textContent = data.user.nome;
+          if (elName) elName.textContent = data.user.apelido || data.user.nome_exibicao || data.user.nome;
           const elDropName = document.getElementById('dropdown-user-name');
           if (elDropName) elDropName.textContent = data.user.nome;
           const elDropRole = document.getElementById('dropdown-user-role');
@@ -3769,6 +3867,11 @@ def get_admin_html(
       document.getElementById('u-ferias').checked = false;
       document.getElementById('u-ferias-inicio').value = '';
       document.getElementById('u-ferias-retorno').value = '';
+      document.getElementById('u-data-admissao').value = '';
+      document.getElementById('u-setor').value = '';
+      document.getElementById('u-tipo-vinculo').value = '';
+      document.getElementById('u-gestor-direto').value = '';
+      document.getElementById('u-unidade').value = '';
       alternarCamposFeriasNoModal();
       document.getElementById('user-form-error').classList.add('hidden');
       document.querySelectorAll('input[name="u-app"]').forEach(cb => {{
@@ -3781,7 +3884,7 @@ def get_admin_html(
       document.getElementById('u-id').value = u.id;
       document.getElementById('user-modal-title').textContent = 'Editar Colaborador: ' + u.nome;
       const sub = document.getElementById('user-modal-subtitle');
-      if (sub) sub.textContent = 'Altere o cargo, aplicativos liberados, permissões específicas ou escala de férias.';
+      if (sub) sub.textContent = 'Altere o cargo, aplicativos liberados, permissões específicas, dados de RH ou escala de férias.';
       document.getElementById('u-nome').value = u.nome;
       document.getElementById('u-email').value = u.email;
       document.getElementById('u-cargo').value = u.cargo;
@@ -3795,6 +3898,11 @@ def get_admin_html(
       document.getElementById('u-ferias').checked = Boolean(u.em_ferias);
       document.getElementById('u-ferias-inicio').value = u.ferias_inicio || '';
       document.getElementById('u-ferias-retorno').value = u.ferias_retorno || '';
+      document.getElementById('u-data-admissao').value = u.data_admissao || '';
+      document.getElementById('u-setor').value = u.setor || '';
+      document.getElementById('u-tipo-vinculo').value = u.tipo_vinculo || '';
+      document.getElementById('u-gestor-direto').value = u.gestor_direto || '';
+      document.getElementById('u-unidade').value = u.unidade || '';
       alternarCamposFeriasNoModal();
       document.getElementById('user-form-error').classList.add('hidden');
 
@@ -3824,7 +3932,25 @@ def get_admin_html(
       }}
       const perms = document.getElementById('u-perms').value.split(',').map(s => s.trim()).filter(Boolean);
 
-      const payload = {{ nome, email, cargo, apps_permitidos: apps, permissoes_extras: perms, precisa_trocar_senha }};
+      const data_admissao = document.getElementById('u-data-admissao').value || null;
+      const setor = document.getElementById('u-setor').value.trim() || null;
+      const tipo_vinculo = document.getElementById('u-tipo-vinculo').value.trim() || null;
+      const gestor_direto = document.getElementById('u-gestor-direto').value.trim() || null;
+      const unidade = document.getElementById('u-unidade').value.trim() || null;
+
+      const payload = {{
+        nome,
+        email,
+        cargo,
+        apps_permitidos: apps,
+        permissoes_extras: perms,
+        precisa_trocar_senha,
+        data_admissao,
+        setor,
+        tipo_vinculo,
+        gestor_direto,
+        unidade
+      }};
       if (id) {{
         payload.em_ferias = document.getElementById('u-ferias').checked;
         payload.ferias_inicio = payload.em_ferias ? (document.getElementById('u-ferias-inicio').value || null) : null;
@@ -4180,6 +4306,886 @@ def get_admin_html(
       await carregarUsuarios();
       await carregarAuditoria();
     }}
+  </script>
+</body>
+</html>"""
+
+
+def get_profile_html(
+    default_redirect: str = "https://apps.goldcorretora.com.br",
+    hub_url: str = "https://apps.goldcorretora.com.br",
+    is_admin_or_ti: bool = False
+) -> str:
+    admin_menu_link = """
+            <a
+              href="/admin"
+              role="menuitem"
+              class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-200 hover:text-[#DDBB5C] hover:bg-white/10 border border-transparent hover:border-[#C59B27]/30 transition-colors duration-150 cursor-pointer mb-1"
+            >
+              <svg class="w-4 h-4 text-[#DDBB5C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              <span>Gestão de Acessos &amp; Equipe</span>
+            </a>""" if is_admin_or_ti else ""
+
+    return f"""<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  {SHARED_HEAD}
+  <title>Meu Perfil • Gold Corretora</title>
+  <script>
+    (function() {{
+      try {{
+        const savedTheme = localStorage.getItem('gold-hub-theme') || localStorage.getItem('theme');
+        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {{
+          document.documentElement.classList.add('dark');
+        }} else {{
+          document.documentElement.classList.remove('dark');
+        }}
+      }} catch (e) {{}}
+    }})();
+  </script>
+</head>
+<body class="hub-surface text-slate-800 dark:text-slate-100 min-h-screen relative overflow-x-hidden flex flex-col selection:bg-gold-500 selection:text-white">
+  <!-- Scroll Progress Bar -->
+  <div class="scroll-progress-bar"></div>
+
+  <!-- Central Ambient Light -->
+  <div class="ambient-light"></div>
+
+  <!-- GLOBAL TOP BLUR ZONE -->
+  <div id="top-blur-zone" class="fixed top-0 left-0 right-0 z-40 pointer-events-none top-obfuscation">
+    <div id="top-blur-gradient" class="absolute inset-0 bg-gradient-to-b from-[#F8FAFC]/95 via-[#F8FAFC]/70 to-transparent dark:from-[#0A121E]/95 dark:via-[#0A121E]/70 opacity-0 transition-opacity duration-200"></div>
+    <div class="absolute inset-0 backdrop-blur-xl [mask-image:linear-gradient(to_bottom,black_20%,black_60%,transparent)]"></div>
+  </div>
+
+  <!-- Dynamic Island Navbar — Gold Corretora Navy & Gold -->
+  <div
+    id="dynamic-island-wrap"
+    class="fixed top-0 left-0 right-0 z-50 flex justify-center pointer-events-none px-4 sm:px-6 lg:px-8"
+    style="padding-top: 1.5rem; transition: padding-top 240ms cubic-bezier(0.23, 1, 0.32, 1);"
+  >
+    <header
+      id="dynamic-island-header"
+      class="pointer-events-auto flex items-center justify-between px-4 sm:px-6 rounded-2xl app-header-shell bg-[#0F1A2A]/95 dark:bg-[#0F1A2A]/95 text-white border border-[#C59B27]/25 backdrop-blur-xl shadow-[0_8px_24px_-10px_rgba(10,18,30,0.35)]"
+      style="height: 62px; width: 100%; max-width: 1600px;"
+    >
+      <!-- Lado Esquerdo: Logo & Identidade -->
+      <div class="flex items-center gap-3 sm:gap-5 shrink-0">
+        <a href="{hub_url}" class="flex items-center gap-3 sm:gap-4 shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C59B27] rounded-lg py-1" aria-label="Central de Aplicativos Gold">
+          {GOLD_LOGO_HEADER}
+          <div class="hidden sm:block border-l border-white/15 pl-3.5 py-0.5">
+            <span class="text-[11px] font-extrabold uppercase tracking-wider block text-[#DDBB5C] leading-tight">
+              Meu Perfil
+            </span>
+            <span class="text-[10px] font-medium block text-slate-300 leading-tight">
+              Dados Pessoais &amp; Preferências
+            </span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Lado Direito: Atalho Voltar / Hub + Alternador de Tema + Menu do Usuário -->
+      <div class="flex items-center gap-2 sm:gap-2.5">
+        <!-- Botão Atalho Rápido: Voltar ao Sistema / Hub -->
+        <a
+          href="{default_redirect}"
+          class="btn-tactile inline-flex items-center gap-2 h-9 px-2.5 sm:px-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#C59B27]/40 text-xs font-bold text-slate-200 hover:text-[#DDBB5C] transition-colors"
+          title="Voltar para o sistema anterior"
+        >
+          <svg class="w-4 h-4 text-[#DDBB5C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          <span class="hidden sm:inline">Voltar ao Sistema</span>
+        </a>
+
+        <a
+          href="{hub_url}"
+          class="btn-tactile hidden md:inline-flex items-center gap-2 h-9 px-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#C59B27]/40 text-xs font-bold text-slate-200 hover:text-[#DDBB5C] transition-colors"
+          title="Ir para o Hub de Aplicativos"
+        >
+          <svg class="w-4 h-4 text-[#DDBB5C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg>
+          <span>Hub</span>
+        </a>
+
+        <!-- Botão de Alternar Tema (Claro / Escuro) Direto na Dynamic Island -->
+        <button
+          type="button"
+          id="theme-toggle-btn"
+          onclick="alternarTema()"
+          aria-label="Alternar entre modo claro e escuro"
+          title="Alternar tema (Claro / Escuro)"
+          class="btn-tactile w-9 h-9 rounded-xl flex items-center justify-center bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#C59B27]/40 text-[#DDBB5C] transition-colors cursor-pointer"
+        >
+          <svg id="theme-icon-sun" class="w-4 h-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+          <svg id="theme-icon-moon" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+        </button>
+
+        <!-- Usuário & Menu Dropdown -->
+        <div class="relative" id="user-dropdown-container">
+          <button
+            type="button"
+            id="user-menu-btn"
+            onclick="alternarMenuUsuario()"
+            aria-expanded="false"
+            aria-haspopup="menu"
+            aria-label="Menu do usuário"
+            class="flex items-center gap-2 pl-1.5 pr-2.5 sm:pr-3 h-9 rounded-xl border border-white/15 bg-[#162235]/90 hover:bg-[#1E2F47] transition-colors duration-150 cursor-pointer active:scale-98 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C59B27]"
+          >
+            <div id="header-avatar-initials" class="w-6 h-6 rounded-lg bg-[#0F1A2A] border border-[#C59B27]/40 text-[#DDBB5C] flex items-center justify-center font-bold text-[11px] shrink-0">
+              GC
+            </div>
+            <span id="header-user-name" class="hidden md:inline font-bold text-xs text-white truncate max-w-[140px] lg:max-w-[180px]">
+              Carregando...
+            </span>
+            <svg id="header-chevron" class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          <!-- Dropdown Popover -->
+          <div
+            id="user-dropdown-menu"
+            role="menu"
+            aria-orientation="vertical"
+            class="hidden absolute right-0 top-full mt-2.5 w-72 sm:w-80 rounded-2xl p-2.5 z-50 origin-top-right menu-pop-in text-slate-100 bg-[#0A121E] border border-[#C59B27]/30 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.75)]"
+          >
+            <div class="p-3 rounded-xl bg-[#0F1A2A] border border-white/10 flex items-center gap-3">
+              <div id="dropdown-avatar-initials" class="w-9 h-9 rounded-xl bg-[#162235] border border-[#C59B27]/40 text-[#DDBB5C] flex items-center justify-center font-bold text-xs shrink-0">
+                GC
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between gap-1.5">
+                  <span id="dropdown-user-name" class="font-bold text-xs text-white truncate block">
+                    Colaborador
+                  </span>
+                  <span id="dropdown-user-role" class="px-1.5 py-0.5 rounded text-[9px] font-mono font-extrabold uppercase tracking-wider bg-[#C59B27]/20 text-[#DDBB5C] border border-[#C59B27]/30 shrink-0">
+                    EQUIPE
+                  </span>
+                </div>
+                <span id="dropdown-user-email" class="text-[11px] text-slate-400 truncate block mt-0.5">
+                  ...
+                </span>
+              </div>
+            </div>
+
+            <div class="my-1.5 border-t border-white/10"></div>
+
+            <a
+              href="/perfil"
+              role="menuitem"
+              class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#DDBB5C] bg-white/5 border border-[#C59B27]/30 transition-colors duration-150 cursor-pointer mb-1"
+            >
+              <svg class="w-4 h-4 text-[#DDBB5C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              <span>Editar perfil</span>
+            </a>
+            {admin_menu_link}
+            <a
+              href="/api/auth/logout"
+              role="menuitem"
+              class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-300 hover:text-rose-200 hover:bg-rose-500/15 border border-transparent hover:border-rose-500/30 transition-colors duration-150 cursor-pointer"
+            >
+              <svg class="w-4 h-4 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              <span>Sair da conta</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+  </div>
+
+  <!-- Conteúdo Principal -->
+  <main class="flex-1 pt-28 sm:pt-32 pb-16 relative z-10 flex flex-col justify-between">
+    <div class="mx-auto px-4 sm:px-6 lg:px-8 max-w-[1160px] w-full">
+      <div class="rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#0F1A2A]/90 shadow-[0_4px_24px_-6px_rgba(15,26,42,0.06)] dark:shadow-none p-5 sm:p-8 lg:p-10 space-y-6 sm:space-y-8">
+
+        <!-- ESTADO 1: SKELETON LOADING -->
+        <div id="profile-skeleton" class="space-y-6 animate-pulse" aria-busy="true" aria-label="Carregando dados do seu perfil">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-white/10 pb-6">
+            <div class="flex items-center gap-4">
+              <div class="w-16 h-16 rounded-2xl bg-slate-200 dark:bg-white/10"></div>
+              <div class="space-y-2.5">
+                <div class="h-6 w-48 rounded-lg bg-slate-200 dark:bg-white/10"></div>
+                <div class="h-4 w-64 rounded-lg bg-slate-100 dark:bg-white/5"></div>
+              </div>
+            </div>
+            <div class="h-12 w-44 rounded-2xl bg-slate-100 dark:bg-white/5"></div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="h-24 rounded-2xl bg-slate-100 dark:bg-white/5"></div>
+            <div class="h-24 rounded-2xl bg-slate-100 dark:bg-white/5"></div>
+            <div class="h-24 rounded-2xl bg-slate-100 dark:bg-white/5"></div>
+            <div class="h-24 rounded-2xl bg-slate-100 dark:bg-white/5"></div>
+          </div>
+        </div>
+
+        <!-- ESTADO 2: ERRO COM RETRY -->
+        <div id="profile-error-state" class="hidden py-12 px-4 text-center space-y-4">
+          <div class="w-14 h-14 rounded-2xl bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto">
+            <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <div class="max-w-md mx-auto">
+            <h2 class="text-lg font-extrabold text-navy-900 dark:text-white">Não foi possível carregar seu perfil</h2>
+            <p id="profile-error-msg" class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Verifique sua conexão e tente novamente.</p>
+          </div>
+          <button
+            type="button"
+            onclick="carregarPerfil()"
+            class="btn-tactile px-5 py-2.5 rounded-xl bg-[#C59B27] hover:bg-[#DDBB5C] text-[#0F1A2A] text-xs font-extrabold cursor-pointer inline-flex items-center gap-2"
+          >
+            <span>Tentar novamente</span>
+          </button>
+        </div>
+
+        <!-- ESTADO 3 & 4: CONTEÚDO DO PERFIL -->
+        <div id="profile-content" class="hidden space-y-8">
+          <!-- Cabeçalho do Colaborador & Barra de Progresso do Perfil -->
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-5 border-b border-slate-100 dark:border-white/10 pb-6">
+            <div class="flex items-start sm:items-center gap-4">
+              <div id="hero-avatar-initials" class="w-16 h-16 rounded-2xl bg-[#0F1A2A] dark:bg-[#162235] border-2 border-[#C59B27]/50 text-[#DDBB5C] flex items-center justify-center font-black text-xl shrink-0 shadow-md">
+                GC
+              </div>
+              <div class="space-y-1">
+                <div class="flex flex-wrap items-center gap-2">
+                  <h1 id="hero-user-name" class="text-xl sm:text-2xl font-extrabold text-navy-900 dark:text-white tracking-tight">
+                    Colaborador Gold
+                  </h1>
+                  <span id="hero-user-role" class="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-extrabold uppercase tracking-wider bg-gold-50 dark:bg-[#C59B27]/20 text-gold-900 dark:text-[#DDBB5C] border border-gold-300 dark:border-[#C59B27]/40">
+                    EQUIPE
+                  </span>
+                </div>
+                <p id="hero-user-email" class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-mono">
+                  ...
+                </p>
+                <div id="hero-badges-row" class="flex flex-wrap items-center gap-2 pt-1"></div>
+              </div>
+            </div>
+
+            <!-- Card de Completude do Perfil (Empty/Progress State) -->
+            <div class="bg-slate-50/90 dark:bg-[#162235]/80 border border-slate-200/80 dark:border-white/10 rounded-2xl p-4 lg:w-80 shrink-0 space-y-2">
+              <div class="flex items-center justify-between text-xs">
+                <span class="font-extrabold text-navy-900 dark:text-white">Perfil preenchido</span>
+                <span id="completion-percent" class="font-mono font-black text-gold-700 dark:text-[#DDBB5C]">0%</span>
+              </div>
+              <div class="w-full h-2 rounded-full bg-slate-200 dark:bg-[#0F1A2A] overflow-hidden">
+                <div id="completion-bar" class="h-full bg-gradient-to-r from-[#C59B27] to-[#DDBB5C] transition-all duration-300" style="width: 0%"></div>
+              </div>
+              <p id="completion-hint" class="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
+                Os campos complementares abaixo são opcionais e ajudam nas estatísticas internas da Gold.
+              </p>
+            </div>
+          </div>
+
+          <!-- Banner de Feedback (Sucesso / Erro no Salvamento) -->
+          <div id="profile-save-banner" class="hidden rounded-2xl p-4 text-xs sm:text-sm font-bold flex items-center justify-between gap-3" role="status" aria-live="polite"></div>
+
+          <form id="profile-form" class="space-y-8" novalidate>
+            <!-- SEÇÃO 1: DADOS PRINCIPAIS (ETAPA 2) -->
+            <section class="space-y-4">
+              <div class="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-2.5">
+                <div>
+                  <h2 class="text-sm sm:text-base font-extrabold text-navy-900 dark:text-white flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-lg bg-[#C59B27]/15 text-[#C59B27] dark:text-[#DDBB5C] flex items-center justify-center font-mono text-xs font-black">1</span>
+                    <span>Dados Principais de Identificação</span>
+                  </h2>
+                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Como seu nome aparece no topo dos sistemas e seus dados básicos.</p>
+                </div>
+                <span class="text-[11px] font-bold text-gold-700 dark:text-[#DDBB5C] bg-gold-50 dark:bg-[#C59B27]/15 px-2.5 py-1 rounded-lg border border-gold-200 dark:border-[#C59B27]/30">Principais</span>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label for="p-nome" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">
+                    Nome Completo <span class="text-rose-500">*</span>
+                  </label>
+                  <input
+                    id="p-nome"
+                    type="text"
+                    required
+                    placeholder="Ex: Gabriel Silva"
+                    class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#162235] placeholder:text-slate-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition"
+                  />
+                </div>
+
+                <div>
+                  <label for="p-apelido" class="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">
+                    <span>Como prefere ser chamado (Apelido) <span class="text-rose-500">*</span></span>
+                    <span class="text-[10px] font-normal text-slate-400">Exibido no menu superior</span>
+                  </label>
+                  <input
+                    id="p-apelido"
+                    type="text"
+                    required
+                    placeholder="Ex: Gabriel"
+                    class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#162235] placeholder:text-slate-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition"
+                  />
+                </div>
+
+                <div>
+                  <label for="p-telefone" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">
+                    Telefone / WhatsApp Pessoal <span class="text-rose-500">*</span>
+                  </label>
+                  <input
+                    id="p-telefone"
+                    type="tel"
+                    required
+                    placeholder="(62) 99999-9999"
+                    class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#162235] placeholder:text-slate-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition"
+                  />
+                </div>
+
+                <div>
+                  <label for="p-data-nascimento" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">
+                    Data de Nascimento <span class="text-rose-500">*</span>
+                  </label>
+                  <input
+                    id="p-data-nascimento"
+                    type="date"
+                    required
+                    class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#162235] focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition"
+                  />
+                </div>
+              </div>
+            </section>
+
+            <!-- SEÇÃO 2: IDENTIFICAÇÃO & LOCALIZAÇÃO (ETAPA 4 - 100% OPCIONAL) -->
+            <section class="space-y-4">
+              <div class="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-2.5">
+                <div>
+                  <h2 class="text-sm sm:text-base font-extrabold text-navy-900 dark:text-white flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-lg bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 flex items-center justify-center font-mono text-xs font-black">2</span>
+                    <span>Identificação &amp; Localização</span>
+                  </h2>
+                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Informações demográficas e de modalidade de trabalho para pesquisas internas.</p>
+                </div>
+                <span class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-white/5 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-white/10">100% Opcional</span>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div>
+                  <label for="p-genero" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Gênero</label>
+                  <select
+                    id="p-genero"
+                    class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#162235] focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition"
+                  >
+                    <option value="">Prefiro não responder / Em branco</option>
+                    <option value="Masculino">Masculino</option>
+                    <option value="Feminino">Feminino</option>
+                    <option value="Não-binário">Não-binário</option>
+                    <option value="Outro">Outro</option>
+                    <option value="Prefiro não informar">Prefiro não informar</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label for="p-modelo-trabalho" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Modelo de Trabalho Atual</label>
+                  <select
+                    id="p-modelo-trabalho"
+                    class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#162235] focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition"
+                  >
+                    <option value="">Não informado</option>
+                    <option value="Presencial">Presencial</option>
+                    <option value="Híbrido">Híbrido</option>
+                    <option value="Home Office">Remoto / Home Office</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label for="p-uf" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Estado (UF)</label>
+                  <select
+                    id="p-uf"
+                    class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#162235] focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition"
+                  >
+                    <option value="">Não informado</option>
+                    <option value="GO">GO - Goiás</option>
+                    <option value="DF">DF - Distrito Federal</option>
+                    <option value="SP">SP - São Paulo</option>
+                    <option value="MG">MG - Minas Gerais</option>
+                    <option value="RJ">RJ - Rio de Janeiro</option>
+                    <option value="PR">PR - Paraná</option>
+                    <option value="SC">SC - Santa Catarina</option>
+                    <option value="RS">RS - Rio Grande do Sul</option>
+                    <option value="BA">BA - Bahia</option>
+                    <option value="MT">MT - Mato Grosso</option>
+                    <option value="MS">MS - Mato Grosso do Sul</option>
+                    <option value="TO">TO - Tocantins</option>
+                    <option value="CE">CE - Ceará</option>
+                    <option value="PE">PE - Pernambuco</option>
+                    <option value="PA">PA - Pará</option>
+                    <option value="AM">AM - Amazonas</option>
+                    <option value="ES">ES - Espírito Santo</option>
+                    <option value="MA">MA - Maranhão</option>
+                    <option value="PB">PB - Paraíba</option>
+                    <option value="RN">RN - Rio Grande do Norte</option>
+                    <option value="AL">AL - Alagoas</option>
+                    <option value="SE">SE - Sergipe</option>
+                    <option value="PI">PI - Piauí</option>
+                    <option value="RO">RO - Rondônia</option>
+                    <option value="AC">AC - Acre</option>
+                    <option value="AP">AP - Amapá</option>
+                    <option value="RR">RR - Roraima</option>
+                  </select>
+                </div>
+
+                <div class="sm:col-span-1 lg:col-span-2">
+                  <label for="p-cidade" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Cidade onde reside</label>
+                  <input
+                    id="p-cidade"
+                    type="text"
+                    placeholder="Ex: Goiânia"
+                    class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#162235] placeholder:text-slate-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition"
+                  />
+                </div>
+
+                <div>
+                  <label for="p-bairro" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Bairro / Região</label>
+                  <input
+                    id="p-bairro"
+                    type="text"
+                    placeholder="Ex: Setor Bueno"
+                    class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#162235] placeholder:text-slate-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition"
+                  />
+                </div>
+              </div>
+            </section>
+
+            <!-- SEÇÃO 3: FORMAÇÃO & QUALIFICAÇÃO (ETAPA 4 - 100% OPCIONAL) -->
+            <section class="space-y-4">
+              <div class="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-2.5">
+                <div>
+                  <h2 class="text-sm sm:text-base font-extrabold text-navy-900 dark:text-white flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-lg bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 flex items-center justify-center font-mono text-xs font-black">3</span>
+                    <span>Formação &amp; Qualificação</span>
+                  </h2>
+                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Escolaridade, formação acadêmica e certificações.</p>
+                </div>
+                <span class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-white/5 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-white/10">100% Opcional</span>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label for="p-escolaridade" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Nível de Escolaridade</label>
+                  <select
+                    id="p-escolaridade"
+                    class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#162235] focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition"
+                  >
+                    <option value="">Não informado</option>
+                    <option value="Ensino Médio">Ensino Médio</option>
+                    <option value="Superior em Andamento">Superior em Andamento</option>
+                    <option value="Superior Completo">Superior Completo</option>
+                    <option value="Pós-graduação / MBA">Pós-graduação / MBA</option>
+                    <option value="Mestrado / Doutorado">Mestrado / Doutorado</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label for="p-estuda-atualmente" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Estuda atualmente?</label>
+                  <select
+                    id="p-estuda-atualmente"
+                    class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#162235] focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition"
+                  >
+                    <option value="">Não informado</option>
+                    <option value="true">Sim, estou estudando</option>
+                    <option value="false">Não no momento</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label for="p-curso" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Curso / Área de Formação</label>
+                  <input
+                    id="p-curso"
+                    type="text"
+                    placeholder="Ex: Administração, Direito, Ciências Contábeis..."
+                    class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#162235] placeholder:text-slate-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition"
+                  />
+                </div>
+
+                <div>
+                  <label for="p-certificacoes" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Cursos Extras ou Certificações</label>
+                  <input
+                    id="p-certificacoes"
+                    type="text"
+                    placeholder="Ex: CPA-10, CPA-20, Gestão Comercial..."
+                    class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#162235] placeholder:text-slate-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition"
+                  />
+                </div>
+              </div>
+            </section>
+
+            <!-- SEÇÃO 4: SEGURANÇA & ALTERAÇÃO DE SENHA (OPCIONAL) -->
+            <section class="space-y-4">
+              <div class="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-2.5">
+                <div>
+                  <h2 class="text-sm sm:text-base font-extrabold text-navy-900 dark:text-white flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-lg bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 flex items-center justify-center font-mono text-xs font-black">4</span>
+                    <span>Alterar Senha de Acesso</span>
+                  </h2>
+                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Preencha apenas se desejar trocar sua senha atual.</p>
+                </div>
+                <span class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-white/5 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-white/10">Opcional</span>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label for="p-senha-atual" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Senha Atual</label>
+                  <input
+                    id="p-senha-atual"
+                    type="password"
+                    autocomplete="current-password"
+                    placeholder="Deixe em branco para manter"
+                    class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#162235] placeholder:text-slate-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition"
+                  />
+                </div>
+
+                <div>
+                  <label for="p-nova-senha" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Nova Senha (mín. 8 caracteres)</label>
+                  <input
+                    id="p-nova-senha"
+                    type="password"
+                    autocomplete="new-password"
+                    placeholder="Nova senha"
+                    class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#162235] placeholder:text-slate-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition"
+                  />
+                </div>
+
+                <div>
+                  <label for="p-confirmar-senha" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Confirmar Nova Senha</label>
+                  <input
+                    id="p-confirmar-senha"
+                    type="password"
+                    autocomplete="new-password"
+                    placeholder="Repita a nova senha"
+                    class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#162235] placeholder:text-slate-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition"
+                  />
+                </div>
+              </div>
+            </section>
+
+            <!-- Rodapé de Ações -->
+            <div class="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3 pt-4 border-t border-slate-200/80 dark:border-white/10">
+              <a
+                href="{default_redirect}"
+                class="btn-tactile px-5 py-3 rounded-xl border border-slate-300 dark:border-white/15 hover:bg-slate-100 dark:hover:bg-white/10 text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 text-center transition"
+              >
+                Voltar sem salvar
+              </a>
+
+              <button
+                type="submit"
+                id="btn-save-profile"
+                class="btn-tactile px-7 py-3 rounded-xl bg-[#C59B27] hover:bg-[#DDBB5C] text-[#0F1A2A] text-xs sm:text-sm font-black shadow-md active:scale-98 transition inline-flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <svg class="w-4 h-4 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                <span id="btn-save-profile-label">Salvar Alterações</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function getInitials(nome) {{
+      if (!nome) return 'GC';
+      const parts = String(nome).trim().split(/\\s+/).filter(Boolean);
+      if (parts.length === 0) return 'GC';
+      if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }}
+
+    function sincronizarIconesTema() {{
+      const isDark = document.documentElement.classList.contains('dark');
+      const sun = document.getElementById('theme-icon-sun');
+      const moon = document.getElementById('theme-icon-moon');
+      if (sun && moon) {{
+        sun.classList.toggle('hidden', !isDark);
+        moon.classList.toggle('hidden', isDark);
+      }}
+    }}
+
+    function alternarTema() {{
+      const isDark = document.documentElement.classList.toggle('dark');
+      try {{
+        localStorage.setItem('gold-hub-theme', isDark ? 'dark' : 'light');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      }} catch (e) {{}}
+      sincronizarIconesTema();
+    }}
+
+    function alternarMenuUsuario() {{
+      const menu = document.getElementById('user-dropdown-menu');
+      const btn = document.getElementById('user-menu-btn');
+      const chev = document.getElementById('header-chevron');
+      if (!menu) return;
+      const isHidden = menu.classList.toggle('hidden');
+      if (btn) btn.setAttribute('aria-expanded', String(!isHidden));
+      if (chev) chev.classList.toggle('rotate-180', !isHidden);
+    }}
+
+    document.addEventListener('click', (e) => {{
+      const container = document.getElementById('user-dropdown-container');
+      const menu = document.getElementById('user-dropdown-menu');
+      const btn = document.getElementById('user-menu-btn');
+      const chev = document.getElementById('header-chevron');
+      if (container && menu && !menu.classList.contains('hidden') && !container.contains(e.target)) {{
+        menu.classList.add('hidden');
+        if (btn) btn.setAttribute('aria-expanded', 'false');
+        if (chev) chev.classList.remove('rotate-180');
+      }}
+    }});
+
+    document.addEventListener('keydown', (e) => {{
+      if (e.key === 'Escape') {{
+        const menu = document.getElementById('user-dropdown-menu');
+        const btn = document.getElementById('user-menu-btn');
+        const chev = document.getElementById('header-chevron');
+        if (menu && !menu.classList.contains('hidden')) {{
+          menu.classList.add('hidden');
+          if (btn) btn.setAttribute('aria-expanded', 'false');
+          if (chev) chev.classList.remove('rotate-180');
+        }}
+      }}
+    }});
+
+    function atualizarProgressoFormulario() {{
+      const campos = [
+        document.getElementById('p-nome').value.trim(),
+        document.getElementById('p-apelido').value.trim(),
+        document.getElementById('p-telefone').value.trim(),
+        document.getElementById('p-data-nascimento').value.trim(),
+        document.getElementById('p-genero').value.trim(),
+        document.getElementById('p-modelo-trabalho').value.trim(),
+        document.getElementById('p-uf').value.trim(),
+        document.getElementById('p-cidade').value.trim(),
+        document.getElementById('p-bairro').value.trim(),
+        document.getElementById('p-escolaridade').value.trim(),
+        document.getElementById('p-estuda-atualmente').value.trim(),
+        document.getElementById('p-curso').value.trim(),
+        document.getElementById('p-certificacoes').value.trim()
+      ];
+      const preenchidos = campos.filter(Boolean).length;
+      const pct = Math.round((preenchidos / campos.length) * 100);
+      const elPct = document.getElementById('completion-percent');
+      const elBar = document.getElementById('completion-bar');
+      if (elPct) elPct.textContent = pct + '%';
+      if (elBar) elBar.style.width = pct + '%';
+    }}
+
+    function popularInterfaceUsuario(u) {{
+      const initials = getInitials(u.nome);
+      const nomeMenu = u.apelido || u.nome_exibicao || u.nome;
+
+      document.getElementById('header-avatar-initials').textContent = initials;
+      document.getElementById('dropdown-avatar-initials').textContent = initials;
+      document.getElementById('hero-avatar-initials').textContent = initials;
+
+      document.getElementById('header-user-name').textContent = nomeMenu;
+      document.getElementById('dropdown-user-name').textContent = u.nome;
+      document.getElementById('hero-user-name').textContent = u.nome;
+
+      document.getElementById('dropdown-user-role').textContent = u.cargo || 'EQUIPE';
+      document.getElementById('hero-user-role').textContent = u.cargo || 'EQUIPE';
+
+      document.getElementById('dropdown-user-email').textContent = u.email || '';
+      document.getElementById('hero-user-email').textContent = u.email || '';
+
+      // Badges informativos calculados (Etapa 5 + RH)
+      const badgesRow = document.getElementById('hero-badges-row');
+      if (badgesRow) {{
+        const chips = [];
+        if (u.setor) chips.push(`<span class="px-2.5 py-0.5 rounded-lg text-[11px] font-bold bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300">Setor: ${{u.setor}}</span>`);
+        if (u.unidade) chips.push(`<span class="px-2.5 py-0.5 rounded-lg text-[11px] font-bold bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300">${{u.unidade}}</span>`);
+        if (typeof u.idade === 'number') chips.push(`<span class="px-2.5 py-0.5 rounded-lg text-[11px] font-bold bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300">${{u.idade}} anos</span>`);
+        if (typeof u.tempo_casa_meses === 'number') {{
+          const anos = Math.floor(u.tempo_casa_meses / 12);
+          const meses = u.tempo_casa_meses % 12;
+          const labelTempo = anos > 0 ? `${{anos}}a ${{meses}}m de Gold` : `${{meses}} meses de Gold`;
+          chips.push(`<span class="px-2.5 py-0.5 rounded-lg text-[11px] font-bold bg-gold-50 dark:bg-[#C59B27]/15 text-gold-800 dark:text-[#DDBB5C]">${{labelTempo}}</span>`);
+        }}
+        badgesRow.innerHTML = chips.join('');
+      }}
+
+      // Preencher campos do formulário
+      document.getElementById('p-nome').value = u.nome || '';
+      document.getElementById('p-apelido').value = u.apelido || (u.nome ? u.nome.split(' ')[0] : '');
+      document.getElementById('p-telefone').value = u.telefone || '';
+      document.getElementById('p-data-nascimento').value = u.data_nascimento || '';
+      document.getElementById('p-genero').value = u.genero || '';
+      document.getElementById('p-modelo-trabalho').value = u.modelo_trabalho || '';
+      document.getElementById('p-uf').value = u.uf || '';
+      document.getElementById('p-cidade').value = u.cidade || '';
+      document.getElementById('p-bairro').value = u.bairro || '';
+      document.getElementById('p-escolaridade').value = u.escolaridade || '';
+      if (u.estuda_atualmente === true) {{
+        document.getElementById('p-estuda-atualmente').value = 'true';
+      }} else if (u.estuda_atualmente === false) {{
+        document.getElementById('p-estuda-atualmente').value = 'false';
+      }} else {{
+        document.getElementById('p-estuda-atualmente').value = '';
+      }}
+      document.getElementById('p-curso').value = u.curso || '';
+      document.getElementById('p-certificacoes').value = u.certificacoes || '';
+
+      atualizarProgressoFormulario();
+    }}
+
+    async function carregarPerfil() {{
+      const skel = document.getElementById('profile-skeleton');
+      const errState = document.getElementById('profile-error-state');
+      const content = document.getElementById('profile-content');
+
+      skel.classList.remove('hidden');
+      errState.classList.add('hidden');
+      content.classList.add('hidden');
+
+      try {{
+        const res = await fetch('/api/auth/me');
+        if (!res.ok) throw new Error('Sua sessão expirou ou não pôde ser validada.');
+        const data = await res.json();
+        if (!data || !data.user) throw new Error('Dados de usuário indisponíveis.');
+
+        popularInterfaceUsuario(data.user);
+        skel.classList.add('hidden');
+        content.classList.remove('hidden');
+      }} catch (err) {{
+        skel.classList.add('hidden');
+        document.getElementById('profile-error-msg').textContent = err.message || 'Erro ao carregar perfil.';
+        errState.classList.remove('hidden');
+      }}
+    }}
+
+    function exibirBannerFeedback(mensagem, tipo) {{
+      const banner = document.getElementById('profile-save-banner');
+      if (!banner) return;
+      banner.classList.remove('hidden');
+      if (tipo === 'sucesso') {{
+        banner.className = 'rounded-2xl p-4 text-xs sm:text-sm font-bold flex items-center justify-between gap-3 bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-300';
+      }} else {{
+        banner.className = 'rounded-2xl p-4 text-xs sm:text-sm font-bold flex items-center justify-between gap-3 bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30 text-rose-800 dark:text-rose-300';
+      }}
+      banner.innerHTML = `<span>${{mensagem}}</span><button type="button" onclick="this.parentElement.classList.add('hidden')" class="text-xs underline cursor-pointer">Fechar</button>`;
+      banner.scrollIntoView({{ behavior: 'smooth', block: 'nearest' }});
+    }}
+
+    document.getElementById('profile-form').addEventListener('input', atualizarProgressoFormulario);
+
+    document.getElementById('profile-form').addEventListener('submit', async (e) => {{
+      e.preventDefault();
+      const btn = document.getElementById('btn-save-profile');
+      const label = document.getElementById('btn-save-profile-label');
+
+      const nome = document.getElementById('p-nome').value.trim();
+      const apelido = document.getElementById('p-apelido').value.trim();
+      const telefone = document.getElementById('p-telefone').value.trim();
+      const data_nascimento = document.getElementById('p-data-nascimento').value.trim();
+
+      if (!nome || nome.length < 3) {{
+        exibirBannerFeedback('Por favor, informe seu nome completo.', 'erro');
+        return;
+      }}
+      if (!apelido || apelido.length < 2) {{
+        exibirBannerFeedback('Por favor, informe como prefere ser chamado (apelido).', 'erro');
+        return;
+      }}
+      if (!telefone || telefone.replace(/\\D/g, '').length < 10) {{
+        exibirBannerFeedback('Informe um telefone/WhatsApp válido com DDD.', 'erro');
+        return;
+      }}
+      if (!data_nascimento) {{
+        exibirBannerFeedback('Por favor, informe sua data de nascimento.', 'erro');
+        return;
+      }}
+
+      const senha_atual = document.getElementById('p-senha-atual').value;
+      const nova_senha = document.getElementById('p-nova-senha').value;
+      const confirmar = document.getElementById('p-confirmar-senha').value;
+
+      if (nova_senha || confirmar) {{
+        if (!senha_atual) {{
+          exibirBannerFeedback('Para alterar sua senha, digite também sua senha atual.', 'erro');
+          return;
+        }}
+        if (nova_senha.length < 8) {{
+          exibirBannerFeedback('A nova senha deve ter pelo menos 8 caracteres.', 'erro');
+          return;
+        }}
+        if (nova_senha !== confirmar) {{
+          exibirBannerFeedback('A confirmação da nova senha não confere.', 'erro');
+          return;
+        }}
+      }}
+
+      const estudaVal = document.getElementById('p-estuda-atualmente').value;
+      const estuda_atualmente = estudaVal === 'true' ? true : (estudaVal === 'false' ? false : null);
+
+      const payload = {{
+        nome,
+        apelido,
+        telefone,
+        data_nascimento,
+        genero: document.getElementById('p-genero').value,
+        modelo_trabalho: document.getElementById('p-modelo-trabalho').value,
+        uf: document.getElementById('p-uf').value,
+        cidade: document.getElementById('p-cidade').value.trim(),
+        bairro: document.getElementById('p-bairro').value.trim(),
+        escolaridade: document.getElementById('p-escolaridade').value,
+        estuda_atualmente,
+        curso: document.getElementById('p-curso').value.trim(),
+        certificacoes: document.getElementById('p-certificacoes').value.trim()
+      }};
+
+      if (nova_senha) {{
+        payload.senha_atual = senha_atual;
+        payload.nova_senha = nova_senha;
+      }}
+
+      btn.disabled = true;
+      label.textContent = 'Salvando...';
+
+      try {{
+        const res = await fetch('/api/auth/me/profile', {{
+          method: 'PUT',
+          headers: {{ 'Content-Type': 'application/json' }},
+          body: JSON.stringify(payload)
+        }});
+        const data = await res.json().catch(() => ({{}}));
+        if (!res.ok) {{
+          throw new Error(data.detail || 'Não foi possível salvar suas alterações.');
+        }}
+
+        if (data.user) {{
+          popularInterfaceUsuario(data.user);
+        }}
+        document.getElementById('p-senha-atual').value = '';
+        document.getElementById('p-nova-senha').value = '';
+        document.getElementById('p-confirmar-senha').value = '';
+
+        exibirBannerFeedback('Perfil atualizado com sucesso!', 'sucesso');
+      }} catch (err) {{
+        exibirBannerFeedback(err.message || 'Erro ao salvar perfil.', 'erro');
+      }} finally {{
+        btn.disabled = false;
+        label.textContent = 'Salvar Alterações';
+      }}
+    }});
+
+    sincronizarIconesTema();
+    carregarPerfil();
   </script>
 </body>
 </html>"""
