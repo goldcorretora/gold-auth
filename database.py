@@ -1748,3 +1748,157 @@ def expurgar_auditoria_antiga(dias_retencao: int = 90) -> int:
         conn.close()
 
     return deletados
+
+
+DEFAULT_HUB_APPS = [
+    {
+        "id": "app-painel-vendedor",
+        "slug": "painel-vendedor",
+        "name": "Painel do Consultor & CRM",
+        "description": "Gestão de leads em tempo real, funil comercial e atendimento integrado via WhatsApp.",
+        "icon": "Briefcase",
+        "category": "comercial",
+        "url": "https://vendas.goldcorretora.com.br",
+        "status": "online",
+        "sortOrder": 1
+    },
+    {
+        "id": "app-cotador-web",
+        "slug": "cotador-web",
+        "name": "Cotador & Simulador ASSEPUC",
+        "description": "Simulação instantânea de planos Vida Toda, Pecúlio e assistência funeral.",
+        "icon": "Calculator",
+        "category": "comercial",
+        "url": "https://simulador.goldcorretora.com.br",
+        "status": "online",
+        "sortOrder": 2
+    },
+    {
+        "id": "app-clicksign",
+        "slug": "clicksign",
+        "name": "Emissão de Apólice (Clicksign)",
+        "description": "Formulário digital oficial para preenchimento e assinatura eletrônica de propostas.",
+        "icon": "FileSignature",
+        "category": "comercial",
+        "url": "https://app.clicksign.com",
+        "status": "online",
+        "sortOrder": 3
+    },
+    {
+        "id": "app-conciliacao",
+        "slug": "conciliacao",
+        "name": "Conciliação Bancária & Apólices",
+        "description": "Cruzamento automatizado entre relatórios e extratos de débito/boleto.",
+        "icon": "ArrowLeftRight",
+        "category": "gestao",
+        "url": "https://conciliacao.goldcorretora.com.br",
+        "status": "online",
+        "sortOrder": 4
+    },
+    {
+        "id": "app-carteira",
+        "slug": "carteira",
+        "name": "Carteira de Segurados Gold",
+        "description": "Consulta centralizada de clientes ativos, histórico de vigências e coberturas.",
+        "icon": "Users",
+        "category": "gestao",
+        "url": "https://carteira.goldcorretora.com.br",
+        "status": "online",
+        "sortOrder": 5
+    },
+    {
+        "id": "app-gold-auth",
+        "slug": "gold-auth",
+        "name": "Governança, Permissões & SSO",
+        "description": "Central de identidade da Gold Corretora: controle de colaboradores e cargos.",
+        "icon": "ShieldCheck",
+        "category": "ti",
+        "url": "https://auth.goldcorretora.com.br/admin",
+        "status": "online",
+        "sortOrder": 6
+    }
+]
+
+def listar_aplicativos_hub() -> List[Dict[str, Any]]:
+    """
+    Retorna a lista dinâmica de aplicativos cadastrados no Gold Hub Apps.
+    1. Tenta consultar a tabela schema_hub.apps diretamente no PostgreSQL.
+    2. Em ambiente local ou se a tabela não responder, lê gold-hub-apps/server/local-store.json.
+    3. Fallback seguro para o catálogo padrão da Gold.
+    """
+    ensure_db_initialized()
+    conn, is_pg = get_connection()
+    apps = []
+
+    if is_pg:
+        try:
+            cur = conn.cursor()
+            cur.execute('''
+                SELECT id, slug, name, description, icon, category, url, status, "sortOrder"
+                FROM schema_hub.apps
+                ORDER BY "sortOrder" ASC, name ASC;
+            ''')
+            rows = cur.fetchall()
+            for r in rows:
+                d = dict(r)
+                k = (d.get("slug") or "").strip() or str(d.get("id"))
+                apps.append({
+                    "id": str(d.get("id")),
+                    "slug": d.get("slug") or k,
+                    "key": k,
+                    "name": d.get("name") or k,
+                    "description": d.get("description") or "",
+                    "icon": d.get("icon") or "Globe",
+                    "category": d.get("category") or "comercial",
+                    "url": d.get("url") or "",
+                    "status": d.get("status") or "online",
+                    "sortOrder": d.get("sortOrder") or 0
+                })
+        except Exception as e:
+            logger.info(f"[DB] schema_hub.apps não acessível diretamente no PostgreSQL ({e}). Tentando alternativas.")
+        finally:
+            conn.close()
+
+    if not apps:
+        try:
+            local_store_path = os.path.abspath(
+                os.path.join(os.path.dirname(__file__), "..", "gold-hub-apps", "server", "local-store.json")
+            )
+            if os.path.exists(local_store_path):
+                with open(local_store_path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    raw_apps = data.get("apps", [])
+                    for a in raw_apps:
+                        k = (a.get("slug") or "").strip() or str(a.get("id"))
+                        apps.append({
+                            "id": str(a.get("id")),
+                            "slug": a.get("slug") or k,
+                            "key": k,
+                            "name": a.get("name") or k,
+                            "description": a.get("description") or "",
+                            "icon": a.get("icon") or "Globe",
+                            "category": a.get("category") or "comercial",
+                            "url": a.get("url") or "",
+                            "status": a.get("status") or "online",
+                            "sortOrder": a.get("sortOrder") or 0
+                        })
+        except Exception as e:
+            logger.warning(f"[DB] Erro ao ler local-store.json do gold-hub-apps: {e}")
+
+    if not apps:
+        for a in DEFAULT_HUB_APPS:
+            k = (a.get("slug") or "").strip() or str(a.get("id"))
+            apps.append({
+                "id": str(a.get("id")),
+                "slug": a.get("slug") or k,
+                "key": k,
+                "name": a.get("name") or k,
+                "description": a.get("description") or "",
+                "icon": a.get("icon") or "Globe",
+                "category": a.get("category") or "comercial",
+                "url": a.get("url") or "",
+                "status": a.get("status") or "online",
+                "sortOrder": a.get("sortOrder") or 0
+            })
+
+    return apps

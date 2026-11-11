@@ -2046,29 +2046,17 @@ def get_admin_html(
             </div>
           </div>
 
-          <!-- SEÇÃO 3: APLICATIVOS LIBERADOS (Mesmo Padrão Visual do Modal de Cargos) -->
+          <!-- SEÇÃO 3: APLICATIVOS LIBERADOS (Sincronizado automaticamente com o Gold Hub) -->
           <div class="space-y-2">
             <div class="flex items-center justify-between">
               <span class="block text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">3. Aplicativos Liberados</span>
-              <span class="text-[11px] text-slate-400 dark:text-slate-500">APIs de dados integradas automaticamente</span>
+              <span class="text-[11px] text-slate-400 dark:text-slate-500 flex items-center gap-1.5 font-medium">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+                <span>Catálogo do Gold Hub</span>
+              </span>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 bg-slate-50/90 dark:bg-[#162235]/60 p-3.5 rounded-2xl border border-slate-200 dark:border-white/10 text-xs font-bold text-navy-900 dark:text-white">
-              <label class="flex items-center gap-2.5 p-2.5 rounded-xl bg-white dark:bg-[#0F1A2A] border border-slate-200/80 dark:border-white/10 cursor-pointer hover:border-gold-400 hover:bg-gold-50/30 dark:hover:bg-white/5 transition shadow-2xs">
-                <input type="checkbox" name="u-app" value="painel-vendedor" checked class="w-4 h-4 rounded text-gold-600 cursor-pointer focus:ring-gold-400" />
-                <span class="select-none">Painel de Vendas</span>
-              </label>
-              <label class="flex items-center gap-2.5 p-2.5 rounded-xl bg-white dark:bg-[#0F1A2A] border border-slate-200/80 dark:border-white/10 cursor-pointer hover:border-gold-400 hover:bg-gold-50/30 dark:hover:bg-white/5 transition shadow-2xs">
-                <input type="checkbox" name="u-app" value="cotador-web" checked class="w-4 h-4 rounded text-gold-600 cursor-pointer focus:ring-gold-400" />
-                <span class="select-none">Simulador / Cotador</span>
-              </label>
-              <label class="flex items-center gap-2.5 p-2.5 rounded-xl bg-white dark:bg-[#0F1A2A] border border-slate-200/80 dark:border-white/10 cursor-pointer hover:border-gold-400 hover:bg-gold-50/30 dark:hover:bg-white/5 transition shadow-2xs">
-                <input type="checkbox" name="u-app" value="carteira" class="w-4 h-4 rounded text-gold-600 cursor-pointer focus:ring-gold-400" />
-                <span class="select-none">Módulo Carteira Geral</span>
-              </label>
-              <label class="flex items-center gap-2.5 p-2.5 rounded-xl bg-gold-50/80 dark:bg-[#C59B27]/15 border border-gold-300 dark:border-[#C59B27]/40 text-gold-900 dark:text-[#DDBB5C] cursor-pointer hover:bg-gold-100/70 transition shadow-2xs font-extrabold">
-                <input type="checkbox" name="u-app" value="*" class="w-4 h-4 rounded text-gold-600 cursor-pointer focus:ring-gold-400" />
-                <span class="select-none truncate">Todos os Aplicativos (*)</span>
-              </label>
+            <div id="u-apps-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 bg-slate-50/90 dark:bg-[#162235]/60 p-3.5 rounded-2xl border border-slate-200 dark:border-white/10 text-xs font-bold text-navy-900 dark:text-white">
+              <!-- Renderizado dinamicamente via JS a partir do Gold Hub Apps -->
             </div>
           </div>
 
@@ -2266,25 +2254,15 @@ def get_admin_html(
 
           <!-- Aplicativos Liberados -->
           <div class="space-y-2">
-            <span class="block text-xs font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-[10px]">1. Aplicativos Padrão Liberados</span>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 bg-slate-50/90 dark:bg-[#162235]/60 p-3.5 rounded-2xl border border-slate-200 dark:border-white/10 text-xs font-bold text-navy-900 dark:text-white">
-              <label class="flex items-center gap-2.5 p-2 rounded-xl bg-white dark:bg-[#0F1A2A] border border-slate-200/80 dark:border-white/10 cursor-pointer hover:border-gold-400 hover:bg-gold-50/30 dark:hover:bg-white/5 transition shadow-2xs">
-                <input type="checkbox" name="r-app" value="painel-vendedor" checked class="w-4 h-4 rounded text-gold-600 cursor-pointer focus:ring-gold-400" />
-                <span class="select-none">Painel de Vendas</span>
-              </label>
-              <label class="flex items-center gap-2.5 p-2 rounded-xl bg-white dark:bg-[#0F1A2A] border border-slate-200/80 dark:border-white/10 cursor-pointer hover:border-gold-400 hover:bg-gold-50/30 dark:hover:bg-white/5 transition shadow-2xs">
-                <input type="checkbox" name="r-app" value="cotador-web" checked class="w-4 h-4 rounded text-gold-600 cursor-pointer focus:ring-gold-400" />
-                <span class="select-none">Simulador / Cotador</span>
-              </label>
-              <label class="flex items-center gap-2.5 p-2 rounded-xl bg-white dark:bg-[#0F1A2A] border border-slate-200/80 dark:border-white/10 cursor-pointer hover:border-gold-400 hover:bg-gold-50/30 dark:hover:bg-white/5 transition shadow-2xs">
-                <input type="checkbox" name="r-app" value="carteira" class="w-4 h-4 rounded text-gold-600 cursor-pointer focus:ring-gold-400" />
-                <span class="select-none">Carteira Geral</span>
-              </label>
-              
-              <label class="flex items-center gap-2.5 p-2 rounded-xl bg-gold-50/70 dark:bg-[#C59B27]/15 border border-gold-300 dark:border-[#C59B27]/40 text-gold-900 dark:text-[#DDBB5C] cursor-pointer hover:bg-gold-100/70 transition shadow-2xs font-extrabold">
-                <input type="checkbox" name="r-app" value="*" class="w-4 h-4 rounded text-gold-600 cursor-pointer focus:ring-gold-400" />
-                <span class="select-none truncate">Todos os Aplicativos (*)</span>
-              </label>
+            <div class="flex items-center justify-between">
+              <span class="block text-xs font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-[10px]">1. Aplicativos Padrão Liberados</span>
+              <span class="text-[11px] text-slate-400 dark:text-slate-500 flex items-center gap-1.5 font-medium">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+                <span>Catálogo do Gold Hub</span>
+              </span>
+            </div>
+            <div id="r-apps-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 bg-slate-50/90 dark:bg-[#162235]/60 p-3.5 rounded-2xl border border-slate-200 dark:border-white/10 text-xs font-bold text-navy-900 dark:text-white">
+              <!-- Renderizado dinamicamente via JS a partir do Gold Hub Apps -->
             </div>
           </div>
 
