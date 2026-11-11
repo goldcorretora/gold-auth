@@ -224,7 +224,7 @@ def user_can_access_app(user: Dict[str, Any], app_slug: str) -> bool:
     if cargo in ("ADMIN", "TI", "ADMINISTRATIVO"):
         return True
     apps = user.get("apps_permitidos") or []
-    if "*" in apps or app_slug in apps or app_slug in ("gold-auth", "gold-apps", "gold-db-api"):
+    if "*" in apps or app_slug in apps or app_slug in ("gold-auth", "gold-apps", "gold-db-api", "site-gold", "app-site-institucional"):
         return True
     return False
 
@@ -514,7 +514,8 @@ async def traefik_forward_auth(request: Request, target: Optional[str] = Query(N
         "X-Gold-User-Name": quote(user["nome"]),
         "X-Gold-User-Email": user["email"],
         "X-Gold-User-Role": user["cargo"],
-        "X-Gold-User-Permissions": ",".join(user.get("permissoes") or [])
+        "X-Gold-User-Permissions": ",".join(user.get("permissoes") or []),
+        "X-Gold-User-Apps": ",".join(user.get("apps_permitidos") or [])
     }
     return Response(status_code=200, headers=headers)
 
