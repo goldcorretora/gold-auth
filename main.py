@@ -40,6 +40,7 @@ from database import (
     listar_cargos,
     salvar_cargo,
     excluir_cargo,
+    listar_aplicativos_hub,
     registrar_auditoria,
     listar_auditoria,
     expurgar_auditoria_antiga
@@ -1203,6 +1204,13 @@ async def admin_test_email_settings(payload: TestEmailIn, request: Request):
     if not ok:
         raise HTTPException(status_code=400, detail=msg)
     return {"ok": True, "message": f"E-mail de teste disparado com sucesso para {destino}!"}
+
+@app.get("/api/admin/apps")
+async def admin_list_apps(request: Request):
+    user = get_current_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Não autenticado.")
+    return listar_aplicativos_hub()
 
 @app.get("/api/admin/roles")
 async def admin_list_roles(request: Request):
