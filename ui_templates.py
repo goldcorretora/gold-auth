@@ -2410,12 +2410,165 @@ def get_admin_html(
     let stateRoles = [];
     let stateAudit = [];
     let stateEmailCfg = {{}};
+    function escapeHtml(str) {{
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }}
+
+    let stateApps = [];
     const APP_NAMES = {{
-      'painel-vendedor': 'Painel de Vendas',
-      'cotador-web': 'Simulador / Cotador',
-      'carteira': 'Carteira Geral',
+      'painel-vendedor': 'Painel do Consultor & CRM',
+      'cotador-web': 'Cotador & Simulador ASSEPUC',
+      'carteira': 'Carteira de Segurados Gold',
+      'conciliacao': 'Conciliação Bancária & Apólices',
+      'clicksign': 'Emissão de Apólice (Clicksign)',
+      'gold-auth': 'Governança, Permissões & SSO',
+      'site-gold': 'Portal Institucional Gold',
       '*': 'Todos os Aplicativos (*)'
     }};
+
+    function aoAlternarCheckboxStar(starCb, prefix) {{
+      const isChecked = starCb.checked;
+      document.querySelectorAll(`input[name="${{prefix}}"]`).forEach(cb => {{
+        if (cb !== starCb) {{
+          cb.checked = isChecked;
+        }}
+      }});
+    }}
+
+    function aoAlternarCheckboxIndividual(individualCb, prefix) {{
+      const starCb = document.querySelector(`input[name="${{prefix}}"][value="*"]`);
+      if (!individualCb.checked && starCb) {{
+        starCb.checked = false;
+      }} else if (individualCb.checked && starCb) {{
+        const allIndividuals = Array.from(document.querySelectorAll(`input[name="${{prefix}}"]:not([value="*"])`));
+        if (allIndividuals.length > 0 && allIndividuals.every(cb => cb.checked)) {{
+          starCb.checked = true;
+        }}
+      }}
+    }}
+
+    function marcarAppsSelecionados(prefix, lista) {{
+      const arr = Array.isArray(lista) ? lista : [];
+      const hasStar = arr.includes('*');
+      document.querySelectorAll(`input[name="${{prefix}}"]`).forEach(cb => {{
+        if (cb.value === '*') {{
+          cb.checked = hasStar;
+        }} else {{
+          cb.checked = hasStar || arr.includes(cb.value);
+        }}
+      }});
+    }}
+
+    function renderizarContainersApps() {{
+      const containerU = document.getElementById('u-apps-container');
+      const containerR = document.getElementById('r-apps-container');
+      if (!containerU && !containerR) return;
+
+      const appsList = (stateApps && stateApps.length > 0) ? stateApps : [
+        {{ key: 'painel-vendedor', name: 'Painel do Consultor & CRM', category: 'comercial', description: 'Gestão de leads em tempo real e WhatsApp' }},
+        {{ key: 'cotador-web', name: 'Cotador & Simulador ASSEPUC', category: 'comercial', description: 'Simulação instantânea de planos Vida Toda' }},
+        {{ key: 'clicksign', name: 'Emissão de Apólice (Clicksign)', category: 'comercial', description: 'Assinatura digital de propostas e apólices' }},
+        {{ key: 'conciliacao', name: 'Conciliação Bancária & Apólices', category: 'gestao', description: 'Cruzamento automatizado entre relatórios e extratos' }},
+        {{ key: 'carteira', name: 'Carteira de Segurados Gold', category: 'gestao', description: 'Consulta centralizada de clientes ativos e vigências' }},
+        {{ key: 'gold-auth', name: 'Governança, Permissões & SSO', category: 'ti', description: 'Central de identidade da Gold Corretora' }}
+      ];
+
+      function buildHtml(prefix) {{
+        let html = '';
+        appsList.forEach(app => {{
+          const k = app.key || app.slug || app.id;
+          if (k === 'gold-db-api') return; // Serviço de backend transparente
+          html += `
+            <label class="flex items-center gap-2.5 p-2.5 rounded-xl bg-white dark:bg-[#0F1A2A] border border-slate-200/80 dark:border-white/10 cursor-pointer hover:border-gold-400 hover:bg-gold-50/30 dark:hover:bg-white/5 transition shadow-2xs group">
+              <input type="checkbox" name="${{prefix}}" value="${{escapeHtml(k)}}" onchange="aoAlternarCheckboxIndividual(this, '${{prefix}}')" class="w-4 h-4 rounded text-gold-600 cursor-pointer focus:ring-gold-400 shrink-0" />
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-1.5">
+                  <span class="block select-none truncate font-bold text-navy-900 dark:text-white text-xs group-hover:text-[#C59B27] transition-colors" title="${{escapeHtml(app.name)}}">${{escapeHtml(app.name)}}</span>
+                  ${{app.category ? `<span class="text-[9px] uppercase font-mono px-1.5 py-0.2 rounded bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-slate-400 shrink-0 font-semibold">${{escapeHtml(app.category)}}</span>` : ''}}
+                </div>
+                ${{app.description ? `<span class="block text-[10px] text-slate-500 dark:text-slate-400 truncate mt-0.5" title="${{escapeHtml(app.description)}}">${{escapeHtml(app.description)}}</span>` : ''}}
+              </div>
+            </label>
+          `;
+        }});
+
+        // Card Universal '*' ao final, ocupando as duas colunas
+        html += `
+          <label class="flex items-center gap-2.5 p-2.5 rounded-xl bg-gold-50/80 dark:bg-[#C59B27]/15 border border-gold-300 dark:border-[#C59B27]/40 text-gold-900 dark:text-[#DDBB5C] cursor-pointer hover:bg-gold-100/70 transition shadow-2xs font-extrabold sm:col-span-2">
+            <input type="checkbox" name="${{prefix}}" value="*" onchange="aoAlternarCheckboxStar(this, '${{prefix}}')" class="w-4 h-4 rounded text-gold-600 cursor-pointer focus:ring-gold-400 shrink-0" />
+            <div class="flex items-center justify-between flex-1 min-w-0">
+              <span class="select-none truncate font-black">Todos os Aplicativos (*)</span>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md bg-gold-500/20 text-gold-900 dark:text-[#E2C375]">Acesso Universal</span>
+            </div>
+          </label>
+        `;
+        return html;
+      }}
+
+      // Salva estado das checkboxes antes de atualizar o innerHTML
+      const checkedU = Array.from(document.querySelectorAll('input[name="u-app"]:checked')).map(cb => cb.value);
+      const checkedR = Array.from(document.querySelectorAll('input[name="r-app"]:checked')).map(cb => cb.value);
+
+      if (containerU) {{
+        containerU.innerHTML = buildHtml('u-app');
+        if (checkedU.length > 0) marcarAppsSelecionados('u-app', checkedU);
+      }}
+      if (containerR) {{
+        containerR.innerHTML = buildHtml('r-app');
+        if (checkedR.length > 0) marcarAppsSelecionados('r-app', checkedR);
+      }}
+    }}
+
+    function renderizarFiltroAppsDropdown() {{
+      const menu = document.getElementById('menu-app-dropdown');
+      if (!menu) return;
+      const curVal = document.getElementById('audit-app-filter')?.value || 'TODOS';
+      let html = `
+        <div class="px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 border-b border-slate-100 dark:border-white/10">
+          Filtrar por Módulo
+        </div>
+        <button type="button" onclick="selectAppFilter('TODOS', 'Todos os Aplicativos')" class="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between hover:bg-slate-100 dark:hover:bg-white/10 transition opt-app ${{curVal === 'TODOS' ? 'bg-gold-50 dark:bg-[#C59B27]/20 text-navy-950 dark:text-[#DDBB5C] font-bold' : 'text-slate-700 dark:text-slate-200'}}" data-val="TODOS">
+          <span>Todos os Aplicativos</span>
+          <span class="check-icon text-gold-600 dark:text-[#DDBB5C] font-bold ${{curVal === 'TODOS' ? '' : 'hidden'}}">✓</span>
+        </button>
+      `;
+
+      stateApps.forEach(app => {{
+        const k = app.key || app.slug || app.id;
+        if (k === 'gold-db-api') return;
+        const isSel = curVal === k;
+        html += `
+          <button type="button" onclick="selectAppFilter('${{escapeHtml(k)}}', '${{escapeHtml(app.name)}}')" class="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between hover:bg-slate-100 dark:hover:bg-white/10 transition opt-app ${{isSel ? 'bg-gold-50 dark:bg-[#C59B27]/20 text-navy-950 dark:text-[#DDBB5C] font-bold' : 'text-slate-700 dark:text-slate-200'}}" data-val="${{escapeHtml(k)}}">
+            <span class="truncate">${{escapeHtml(app.name)}}</span>
+            <span class="check-icon text-gold-600 dark:text-[#DDBB5C] font-bold ${{isSel ? '' : 'hidden'}}">✓</span>
+          </button>
+        `;
+      }});
+      menu.innerHTML = html;
+    }}
+
+    async function carregarApps() {{
+      try {{
+        const res = await fetch('/api/admin/apps');
+        if (res.ok) {{
+          stateApps = await res.json();
+          stateApps.forEach(app => {{
+            const k = app.key || app.slug || app.id;
+            if (k) APP_NAMES[k] = app.name;
+          }});
+          renderizarContainersApps();
+          renderizarFiltroAppsDropdown();
+        }}
+      }} catch (err) {{
+        console.warn('Erro ao carregar catálogo do Gold Hub:', err);
+      }}
+    }}
 
     // Controle de Tema (Claro / Escuro) sincronizado com o Gold Hub
     function atualizarIconesTema() {{
@@ -2464,13 +2617,13 @@ def get_admin_html(
       if (apps.includes('*')) {{
         return '<span class="text-[11px] font-bold px-2.5 py-0.5 rounded-md bg-gold-50 dark:bg-[#C59B27]/15 text-gold-900 dark:text-[#DDBB5C] border border-gold-300 dark:border-[#C59B27]/35">Todos os Aplicativos (*)</span>';
       }}
-      const visiveis = apps.filter(a => a !== 'gold-db-api' && a !== 'gold-auth' && a !== 'gold-apps' && a !== 'conciliacao');
+      const visiveis = apps.filter(a => a !== 'gold-db-api');
       if (!visiveis.length) {{
         return '<span class="text-[11px] text-slate-400 italic">Nenhum aplicativo</span>';
       }}
       return visiveis.map(a => {{
         const nome = APP_NAMES[a] || a;
-        return `<span class="text-[11px] font-semibold px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-white/10">${{nome}}</span>`;
+        return `<span class="text-[11px] font-semibold px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-white/10" title="${{escapeHtml(a)}}">${{escapeHtml(nome)}}</span>`;
       }}).join(' ');
     }}
     let ultimoResultadoSenhaTemp = null;
@@ -2543,9 +2696,7 @@ def get_admin_html(
       const role = stateRoles.find(r => r.codigo === cod);
       if (!role) return;
       const padrao = role.apps_padrao || ['painel-vendedor', 'cotador-web'];
-      document.querySelectorAll('input[name="u-app"]').forEach(cb => {{
-        cb.checked = padrao.includes(cb.value);
-      }});
+      marcarAppsSelecionados('u-app', padrao);
     }}
 
     async function carregarMe() {{
@@ -2857,13 +3008,13 @@ def get_admin_html(
       if (apps.includes('*')) {{
         return '<span class="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-gold-50 dark:bg-[#C59B27]/15 text-gold-900 dark:text-[#DDBB5C] border border-gold-300 dark:border-[#C59B27]/35">Todos os Apps (*)</span>';
       }}
-      const visiveis = apps.filter(a => a !== 'gold-db-api' && a !== 'gold-auth' && a !== 'gold-apps' && a !== 'conciliacao');
+      const visiveis = apps.filter(a => a !== 'gold-db-api');
       if (!visiveis.length) {{
         return '<span class="text-xs text-slate-400 dark:text-slate-500 italic">Nenhum aplicativo</span>';
       }}
       return visiveis.map(a => {{
         const nome = APP_NAMES[a] || a;
-        return `<span class="inline-flex items-center text-[11px] font-bold px-2 py-0.5 rounded-lg bg-amber-500/10 text-amber-900 dark:text-[#E2C375] border border-amber-500/25">${{nome}}</span>`;
+        return `<span class="inline-flex items-center text-[11px] font-bold px-2 py-0.5 rounded-lg bg-amber-500/10 text-amber-900 dark:text-[#E2C375] border border-amber-500/25" title="${{escapeHtml(a)}}">${{escapeHtml(nome)}}</span>`;
       }}).join(' ');
     }}
 
@@ -3852,9 +4003,10 @@ def get_admin_html(
       document.getElementById('u-unidade').value = '';
       alternarCamposFeriasNoModal();
       document.getElementById('user-form-error').classList.add('hidden');
-      document.querySelectorAll('input[name="u-app"]').forEach(cb => {{
-        cb.checked = ['painel-vendedor', 'cotador-web'].includes(cb.value);
-      }});
+      const cargoDefault = document.getElementById('u-cargo')?.value || 'VENDAS';
+      const role = (stateRoles || []).find(r => r.codigo === cargoDefault);
+      const padrao = role ? (role.apps_padrao || ['painel-vendedor', 'cotador-web']) : ['painel-vendedor', 'cotador-web'];
+      marcarAppsSelecionados('u-app', padrao);
       document.getElementById('user-modal').classList.remove('hidden');
     }}
 
@@ -3885,9 +4037,7 @@ def get_admin_html(
       document.getElementById('user-form-error').classList.add('hidden');
 
       const apps = u.apps_permitidos || [];
-      document.querySelectorAll('input[name="u-app"]').forEach(cb => {{
-        cb.checked = apps.includes(cb.value);
-      }});
+      marcarAppsSelecionados('u-app', apps);
       document.getElementById('user-modal').classList.remove('hidden');
     }}
 
@@ -3996,9 +4146,7 @@ def get_admin_html(
       document.getElementById('r-nome').value = '';
       document.getElementById('r-desc').value = '';
 
-      document.querySelectorAll('input[name="r-app"]').forEach(cb => {{
-        cb.checked = ['painel-vendedor', 'cotador-web'].includes(cb.value);
-      }});
+      marcarAppsSelecionados('r-app', ['painel-vendedor', 'cotador-web']);
 
       renderizarCatalogoPermissoes(['leads.view', 'leads.edit', 'cotador.use']);
       document.getElementById('role-modal').classList.remove('hidden');
@@ -4015,9 +4163,7 @@ def get_admin_html(
       document.getElementById('r-desc').value = r.descricao || '';
 
       const apps = r.apps_padrao || [];
-      document.querySelectorAll('input[name="r-app"]').forEach(cb => {{
-        cb.checked = apps.includes(cb.value);
-      }});
+      marcarAppsSelecionados('r-app', apps);
 
       renderizarCatalogoPermissoes(r.permissoes || []);
       document.getElementById('role-modal').classList.remove('hidden');
@@ -4148,7 +4294,8 @@ def get_admin_html(
     }});
 
     async function carregarTudo() {{
-      const promises = [carregarMe(), carregarConfigEmail(), carregarCargos(), carregarUsuarios()];
+      renderizarContainersApps();
+      const promises = [carregarApps(), carregarMe(), carregarConfigEmail(), carregarCargos(), carregarUsuarios()];
       if (IS_TI) promises.push(carregarAuditoria());
       await Promise.all(promises);
     }}
