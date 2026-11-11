@@ -143,7 +143,7 @@ DEFAULT_ROLES = [
             "cotador.use",
             "cotador.export"
         ],
-        "apps_padrao": ["painel-vendedor", "cotador-web"],
+        "apps_padrao": ["painel-vendedor", "cotador-web", "clicksign", "site-gold"],
         "is_system": False
     }
 ]
@@ -1816,6 +1816,17 @@ DEFAULT_HUB_APPS = [
         "url": "https://auth.goldcorretora.com.br/admin",
         "status": "online",
         "sortOrder": 6
+    },
+    {
+        "id": "app-site-institucional",
+        "slug": "site-gold",
+        "name": "Portal Institucional Gold",
+        "description": "Site oficial da Gold Corretora de Seguros com canais de atendimento, produtos e informações institucionais.",
+        "icon": "Globe",
+        "category": "comercial",
+        "url": "https://goldcorretora.com.br",
+        "status": "online",
+        "sortOrder": 7
     }
 ]
 
