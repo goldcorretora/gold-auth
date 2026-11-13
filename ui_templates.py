@@ -61,7 +61,7 @@ SHARED_HEAD = """
             300: '#EAD084',
             400: '#DDBB5C',
             500: '#C59B27',
-            600: '#A67F18',
+            600: '#A8821D',
             700: '#876511',
           },
           navy: {
@@ -112,8 +112,31 @@ SHARED_HEAD = """
   .input-corporate:focus {
     outline: none;
     background-color: #FFFFFF;
-    border-color: #0F1A2A;
-    box-shadow: 0 0 0 3px rgba(197, 155, 39, 0.28);
+    border-color: #C59B27;
+    box-shadow: 0 0 0 3px rgba(197, 155, 39, 0.25);
+  }
+  .select-corporate {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.65rem center;
+    background-size: 1rem 1rem;
+    padding-right: 2.25rem;
+    transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+  }
+  .select-corporate:focus {
+    outline: none;
+    border-color: #C59B27;
+    box-shadow: 0 0 0 3px rgba(197, 155, 39, 0.25);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .btn-tactile,
+    .modal-panel,
+    .menu-pop-in,
+    * {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+    }
   }
   .field-group:focus-within label {
     color: #0F1A2A;
@@ -1638,7 +1661,7 @@ def get_admin_html(
             <span id="audit-page-info-desktop" class="font-medium text-slate-600 dark:text-slate-300 tabular-nums">Exibindo 0-0 de 0</span>
             <div class="flex items-center gap-1.5 ml-2 border-l border-slate-200 dark:border-white/10 pl-3">
               <span class="text-slate-400">Por página:</span>
-              <select id="audit-page-size" onchange="mudarAuditPageSize(this.value)" class="bg-white dark:bg-[#162235] border border-slate-200 dark:border-white/15 rounded-lg px-2 py-1 text-xs font-bold text-navy-900 dark:text-white focus:outline-none focus:border-gold-500 cursor-pointer">
+              <select id="audit-page-size" onchange="mudarAuditPageSize(this.value)" class="select-corporate bg-white dark:bg-[#0F1A2A] border border-slate-300 dark:border-white/15 rounded-xl px-2.5 py-1 text-xs font-bold text-navy-900 dark:text-white cursor-pointer">
                 <option value="15">15</option>
                 <option value="25" selected>25</option>
                 <option value="50">50</option>
