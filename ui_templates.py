@@ -1505,58 +1505,58 @@ def get_admin_html(
         </div>
 
         <!-- KPIs da Equipe -->
-        <section aria-label="Resumo da equipe" class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
+        <section aria-label="Resumo da equipe" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           <div class="glass-card glass-card-hover rounded-2xl border border-slate-200/90 dark:border-white/10 bg-slate-50/70 dark:bg-[#162235]/80 p-5 flex flex-col justify-between gap-3 shadow-xs">
-            <div class="flex items-center justify-between gap-2">
-              <div class="flex items-center gap-3">
+            <div class="flex flex-wrap items-center justify-between gap-2.5">
+              <div class="flex items-center gap-3 min-w-0">
                 <div class="w-10 h-10 rounded-xl bg-[#FBF7EB] dark:bg-[#C59B27]/15 border border-[#EAD084]/70 dark:border-[#C59B27]/30 flex items-center justify-center text-[#A67F18] dark:text-[#DDBB5C] shrink-0">
                   <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                 </div>
-                <span class="text-xs font-semibold text-slate-600 dark:text-slate-300">Usuários Cadastrados</span>
+                <span class="text-xs font-semibold text-slate-600 dark:text-slate-300 leading-snug">Usuários Cadastrados</span>
               </div>
-              <span class="px-2.5 py-0.5 rounded-md bg-white dark:bg-white/10 text-slate-700 dark:text-slate-300 text-[11px] font-bold border border-slate-200 dark:border-white/10 shrink-0">Equipe Total</span>
+              <span class="px-2.5 py-0.5 rounded-md bg-white dark:bg-white/10 text-slate-700 dark:text-slate-300 text-[11px] font-bold border border-slate-200 dark:border-white/10 whitespace-nowrap shrink-0">Equipe Total</span>
             </div>
-            <div class="pt-1 flex items-baseline justify-between">
+            <div class="pt-1 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
               <strong id="kpi-total-users" class="text-3xl font-black text-navy-900 dark:text-white tabular-nums tracking-tight">—</strong>
-              <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Contas ativas na base</span>
+              <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium leading-tight">Contas ativas na base</span>
             </div>
           </div>
 
           <div class="glass-card glass-card-hover rounded-2xl border border-slate-200/90 dark:border-white/10 bg-slate-50/70 dark:bg-[#162235]/80 p-5 flex flex-col justify-between gap-3 shadow-xs">
-            <div class="flex items-center justify-between gap-2">
-              <div class="flex items-center gap-3">
+            <div class="flex flex-wrap items-center justify-between gap-2.5">
+              <div class="flex items-center gap-3 min-w-0">
                 <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
                   <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                   </svg>
                 </div>
-                <span class="text-xs font-semibold text-slate-600 dark:text-slate-300">Acessos Ativos</span>
+                <span class="text-xs font-semibold text-slate-600 dark:text-slate-300 leading-snug">Acessos Ativos</span>
               </div>
-              <span class="px-2.5 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold border border-emerald-200 dark:border-emerald-500/30 shrink-0">Liberados</span>
+              <span class="px-2.5 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold border border-emerald-200 dark:border-emerald-500/30 whitespace-nowrap shrink-0">Liberados</span>
             </div>
-            <div class="pt-1 flex items-baseline justify-between">
+            <div class="pt-1 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
               <strong id="kpi-active-users" class="text-3xl font-black text-navy-900 dark:text-white tabular-nums tracking-tight">—</strong>
-              <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Com credencial regular</span>
+              <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium leading-tight">Com credencial regular</span>
             </div>
           </div>
 
-          <div class="glass-card glass-card-hover rounded-2xl border border-slate-200/90 dark:border-white/10 bg-slate-50/70 dark:bg-[#162235]/80 p-5 flex flex-col justify-between gap-3 shadow-xs">
-            <div class="flex items-center justify-between gap-2">
-              <div class="flex items-center gap-3">
+          <div class="sm:col-span-2 lg:col-span-1 glass-card glass-card-hover rounded-2xl border border-slate-200/90 dark:border-white/10 bg-slate-50/70 dark:bg-[#162235]/80 p-5 flex flex-col justify-between gap-3 shadow-xs">
+            <div class="flex flex-wrap items-center justify-between gap-2.5">
+              <div class="flex items-center gap-3 min-w-0">
                 <div class="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
                   <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <span class="text-xs font-semibold text-slate-600 dark:text-slate-300">Pendências de Acesso</span>
+                <span class="text-xs font-semibold text-slate-600 dark:text-slate-300 leading-snug">Pendências de Acesso</span>
               </div>
-              <span id="kpi-pending-badge" class="px-2.5 py-0.5 rounded-md bg-white dark:bg-white/10 text-slate-600 dark:text-slate-300 text-[11px] font-bold border border-slate-200 dark:border-white/10 shrink-0">Tudo em dia</span>
+              <span id="kpi-pending-badge" class="px-2.5 py-0.5 rounded-md bg-white dark:bg-white/10 text-slate-600 dark:text-slate-300 text-[11px] font-bold border border-slate-200 dark:border-white/10 whitespace-nowrap shrink-0">Tudo em dia</span>
             </div>
-            <div class="pt-1 flex items-baseline justify-between">
+            <div class="pt-1 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
               <strong id="kpi-pending-users" class="text-3xl font-black text-navy-900 dark:text-white tabular-nums tracking-tight">—</strong>
-              <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Troca de senha ou inativo</span>
+              <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium leading-tight">Troca de senha ou inativo</span>
             </div>
           </div>
         </section>
@@ -1773,7 +1773,7 @@ def get_admin_html(
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/70 dark:bg-[#162235]/80 rounded-2xl border border-slate-200/90 dark:border-white/10 p-4 sm:p-5">
         <div>
           <h2 class="text-base font-extrabold text-navy-900 dark:text-white">Gestão da Equipe & Colaboradores</h2>
-          <p class="text-xs text-slate-600 dark:text-slate-400 mt-0.5">Altere nome ou e-mail de login, envie senhas temporárias (com troca obrigatória no 1º acesso), encerre sessões abertas ou bloqueie contas.</p>
+          <p class="text-xs text-slate-600 dark:text-slate-400 mt-0.5">Altere nome ou e-mail de login, envie senhas temporárias, encerre sessões abertas ou bloqueie contas.</p>
         </div>
         <button
           type="button"
@@ -2465,6 +2465,29 @@ def get_admin_html(
     </div>
   </div>
 
+  <!-- Popover flutuante de Aplicativos Liberados -->
+  <div
+    id="apps-popover"
+    role="dialog"
+    aria-label="Aplicativos liberados"
+    class="hidden fixed z-50 w-64 max-w-[calc(100vw-1.5rem)] rounded-2xl border border-slate-200 dark:border-[#C59B27]/30 bg-white dark:bg-[#0A121E] shadow-2xl p-3 menu-pop-in"
+  >
+    <div class="flex items-center justify-between gap-2 pb-2 mb-2 border-b border-slate-100 dark:border-white/10">
+      <span id="apps-popover-title" class="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-[#DDBB5C]">Aplicativos Liberados</span>
+      <button
+        type="button"
+        onclick="fecharAppsPopover()"
+        aria-label="Fechar lista de aplicativos"
+        class="w-6 h-6 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition cursor-pointer"
+      >
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    <ul id="apps-popover-list" class="space-y-1 max-h-56 overflow-y-auto pr-1"></ul>
+  </div>
+
   <script>
     const IS_TI = {'true' if is_ti else 'false'};
     let stateMe = null;
@@ -2674,19 +2697,133 @@ def get_admin_html(
     window.addEventListener('scroll', atualizarDynamicIslandScroll, {{ passive: true }});
     atualizarDynamicIslandScroll();
 
-    function formatAppBadges(apps) {{
-      if (!apps || !apps.length) return '<span class="text-[11px] text-slate-400 italic">Nenhum</span>';
+    let appsPopoverAnchor = null;
+
+    function fecharAppsPopover() {{
+      const pop = document.getElementById('apps-popover');
+      if (pop) pop.classList.add('hidden');
+      if (appsPopoverAnchor) {{
+        appsPopoverAnchor.setAttribute('aria-expanded', 'false');
+        appsPopoverAnchor = null;
+      }}
+    }}
+
+    function toggleAppsPopover(btn) {{
+      const pop = document.getElementById('apps-popover');
+      const list = document.getElementById('apps-popover-list');
+      const title = document.getElementById('apps-popover-title');
+      if (!pop || !list || !title) return;
+
+      if (appsPopoverAnchor === btn && !pop.classList.contains('hidden')) {{
+        fecharAppsPopover();
+        return;
+      }}
+
+      let apps = [];
+      try {{
+        apps = JSON.parse(decodeURIComponent(btn.dataset.apps || '[]'));
+      }} catch {{
+        apps = [];
+      }}
+      if (!apps.length) return;
+
+      if (appsPopoverAnchor) appsPopoverAnchor.setAttribute('aria-expanded', 'false');
+      appsPopoverAnchor = btn;
+      btn.setAttribute('aria-expanded', 'true');
+
+      title.textContent = `Aplicativos (${{apps.length}})`;
+      list.innerHTML = apps.map(a => {{
+        const nome = APP_NAMES[a] || a;
+        return `
+          <li class="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-slate-50/80 dark:bg-white/[0.04] border border-slate-100 dark:border-white/5">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#C59B27] shrink-0"></span>
+            <span class="text-xs font-semibold text-navy-900 dark:text-slate-100 truncate" title="${{escapeHtml(nome)}}">${{escapeHtml(nome)}}</span>
+          </li>
+        `;
+      }}).join('');
+
+      pop.classList.remove('hidden');
+      const rect = btn.getBoundingClientRect();
+      const popW = pop.offsetWidth || 256;
+      const popH = pop.offsetHeight || 180;
+      const margin = 12;
+
+      let left = rect.left;
+      if (left + popW > window.innerWidth - margin) {{
+        left = Math.max(margin, window.innerWidth - popW - margin);
+      }}
+      let top = rect.bottom + 6;
+      if (top + popH > window.innerHeight - margin) {{
+        top = Math.max(margin, rect.top - popH - 6);
+      }}
+      pop.style.left = `${{left}}px`;
+      pop.style.top = `${{top}}px`;
+    }}
+
+    document.addEventListener('click', (e) => {{
+      const pop = document.getElementById('apps-popover');
+      if (!pop || pop.classList.contains('hidden')) return;
+      if (pop.contains(e.target) || (appsPopoverAnchor && appsPopoverAnchor.contains(e.target))) return;
+      fecharAppsPopover();
+    }});
+    document.addEventListener('keydown', (e) => {{
+      if (e.key === 'Escape') fecharAppsPopover();
+    }});
+    window.addEventListener('scroll', (e) => {{
+      const pop = document.getElementById('apps-popover');
+      if (!pop || pop.classList.contains('hidden')) return;
+      if (e.target && pop.contains(e.target)) return;
+      fecharAppsPopover();
+    }}, true);
+
+    function renderCompactAppsSummary(apps, variant = 'table') {{
+      const isRole = variant === 'role';
+      if (!apps || !apps.length) {{
+        return isRole
+          ? '<span class="text-xs text-slate-400 dark:text-slate-500 italic">Nenhum aplicativo</span>'
+          : '<span class="text-[11px] text-slate-400 italic">Nenhum</span>';
+      }}
       if (apps.includes('*')) {{
-        return '<span class="text-[11px] font-bold px-2.5 py-0.5 rounded-md bg-gold-50 dark:bg-[#C59B27]/15 text-gold-900 dark:text-[#DDBB5C] border border-gold-300 dark:border-[#C59B27]/35">Todos os Aplicativos (*)</span>';
+        return '<span class="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-gold-50 dark:bg-[#C59B27]/15 text-gold-900 dark:text-[#DDBB5C] border border-gold-300 dark:border-[#C59B27]/35 whitespace-nowrap">Todos os Apps (*)</span>';
       }}
       const visiveis = apps.filter(a => a !== 'gold-db-api');
       if (!visiveis.length) {{
-        return '<span class="text-[11px] text-slate-400 italic">Nenhum aplicativo</span>';
+        return isRole
+          ? '<span class="text-xs text-slate-400 dark:text-slate-500 italic">Nenhum aplicativo</span>'
+          : '<span class="text-[11px] text-slate-400 italic">Nenhum aplicativo</span>';
       }}
-      return visiveis.map(a => {{
-        const nome = APP_NAMES[a] || a;
-        return `<span class="text-[11px] font-semibold px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-white/10" title="${{escapeHtml(a)}}">${{escapeHtml(nome)}}</span>`;
-      }}).join(' ');
+
+      const firstNome = APP_NAMES[visiveis[0]] || visiveis[0];
+      const badgeClass = isRole
+        ? 'inline-flex items-center text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-amber-500/10 text-amber-900 dark:text-[#E2C375] border border-amber-500/25'
+        : 'inline-flex items-center text-[11px] font-semibold px-2.5 py-0.5 rounded-lg bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-white/10';
+
+      if (visiveis.length === 1) {{
+        return `<span class="${{badgeClass}} max-w-[180px] truncate" title="${{escapeHtml(firstNome)}}">${{escapeHtml(firstNome)}}</span>`;
+      }}
+
+      const restantes = visiveis.length - 1;
+      const todosNomes = visiveis.map(a => APP_NAMES[a] || a).join(', ');
+      const encoded = encodeURIComponent(JSON.stringify(visiveis));
+
+      return `
+        <span class="${{badgeClass}} max-w-[140px] truncate" title="${{escapeHtml(firstNome)}}">${{escapeHtml(firstNome)}}</span>
+        <button
+          type="button"
+          data-apps="${{encoded}}"
+          onclick="toggleAppsPopover(this)"
+          aria-expanded="false"
+          aria-haspopup="dialog"
+          title="Ver todos os ${{visiveis.length}} aplicativos: ${{escapeHtml(todosNomes)}}"
+          class="btn-tactile inline-flex items-center gap-1 text-[11px] font-extrabold px-2 py-0.5 rounded-lg bg-[#FBF7EB] dark:bg-[#C59B27]/15 hover:bg-[#F5EBD0] dark:hover:bg-[#C59B27]/25 text-[#876511] dark:text-[#DDBB5C] border border-[#EAD084] dark:border-[#C59B27]/35 tabular-nums whitespace-nowrap cursor-pointer"
+        >
+          +${{restantes}}
+        </button>
+      `;
+    }}
+
+    function formatAppBadges(apps) {{
+      return renderCompactAppsSummary(apps, 'table');
     }}
     let ultimoResultadoSenhaTemp = null;
     let auditDebounceTimer = null;
@@ -3064,20 +3201,7 @@ def get_admin_html(
     }}
 
     function renderAppsChips(apps) {{
-      if (!apps || !apps.length) {{
-        return '<span class="text-xs text-slate-400 dark:text-slate-500 italic">Nenhum aplicativo</span>';
-      }}
-      if (apps.includes('*')) {{
-        return '<span class="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-gold-50 dark:bg-[#C59B27]/15 text-gold-900 dark:text-[#DDBB5C] border border-gold-300 dark:border-[#C59B27]/35">Todos os Apps (*)</span>';
-      }}
-      const visiveis = apps.filter(a => a !== 'gold-db-api');
-      if (!visiveis.length) {{
-        return '<span class="text-xs text-slate-400 dark:text-slate-500 italic">Nenhum aplicativo</span>';
-      }}
-      return visiveis.map(a => {{
-        const nome = APP_NAMES[a] || a;
-        return `<span class="inline-flex items-center text-[11px] font-bold px-2 py-0.5 rounded-lg bg-amber-500/10 text-amber-900 dark:text-[#E2C375] border border-amber-500/25" title="${{escapeHtml(a)}}">${{escapeHtml(nome)}}</span>`;
-      }}).join(' ');
+      return renderCompactAppsSummary(apps, 'role');
     }}
 
     function renderPermissionsChips(perms) {{
@@ -3500,10 +3624,10 @@ def get_admin_html(
       if (kpiPending) kpiPending.textContent = pendentes;
       if (badgePending) {{
         if (pendentes > 0) {{
-          badgePending.className = 'px-2.5 py-0.5 rounded-md bg-amber-50 dark:bg-amber-500/15 text-amber-800 dark:text-amber-300 text-[11px] font-bold border border-amber-200 dark:border-amber-500/30 shrink-0';
+          badgePending.className = 'px-2.5 py-0.5 rounded-md bg-amber-50 dark:bg-amber-500/15 text-amber-800 dark:text-amber-300 text-[11px] font-bold border border-amber-200 dark:border-amber-500/30 whitespace-nowrap shrink-0';
           badgePending.textContent = `${{pendentes}} com pendência`;
         }} else {{
-          badgePending.className = 'px-2.5 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold border border-emerald-200 dark:border-emerald-500/30 shrink-0';
+          badgePending.className = 'px-2.5 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold border border-emerald-200 dark:border-emerald-500/30 whitespace-nowrap shrink-0';
           badgePending.textContent = 'Tudo em dia';
         }}
       }}
