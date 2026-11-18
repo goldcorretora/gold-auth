@@ -4899,6 +4899,8 @@ def get_profile_html(
                 <input
                   id="p-telefone"
                   type="tel"
+                  inputmode="numeric"
+                  maxlength="15"
                   required
                   placeholder="(62) 99999-9999"
                   class="perfil-field w-full h-11 rounded-xl px-3.5 text-xs sm:text-sm font-semibold"
@@ -5424,7 +5426,7 @@ def get_profile_html(
       // Preencher campos do formulário
       document.getElementById('p-nome').value = u.nome || '';
       document.getElementById('p-apelido').value = u.apelido || (u.nome ? u.nome.split(' ')[0] : '');
-      document.getElementById('p-telefone').value = u.telefone || '';
+      document.getElementById('p-telefone').value = formatarTelefoneBR(u.telefone || '');
       document.getElementById('p-data-nascimento').value = u.data_nascimento || '';
       setGoldSelectValue('p-genero', u.genero || '');
       setGoldSelectValue('p-modelo-trabalho', u.modelo_trabalho || '');
@@ -5508,6 +5510,19 @@ def get_profile_html(
         labelEl.textContent = textoOriginal;
       }}
     }}
+
+    function formatarTelefoneBR(valor) {{
+      const d = String(valor || '').replace(/\\D/g, '').slice(0, 11);
+      if (!d) return '';
+      if (d.length <= 2) return `(${{d}}`;
+      if (d.length <= 6) return `(${{d.slice(0, 2)}}) ${{d.slice(2)}}`;
+      if (d.length <= 10) return `(${{d.slice(0, 2)}}) ${{d.slice(2, 6)}}-${{d.slice(6)}}`;
+      return `(${{d.slice(0, 2)}}) ${{d.slice(2, 7)}}-${{d.slice(7)}}`;
+    }}
+
+    document.getElementById('p-telefone').addEventListener('input', (e) => {{
+      e.target.value = formatarTelefoneBR(e.target.value);
+    }});
 
     document.getElementById('form-dados-principais').addEventListener('input', atualizarProgressoFormulario);
     document.getElementById('form-sobre-voce').addEventListener('input', atualizarProgressoFormulario);
