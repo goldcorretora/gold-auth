@@ -2006,9 +2006,6 @@ def get_admin_html(
         <span class="font-bold text-navy-900 dark:text-slate-200">Gold Corretora de Seguros</span>
         <span>• Portal Central de Acessos & Identidade (SSO)</span>
       </div>
-      <div class="font-mono text-[11px] text-slate-400 dark:text-slate-500">
-        Ambiente Corporativo Protegido
-      </div>
     </footer>
   </main>
 
@@ -3290,21 +3287,9 @@ def get_admin_html(
           <article class="glass-card glass-card-hover bg-white dark:bg-[#162235]/85 rounded-2xl border border-slate-200/90 dark:border-white/10 p-5 sm:p-6 flex flex-col justify-between shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:border-slate-300 dark:hover:border-white/20">
             <div class="space-y-3">
               <div class="flex items-start justify-between gap-3">
-                <div class="flex items-center gap-2 min-w-0">
-                  <span class="text-[10px] font-mono font-black uppercase px-2 py-0.5 rounded-md bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 border border-slate-200/80 dark:border-white/10 shrink-0">
-                    ${{r.codigo}}
-                  </span>
-                  <h3 class="text-base font-black text-navy-900 dark:text-white tracking-tight truncate">${{r.nome}}</h3>
-                </div>
+                <h3 class="text-base font-black text-navy-900 dark:text-white tracking-tight truncate min-w-0">${{r.nome}}</h3>
 
-                ${{r.codigo === 'TI' ? `
-                  <span class="inline-flex items-center gap-1.5 text-[10px] font-mono font-black px-2.5 py-1 rounded-lg bg-navy-900 dark:bg-[#0F1A2A] text-[#DDBB5C] border border-[#C59B27]/40 shadow-xs shrink-0">
-                    <svg class="w-3 h-3 text-[#DDBB5C]" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M10 1.944A11.954 11.954 0 012.166 5C2.056 5.649 2 6.319 2 7c0 5.225 3.34 9.67 8 11.317C14.66 16.67 18 12.225 18 7c0-.682-.057-1.35-.166-2.001A11.954 11.954 0 0110 1.944zM11 14a1 1 0 11-2 0 1 1 0 012 0zm0-7a1 1 0 10-2 0v3a1 1 0 102 0V7z" clip-rule="evenodd" />
-                    </svg>
-                    MESTRE
-                  </span>
-                ` : `
+                ${{r.codigo !== 'TI' ? `
                   <button
                     type="button"
                     onclick="removerCargo('${{r.codigo}}')"
@@ -3316,7 +3301,7 @@ def get_admin_html(
                     </svg>
                     <span>Excluir</span>
                   </button>
-                `}}
+                ` : ''}}
               </div>
 
               <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed min-h-[38px] line-clamp-2">
