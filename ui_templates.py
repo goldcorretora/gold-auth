@@ -1299,14 +1299,14 @@ def get_admin_html(
   >
     <header
       id="dynamic-island-header"
-      class="pointer-events-auto flex items-center justify-between px-4 sm:px-6 rounded-2xl app-header-shell bg-[#0F1A2A]/95 dark:bg-[#0F1A2A]/95 text-white border border-[#C59B27]/25 backdrop-blur-xl shadow-[0_8px_24px_-10px_rgba(10,18,30,0.35)]"
+      class="pointer-events-auto flex items-center justify-between gap-2 sm:gap-3 px-3 sm:px-5 lg:px-6 rounded-2xl app-header-shell bg-[#0F1A2A]/95 dark:bg-[#0F1A2A]/95 text-white border border-[#C59B27]/25 backdrop-blur-xl shadow-[0_8px_24px_-10px_rgba(10,18,30,0.35)]"
       style="height: 62px; width: 100%; max-width: 1600px;"
     >
       <!-- Lado Esquerdo: Logo & Identidade -->
-      <div class="flex items-center gap-3 sm:gap-5 shrink-0">
+      <div class="flex items-center shrink-0">
         <a href="/admin" class="flex items-center gap-3 sm:gap-4 shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C59B27] rounded-lg py-1" aria-label="Portal de Acessos Gold">
           {GOLD_LOGO_HEADER}
-          <div class="hidden sm:block border-l border-white/15 pl-3.5 py-0.5">
+          <div class="hidden lg:block border-l border-white/15 pl-3.5 py-0.5 whitespace-nowrap">
             <span class="text-[11px] font-extrabold uppercase tracking-wider block text-[#DDBB5C] leading-tight">
               Portal de Acessos
             </span>
@@ -1318,17 +1318,18 @@ def get_admin_html(
       </div>
 
       <!-- Lado Direito: Atalho Gold Hub + Alternador de Tema + Menu do Usuário -->
-      <div class="flex items-center gap-2 sm:gap-2.5">
+      <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
         <!-- Botão Atalho Rápido: Hub de Aplicativos -->
         <a
           href="{default_redirect}"
-          class="btn-tactile inline-flex items-center gap-2 h-9 px-2.5 sm:px-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#C59B27]/40 text-xs font-bold text-slate-200 hover:text-[#DDBB5C] transition-colors"
+          aria-label="Hub de Aplicativos"
+          class="btn-tactile inline-flex items-center justify-center gap-2 w-8 h-8 sm:w-9 sm:h-9 md:w-auto md:px-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#C59B27]/40 text-xs font-bold text-slate-200 hover:text-[#DDBB5C] whitespace-nowrap shrink-0 transition-colors"
           title="Voltar para a Central de Aplicativos (Hub de Aplicativos)"
         >
-          <svg class="w-4 h-4 text-[#DDBB5C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <svg class="w-4 h-4 text-[#DDBB5C] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
           </svg>
-          <span class="hidden sm:inline">Hub de Aplicativos</span>
+          <span class="hidden md:inline">Hub de Aplicativos</span>
         </a>
 
         <!-- Botão de Alternar Tema (Claro / Escuro) Direto na Dynamic Island -->
@@ -1338,7 +1339,7 @@ def get_admin_html(
           onclick="alternarTema()"
           aria-label="Alternar entre modo claro e escuro"
           title="Alternar tema (Claro / Escuro)"
-          class="btn-tactile w-9 h-9 rounded-xl flex items-center justify-center bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#C59B27]/40 text-[#DDBB5C] transition-colors cursor-pointer"
+          class="btn-tactile w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center shrink-0 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#C59B27]/40 text-[#DDBB5C] transition-colors cursor-pointer"
         >
           <!-- Ícone Sol (visível no Dark Mode) -->
           <svg id="theme-icon-sun" class="w-4 h-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -1351,7 +1352,7 @@ def get_admin_html(
         </button>
 
         <!-- Usuário & Menu Dropdown -->
-        <div class="relative" id="user-dropdown-container">
+        <div class="relative shrink-0" id="user-dropdown-container">
           <button
             type="button"
             id="user-menu-btn"
@@ -1359,15 +1360,15 @@ def get_admin_html(
             aria-expanded="false"
             aria-haspopup="menu"
             aria-label="Menu do usuário"
-            class="flex items-center gap-2 pl-1.5 pr-2.5 sm:pr-3 h-9 rounded-xl border border-white/15 bg-[#162235]/90 hover:bg-[#1E2F47] transition-colors duration-150 cursor-pointer active:scale-98 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C59B27]"
+            class="flex items-center gap-1.5 sm:gap-2 pl-1 sm:pl-1.5 pr-1.5 sm:pr-2.5 lg:pr-3 h-8 sm:h-9 rounded-xl border border-white/15 bg-[#162235]/90 hover:bg-[#1E2F47] whitespace-nowrap shrink-0 transition-colors duration-150 cursor-pointer active:scale-98 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C59B27]"
           >
             <div id="header-avatar-initials" class="w-6 h-6 rounded-lg bg-[#0F1A2A] border border-[#C59B27]/40 text-[#DDBB5C] flex items-center justify-center font-bold text-[11px] shrink-0">
               AD
             </div>
-            <span id="header-user-name" class="hidden md:inline font-bold text-xs text-white truncate max-w-[140px] lg:max-w-[180px]">
+            <span id="header-user-name" class="hidden sm:inline font-bold text-xs text-white truncate max-w-[90px] md:max-w-[140px] lg:max-w-[180px]">
               Admin
             </span>
-            <svg id="header-chevron" class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <svg id="header-chevron" class="w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
             </svg>
           </button>
@@ -1377,7 +1378,7 @@ def get_admin_html(
             id="user-dropdown-menu"
             role="menu"
             aria-orientation="vertical"
-            class="hidden absolute right-0 top-full mt-2.5 w-72 sm:w-80 rounded-2xl p-2.5 z-50 origin-top-right menu-pop-in text-slate-100 bg-[#0A121E] border border-[#C59B27]/30 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.75)]"
+            class="hidden absolute right-0 top-full mt-2.5 w-[min(18rem,calc(100vw-1.5rem))] sm:w-80 rounded-2xl p-2.5 z-50 origin-top-right menu-pop-in text-slate-100 bg-[#0A121E] border border-[#C59B27]/30 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.75)]"
           >
             <div class="p-3 rounded-xl bg-[#0F1A2A] border border-white/10 flex items-center gap-3">
               <div id="dropdown-avatar-initials" class="w-9 h-9 rounded-xl bg-[#162235] border border-[#C59B27]/40 text-[#DDBB5C] flex items-center justify-center font-bold text-xs shrink-0">
@@ -4515,14 +4516,14 @@ def get_profile_html(
   >
     <header
       id="dynamic-island-header"
-      class="pointer-events-auto flex items-center justify-between px-4 sm:px-6 rounded-2xl app-header-shell bg-[#0F1A2A]/95 dark:bg-[#0F1A2A]/95 text-white border border-[#C59B27]/25 backdrop-blur-xl shadow-[0_8px_24px_-10px_rgba(10,18,30,0.35)]"
+      class="pointer-events-auto flex items-center justify-between gap-2 sm:gap-3 px-3 sm:px-5 lg:px-6 rounded-2xl app-header-shell bg-[#0F1A2A]/95 dark:bg-[#0F1A2A]/95 text-white border border-[#C59B27]/25 backdrop-blur-xl shadow-[0_8px_24px_-10px_rgba(10,18,30,0.35)]"
       style="height: 62px; width: 100%; max-width: 1600px;"
     >
       <!-- Lado Esquerdo: Logo & Identidade -->
-      <div class="flex items-center gap-3 sm:gap-5 shrink-0">
+      <div class="flex items-center shrink-0">
         <a href="{hub_url}" class="flex items-center gap-3 sm:gap-4 shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C59B27] rounded-lg py-1" aria-label="Central de Aplicativos Gold">
           {GOLD_LOGO_HEADER}
-          <div class="hidden sm:block border-l border-white/15 pl-3.5 py-0.5">
+          <div class="hidden lg:block border-l border-white/15 pl-3.5 py-0.5 whitespace-nowrap">
             <span class="text-[11px] font-extrabold uppercase tracking-wider block text-[#DDBB5C] leading-tight">
               Meu Perfil
             </span>
@@ -4534,25 +4535,27 @@ def get_profile_html(
       </div>
 
       <!-- Lado Direito: Atalho Voltar / Hub + Alternador de Tema + Menu do Usuário -->
-      <div class="flex items-center gap-2 sm:gap-2.5">
+      <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
         <!-- Botão Atalho Rápido: Voltar ao Sistema / Hub -->
         <a
           href="{default_redirect}"
-          class="btn-tactile inline-flex items-center gap-2 h-9 px-2.5 sm:px-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#C59B27]/40 text-xs font-bold text-slate-200 hover:text-[#DDBB5C] transition-colors"
+          aria-label="Voltar ao Sistema"
+          class="btn-tactile inline-flex items-center justify-center gap-2 w-8 h-8 sm:w-9 sm:h-9 md:w-auto md:px-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#C59B27]/40 text-xs font-bold text-slate-200 hover:text-[#DDBB5C] whitespace-nowrap shrink-0 transition-colors"
           title="Voltar para o sistema anterior"
         >
-          <svg class="w-4 h-4 text-[#DDBB5C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <svg class="w-4 h-4 text-[#DDBB5C] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
-          <span class="hidden sm:inline">Voltar ao Sistema</span>
+          <span class="hidden md:inline">Voltar ao Sistema</span>
         </a>
 
         <a
           href="{hub_url}"
-          class="btn-tactile hidden md:inline-flex items-center gap-2 h-9 px-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#C59B27]/40 text-xs font-bold text-slate-200 hover:text-[#DDBB5C] transition-colors"
+          aria-label="Ir para o Hub de Aplicativos"
+          class="btn-tactile hidden md:inline-flex items-center gap-2 h-9 px-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#C59B27]/40 text-xs font-bold text-slate-200 hover:text-[#DDBB5C] whitespace-nowrap shrink-0 transition-colors"
           title="Ir para o Hub de Aplicativos"
         >
-          <svg class="w-4 h-4 text-[#DDBB5C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <svg class="w-4 h-4 text-[#DDBB5C] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
           </svg>
           <span>Hub</span>
@@ -4565,7 +4568,7 @@ def get_profile_html(
           onclick="alternarTema()"
           aria-label="Alternar entre modo claro e escuro"
           title="Alternar tema (Claro / Escuro)"
-          class="btn-tactile w-9 h-9 rounded-xl flex items-center justify-center bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#C59B27]/40 text-[#DDBB5C] transition-colors cursor-pointer"
+          class="btn-tactile w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center shrink-0 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#C59B27]/40 text-[#DDBB5C] transition-colors cursor-pointer"
         >
           <svg id="theme-icon-sun" class="w-4 h-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -4576,7 +4579,7 @@ def get_profile_html(
         </button>
 
         <!-- Usuário & Menu Dropdown -->
-        <div class="relative" id="user-dropdown-container">
+        <div class="relative shrink-0" id="user-dropdown-container">
           <button
             type="button"
             id="user-menu-btn"
@@ -4584,15 +4587,15 @@ def get_profile_html(
             aria-expanded="false"
             aria-haspopup="menu"
             aria-label="Menu do usuário"
-            class="flex items-center gap-2 pl-1.5 pr-2.5 sm:pr-3 h-9 rounded-xl border border-white/15 bg-[#162235]/90 hover:bg-[#1E2F47] transition-colors duration-150 cursor-pointer active:scale-98 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C59B27]"
+            class="flex items-center gap-1.5 sm:gap-2 pl-1 sm:pl-1.5 pr-1.5 sm:pr-2.5 lg:pr-3 h-8 sm:h-9 rounded-xl border border-white/15 bg-[#162235]/90 hover:bg-[#1E2F47] whitespace-nowrap shrink-0 transition-colors duration-150 cursor-pointer active:scale-98 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C59B27]"
           >
             <div id="header-avatar-initials" class="w-6 h-6 rounded-lg bg-[#0F1A2A] border border-[#C59B27]/40 text-[#DDBB5C] flex items-center justify-center font-bold text-[11px] shrink-0">
               GC
             </div>
-            <span id="header-user-name" class="hidden md:inline font-bold text-xs text-white truncate max-w-[140px] lg:max-w-[180px]">
+            <span id="header-user-name" class="hidden sm:inline font-bold text-xs text-white truncate max-w-[90px] md:max-w-[140px] lg:max-w-[180px]">
               Carregando...
             </span>
-            <svg id="header-chevron" class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <svg id="header-chevron" class="w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
             </svg>
           </button>
@@ -4602,7 +4605,7 @@ def get_profile_html(
             id="user-dropdown-menu"
             role="menu"
             aria-orientation="vertical"
-            class="hidden absolute right-0 top-full mt-2.5 w-72 sm:w-80 rounded-2xl p-2.5 z-50 origin-top-right menu-pop-in text-slate-100 bg-[#0A121E] border border-[#C59B27]/30 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.75)]"
+            class="hidden absolute right-0 top-full mt-2.5 w-[min(18rem,calc(100vw-1.5rem))] sm:w-80 rounded-2xl p-2.5 z-50 origin-top-right menu-pop-in text-slate-100 bg-[#0A121E] border border-[#C59B27]/30 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.75)]"
           >
             <div class="p-3 rounded-xl bg-[#0F1A2A] border border-white/10 flex items-center gap-3">
               <div id="dropdown-avatar-initials" class="w-9 h-9 rounded-xl bg-[#162235] border border-[#C59B27]/40 text-[#DDBB5C] flex items-center justify-center font-bold text-xs shrink-0">
