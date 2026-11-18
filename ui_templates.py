@@ -2421,7 +2421,7 @@ def get_admin_html(
   </div>
 
   <!-- MODAL DE CONFIRMAÇÃO ELEGANTE (BLOQUEAR, REATIVAR E EXCLUIR) -->
-  <div id="confirm-action-modal" class="hidden fixed inset-0 z-50 bg-navy-950/75 backdrop-blur-xs flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="confirm-action-title">
+  <div id="confirm-action-modal" onclick="if(event.target === this) fecharModalConfirmacao()" class="hidden fixed inset-0 z-50 bg-navy-950/75 backdrop-blur-xs flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="confirm-action-title">
     <div class="modal-panel bg-white dark:bg-[#0F1A2A] rounded-3xl border border-slate-200 dark:border-white/10 max-w-md w-full p-6 sm:p-7 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200">
       <div class="flex items-start gap-4">
         <div id="confirm-action-icon-wrap" class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 text-xl font-bold shadow-xs">
@@ -2442,6 +2442,8 @@ def get_admin_html(
           <div id="confirm-action-user-email" class="text-[11px] text-slate-500 dark:text-slate-400 font-mono truncate">email@goldcorretora.com.br</div>
         </div>
       </div>
+
+      <div id="confirm-action-error" class="hidden rounded-xl border border-red-200 dark:border-red-500/30 bg-red-50 dark:bg-red-950/30 px-3.5 py-2.5 text-xs font-semibold text-red-700 dark:text-red-300 leading-relaxed" role="alert"></div>
 
       <div class="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-100 dark:border-white/10">
         <button
@@ -3449,6 +3451,11 @@ def get_admin_html(
       const modal = document.getElementById('confirm-action-modal');
       if (modal) modal.classList.add('hidden');
       confirmPendingAction = null;
+      const errBox = document.getElementById('confirm-action-error');
+      if (errBox) {{
+        errBox.classList.add('hidden');
+        errBox.textContent = '';
+      }}
       const btnExec = document.getElementById('confirm-action-btn-exec');
       if (btnExec) {{
         btnExec.disabled = false;
@@ -3456,7 +3463,7 @@ def get_admin_html(
       }}
     }}
 
-    function abrirModalConfirmacao({{ title, desc, icon, iconWrapClass, btnLabel, btnClass, user, onConfirm }}) {{
+    function abrirModalConfirmacao({{ title, desc, icon, iconWrapClass, btnLabel, btnClass, user, target, onConfirm }}) {{
       const modal = document.getElementById('confirm-action-modal');
       if (!modal) return;
 
@@ -3465,11 +3472,23 @@ def get_admin_html(
       document.getElementById('confirm-action-icon').innerHTML = icon;
       document.getElementById('confirm-action-icon-wrap').className = 'w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 text-xl font-bold shadow-xs ' + iconWrapClass;
 
-      if (user) {{
+      const errBox = document.getElementById('confirm-action-error');
+      if (errBox) {{
+        errBox.classList.add('hidden');
+        errBox.textContent = '';
+      }}
+
+      const targetInfo = target || (user ? {{
+        initials: getInitials(user.nome || user.email),
+        title: user.nome || 'Colaborador',
+        subtitle: user.email || ''
+      }} : null);
+
+      if (targetInfo) {{
         document.getElementById('confirm-action-target-card').classList.remove('hidden');
-        document.getElementById('confirm-action-avatar').textContent = getInitials(user.nome || user.email);
-        document.getElementById('confirm-action-user-name').textContent = user.nome || 'Colaborador';
-        document.getElementById('confirm-action-user-email').textContent = user.email || '';
+        document.getElementById('confirm-action-avatar').textContent = targetInfo.initials || 'G';
+        document.getElementById('confirm-action-user-name').textContent = targetInfo.title || '';
+        document.getElementById('confirm-action-user-email').textContent = targetInfo.subtitle || '';
       }} else {{
         document.getElementById('confirm-action-target-card').classList.add('hidden');
       }}
@@ -3480,6 +3499,10 @@ def get_admin_html(
       btnExec.disabled = false;
 
       btnExec.onclick = async () => {{
+        if (errBox) {{
+          errBox.classList.add('hidden');
+          errBox.textContent = '';
+        }}
         btnExec.disabled = true;
         const origText = document.getElementById('confirm-action-btn-label').textContent;
         document.getElementById('confirm-action-btn-label').textContent = 'Processando...';
@@ -3488,7 +3511,13 @@ def get_admin_html(
           fecharModalConfirmacao();
         }} catch (err) {{
           console.error(err);
-          alert('Ocorreu um erro ao executar a ação.');
+          const msg = err?.message || 'Ocorreu um erro ao executar a ação.';
+          if (errBox) {{
+            errBox.textContent = msg;
+            errBox.classList.remove('hidden');
+          }} else {{
+            alert(msg);
+          }}
           btnExec.disabled = false;
           document.getElementById('confirm-action-btn-label').textContent = origText;
         }}
@@ -4381,20 +4410,35 @@ def get_admin_html(
       }}
     }});
 
-    async function removerCargo(codigo) {{
-      if (!confirm(`Deseja realmente excluir o cargo ${{codigo}}? Esta ação só é permitida se nenhum colaborador estiver vinculado.`)) return;
-      try {{
-        const res = await fetch(`/api/admin/roles/${{codigo}}`, {{ method: 'DELETE' }});
-        if (!res.ok) {{
-          const errData = await res.json().catch(() => ({{}}));
-          alert(errData.detail || 'Não foi possível excluir o cargo.');
-          return;
+    function removerCargo(codigo) {{
+      const role = (stateRoles || []).find(r => r.codigo === codigo);
+      const roleName = role?.nome || codigo;
+      const vinculados = (stateUsers || []).filter(u => (u.cargo || '').toUpperCase() === codigo.toUpperCase()).length;
+
+      abrirModalConfirmacao({{
+        title: `Excluir Cargo ${{roleName}}?`,
+        desc: vinculados > 0
+          ? `Este cargo possui ${{vinculados}} colaborador(es) vinculado(s). Reatribua-os para outro cargo antes de excluir.`
+          : 'Esta ação removerá permanentemente o cargo e suas permissões padrão. Só é permitida se nenhum colaborador estiver vinculado.',
+        icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>',
+        iconWrapClass: 'bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-500/30',
+        btnLabel: 'Excluir Cargo',
+        btnClass: 'bg-rose-700 hover:bg-rose-800 text-white',
+        target: {{
+          initials: getInitials(roleName),
+          title: roleName,
+          subtitle: `${{codigo}} • ${{vinculados}} colaborador(es) vinculado(s)`
+        }},
+        onConfirm: async () => {{
+          const res = await fetch(`/api/admin/roles/${{encodeURIComponent(codigo)}}`, {{ method: 'DELETE' }});
+          if (!res.ok) {{
+            const errData = await res.json().catch(() => ({{}}));
+            throw new Error(errData.detail || 'Não foi possível excluir o cargo.');
+          }}
+          await carregarCargos();
+          await carregarAuditoria();
         }}
-        await carregarCargos();
-        await carregarAuditoria();
-      }} catch (err) {{
-        alert('Erro ao excluir cargo.');
-      }}
+      }});
     }}
 
 
