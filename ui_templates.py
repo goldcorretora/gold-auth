@@ -1277,6 +1277,44 @@ def get_admin_html(
       }} catch (e) {{}}
     }})();
   </script>
+  <style>
+    .perfil-field {{
+      background-color: #F8FAFC;
+      color: #0F1A2A;
+      border: 1px solid #CBD5E1;
+      transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+    }}
+    .perfil-field::placeholder {{
+      color: #94A3B8;
+      font-weight: 500;
+    }}
+    .perfil-field:focus {{
+      outline: none;
+      background-color: #FFFFFF;
+      border-color: #C59B27;
+      box-shadow: 0 0 0 3px rgba(197, 155, 39, 0.25);
+    }}
+    .perfil-field:-webkit-autofill,
+    .perfil-field:-webkit-autofill:hover,
+    .perfil-field:-webkit-autofill:focus {{
+      -webkit-text-fill-color: #0F1A2A !important;
+      -webkit-box-shadow: 0 0 0 1000px #F8FAFC inset !important;
+      transition: background-color 9999s ease-in-out 0s;
+    }}
+    .gold-select-trigger {{
+      background-color: #F8FAFC;
+      color: #0F1A2A;
+      border: 1px solid #CBD5E1;
+      transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+    }}
+    .gold-select-trigger:focus,
+    .gold-select-trigger[aria-expanded="true"] {{
+      outline: none;
+      background-color: #FFFFFF;
+      border-color: #C59B27;
+      box-shadow: 0 0 0 3px rgba(197, 155, 39, 0.25);
+    }}
+  </style>
 </head>
 <body class="hub-surface text-slate-800 dark:text-slate-100 min-h-screen relative overflow-x-hidden flex flex-col selection:bg-gold-500 selection:text-white">
   <!-- Scroll Progress Bar -->
@@ -4482,6 +4520,44 @@ def get_profile_html(
       }} catch (e) {{}}
     }})();
   </script>
+  <style>
+    .perfil-field {{
+      background-color: #F8FAFC;
+      color: #0F1A2A;
+      border: 1px solid #CBD5E1;
+      transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+    }}
+    .perfil-field::placeholder {{
+      color: #94A3B8;
+      font-weight: 500;
+    }}
+    .perfil-field:focus {{
+      outline: none;
+      background-color: #FFFFFF;
+      border-color: #C59B27;
+      box-shadow: 0 0 0 3px rgba(197, 155, 39, 0.25);
+    }}
+    .perfil-field:-webkit-autofill,
+    .perfil-field:-webkit-autofill:hover,
+    .perfil-field:-webkit-autofill:focus {{
+      -webkit-text-fill-color: #0F1A2A !important;
+      -webkit-box-shadow: 0 0 0 1000px #F8FAFC inset !important;
+      transition: background-color 9999s ease-in-out 0s;
+    }}
+    .gold-select-trigger {{
+      background-color: #F8FAFC;
+      color: #0F1A2A;
+      border: 1px solid #CBD5E1;
+      transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+    }}
+    .gold-select-trigger:focus,
+    .gold-select-trigger[aria-expanded="true"] {{
+      outline: none;
+      background-color: #FFFFFF;
+      border-color: #C59B27;
+      box-shadow: 0 0 0 3px rgba(197, 155, 39, 0.25);
+    }}
+  </style>
 </head>
 <body class="hub-surface text-slate-800 dark:text-slate-100 min-h-screen relative overflow-x-hidden flex flex-col selection:bg-gold-500 selection:text-white">
   <!-- Scroll Progress Bar -->
@@ -4729,289 +4805,119 @@ def get_profile_html(
           <!-- Banner de Feedback (Sucesso / Erro no Salvamento) -->
           <div id="profile-save-banner" class="hidden rounded-2xl p-4 text-xs sm:text-sm font-bold flex items-center justify-between gap-3" role="status" aria-live="polite"></div>
 
-          <form id="profile-form" class="space-y-8" novalidate>
-            <!-- SEÇÃO 1: DADOS PRINCIPAIS (ETAPA 2) -->
-            <section class="space-y-4">
-              <div class="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-2.5">
-                <div>
-                  <h2 class="text-sm sm:text-base font-extrabold text-navy-900 dark:text-white flex items-center gap-2">
-                    <span class="w-6 h-6 rounded-lg bg-[#C59B27]/15 text-[#C59B27] dark:text-[#DDBB5C] flex items-center justify-center font-mono text-xs font-black">1</span>
-                    <span>Dados Principais de Identificação</span>
-                  </h2>
-                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Como seu nome aparece no topo dos sistemas e seus dados básicos.</p>
-                </div>
-                <span class="text-[11px] font-bold text-gold-700 dark:text-[#DDBB5C] bg-gold-50 dark:bg-[#C59B27]/15 px-2.5 py-1 rounded-lg border border-gold-200 dark:border-[#C59B27]/30">Principais</span>
+          <!-- Navegação por Abas (Opção A: Sem numeração sequencial) -->
+          <div role="tablist" aria-label="Seções do Perfil" class="flex flex-wrap items-center gap-1.5 p-1.5 rounded-2xl bg-slate-100 dark:bg-[#0A121E] border border-slate-200 dark:border-white/10">
+            <button
+              type="button"
+              role="tab"
+              data-perfil-tab="dados"
+              aria-selected="true"
+              onclick="trocarAbaPerfil('dados')"
+              class="perfil-tab-btn btn-tactile flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold bg-[#C59B27] text-[#0F1A2A] shadow-sm whitespace-nowrap cursor-pointer transition-colors"
+            >
+              <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              <span>Dados Principais</span>
+            </button>
+
+            <button
+              type="button"
+              role="tab"
+              data-perfil-tab="sobre"
+              aria-selected="false"
+              onclick="trocarAbaPerfil('sobre')"
+              class="perfil-tab-btn btn-tactile flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-white/10 whitespace-nowrap cursor-pointer transition-colors"
+            >
+              <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span>Sobre Você</span>
+              <span class="hidden sm:inline px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-black/10 dark:bg-white/10">Opcional</span>
+            </button>
+
+            <button
+              type="button"
+              role="tab"
+              data-perfil-tab="seguranca"
+              aria-selected="false"
+              onclick="trocarAbaPerfil('seguranca')"
+              class="perfil-tab-btn btn-tactile flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-white/10 whitespace-nowrap cursor-pointer transition-colors"
+            >
+              <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              <span>Segurança &amp; Senha</span>
+            </button>
+          </div>
+
+          <!-- ABA 1: DADOS PRINCIPAIS -->
+          <form id="form-dados-principais" class="perfil-tab-panel space-y-6" data-panel="dados" novalidate>
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-3">
+              <div>
+                <h2 class="text-sm sm:text-base font-extrabold text-navy-900 dark:text-white">
+                  Dados Principais de Identificação
+                </h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Como seu nome aparece no topo dos sistemas e seus dados básicos de contato.</p>
+              </div>
+              <span class="text-[11px] font-bold text-gold-700 dark:text-[#DDBB5C] bg-gold-50 dark:bg-[#C59B27]/15 px-2.5 py-1 rounded-lg border border-gold-200 dark:border-[#C59B27]/30 shrink-0">Obrigatórios</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="p-nome" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">
+                  Nome Completo <span class="text-rose-500">*</span>
+                </label>
+                <input
+                  id="p-nome"
+                  type="text"
+                  required
+                  placeholder="Ex: Gabriel Silva"
+                  class="perfil-field w-full h-11 rounded-xl px-3.5 text-xs sm:text-sm font-semibold"
+                />
               </div>
 
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label for="p-nome" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">
-                    Nome Completo <span class="text-rose-500">*</span>
-                  </label>
-                  <input
-                    id="p-nome"
-                    type="text"
-                    required
-                    placeholder="Ex: Gabriel Silva"
-                    class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#162235] placeholder:text-slate-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition"
-                  />
-                </div>
-
-                <div>
-                  <label for="p-apelido" class="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">
-                    <span>Como prefere ser chamado (Apelido) <span class="text-rose-500">*</span></span>
-                    <span class="text-[10px] font-normal text-slate-400">Exibido no menu superior</span>
-                  </label>
-                  <input
-                    id="p-apelido"
-                    type="text"
-                    required
-                    placeholder="Ex: Gabriel"
-                    class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#162235] placeholder:text-slate-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition"
-                  />
-                </div>
-
-                <div>
-                  <label for="p-telefone" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">
-                    Telefone / WhatsApp Pessoal <span class="text-rose-500">*</span>
-                  </label>
-                  <input
-                    id="p-telefone"
-                    type="tel"
-                    required
-                    placeholder="(62) 99999-9999"
-                    class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#162235] placeholder:text-slate-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition"
-                  />
-                </div>
-
-                <div>
-                  <label for="p-data-nascimento" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">
-                    Data de Nascimento <span class="text-rose-500">*</span>
-                  </label>
-                  <input
-                    id="p-data-nascimento"
-                    type="date"
-                    required
-                    class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#162235] focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition"
-                  />
-                </div>
-              </div>
-            </section>
-
-            <!-- SEÇÃO 2: IDENTIFICAÇÃO & LOCALIZAÇÃO (ETAPA 4 - 100% OPCIONAL) -->
-            <section class="space-y-4">
-              <div class="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-2.5">
-                <div>
-                  <h2 class="text-sm sm:text-base font-extrabold text-navy-900 dark:text-white flex items-center gap-2">
-                    <span class="w-6 h-6 rounded-lg bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 flex items-center justify-center font-mono text-xs font-black">2</span>
-                    <span>Identificação &amp; Localização</span>
-                  </h2>
-                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Informações demográficas e de modalidade de trabalho para pesquisas internas.</p>
-                </div>
-                <span class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-white/5 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-white/10">100% Opcional</span>
+              <div>
+                <label for="p-apelido" class="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">
+                  <span>Como prefere ser chamado (Apelido) <span class="text-rose-500">*</span></span>
+                  <span class="text-[10px] font-normal text-slate-400">Exibido no menu superior</span>
+                </label>
+                <input
+                  id="p-apelido"
+                  type="text"
+                  required
+                  placeholder="Ex: Gabriel"
+                  class="perfil-field w-full h-11 rounded-xl px-3.5 text-xs sm:text-sm font-semibold"
+                />
               </div>
 
-              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div>
-                  <label for="p-genero" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Gênero</label>
-                  <select
-                    id="p-genero"
-                    class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#162235] focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition"
-                  >
-                    <option value="">Prefiro não responder / Em branco</option>
-                    <option value="Masculino">Masculino</option>
-                    <option value="Feminino">Feminino</option>
-                    <option value="Não-binário">Não-binário</option>
-                    <option value="Outro">Outro</option>
-                    <option value="Prefiro não informar">Prefiro não informar</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label for="p-modelo-trabalho" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Modelo de Trabalho Atual</label>
-                  <select
-                    id="p-modelo-trabalho"
-                    class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#162235] focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition"
-                  >
-                    <option value="">Não informado</option>
-                    <option value="Presencial">Presencial</option>
-                    <option value="Híbrido">Híbrido</option>
-                    <option value="Home Office">Remoto / Home Office</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label for="p-uf" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Estado (UF)</label>
-                  <select
-                    id="p-uf"
-                    class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#162235] focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition"
-                  >
-                    <option value="">Não informado</option>
-                    <option value="GO">GO - Goiás</option>
-                    <option value="DF">DF - Distrito Federal</option>
-                    <option value="SP">SP - São Paulo</option>
-                    <option value="MG">MG - Minas Gerais</option>
-                    <option value="RJ">RJ - Rio de Janeiro</option>
-                    <option value="PR">PR - Paraná</option>
-                    <option value="SC">SC - Santa Catarina</option>
-                    <option value="RS">RS - Rio Grande do Sul</option>
-                    <option value="BA">BA - Bahia</option>
-                    <option value="MT">MT - Mato Grosso</option>
-                    <option value="MS">MS - Mato Grosso do Sul</option>
-                    <option value="TO">TO - Tocantins</option>
-                    <option value="CE">CE - Ceará</option>
-                    <option value="PE">PE - Pernambuco</option>
-                    <option value="PA">PA - Pará</option>
-                    <option value="AM">AM - Amazonas</option>
-                    <option value="ES">ES - Espírito Santo</option>
-                    <option value="MA">MA - Maranhão</option>
-                    <option value="PB">PB - Paraíba</option>
-                    <option value="RN">RN - Rio Grande do Norte</option>
-                    <option value="AL">AL - Alagoas</option>
-                    <option value="SE">SE - Sergipe</option>
-                    <option value="PI">PI - Piauí</option>
-                    <option value="RO">RO - Rondônia</option>
-                    <option value="AC">AC - Acre</option>
-                    <option value="AP">AP - Amapá</option>
-                    <option value="RR">RR - Roraima</option>
-                  </select>
-                </div>
-
-                <div class="sm:col-span-1 lg:col-span-2">
-                  <label for="p-cidade" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Cidade onde reside</label>
-                  <input
-                    id="p-cidade"
-                    type="text"
-                    placeholder="Ex: Goiânia"
-                    class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#162235] placeholder:text-slate-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition"
-                  />
-                </div>
-
-                <div>
-                  <label for="p-bairro" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Bairro / Região</label>
-                  <input
-                    id="p-bairro"
-                    type="text"
-                    placeholder="Ex: Setor Bueno"
-                    class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#162235] placeholder:text-slate-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition"
-                  />
-                </div>
-              </div>
-            </section>
-
-            <!-- SEÇÃO 3: FORMAÇÃO & QUALIFICAÇÃO (ETAPA 4 - 100% OPCIONAL) -->
-            <section class="space-y-4">
-              <div class="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-2.5">
-                <div>
-                  <h2 class="text-sm sm:text-base font-extrabold text-navy-900 dark:text-white flex items-center gap-2">
-                    <span class="w-6 h-6 rounded-lg bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 flex items-center justify-center font-mono text-xs font-black">3</span>
-                    <span>Formação &amp; Qualificação</span>
-                  </h2>
-                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Escolaridade, formação acadêmica e certificações.</p>
-                </div>
-                <span class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-white/5 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-white/10">100% Opcional</span>
+              <div>
+                <label for="p-telefone" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">
+                  Telefone / WhatsApp Pessoal <span class="text-rose-500">*</span>
+                </label>
+                <input
+                  id="p-telefone"
+                  type="tel"
+                  required
+                  placeholder="(62) 99999-9999"
+                  class="perfil-field w-full h-11 rounded-xl px-3.5 text-xs sm:text-sm font-semibold"
+                />
               </div>
 
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label for="p-escolaridade" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Nível de Escolaridade</label>
-                  <select
-                    id="p-escolaridade"
-                    class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#162235] focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition"
-                  >
-                    <option value="">Não informado</option>
-                    <option value="Ensino Médio">Ensino Médio</option>
-                    <option value="Superior em Andamento">Superior em Andamento</option>
-                    <option value="Superior Completo">Superior Completo</option>
-                    <option value="Pós-graduação / MBA">Pós-graduação / MBA</option>
-                    <option value="Mestrado / Doutorado">Mestrado / Doutorado</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label for="p-estuda-atualmente" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Estuda atualmente?</label>
-                  <select
-                    id="p-estuda-atualmente"
-                    class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#162235] focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition"
-                  >
-                    <option value="">Não informado</option>
-                    <option value="true">Sim, estou estudando</option>
-                    <option value="false">Não no momento</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label for="p-curso" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Curso / Área de Formação</label>
-                  <input
-                    id="p-curso"
-                    type="text"
-                    placeholder="Ex: Administração, Direito, Ciências Contábeis..."
-                    class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#162235] placeholder:text-slate-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition"
-                  />
-                </div>
-
-                <div>
-                  <label for="p-certificacoes" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Cursos Extras ou Certificações</label>
-                  <input
-                    id="p-certificacoes"
-                    type="text"
-                    placeholder="Ex: CPA-10, CPA-20, Gestão Comercial..."
-                    class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#162235] placeholder:text-slate-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition"
-                  />
-                </div>
+              <div>
+                <label for="p-data-nascimento" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">
+                  Data de Nascimento <span class="text-rose-500">*</span>
+                </label>
+                <input
+                  id="p-data-nascimento"
+                  type="date"
+                  required
+                  class="perfil-field w-full h-11 rounded-xl px-3.5 text-xs sm:text-sm font-semibold"
+                />
               </div>
-            </section>
+            </div>
 
-            <!-- SEÇÃO 4: SEGURANÇA & ALTERAÇÃO DE SENHA (OPCIONAL) -->
-            <section class="space-y-4">
-              <div class="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-2.5">
-                <div>
-                  <h2 class="text-sm sm:text-base font-extrabold text-navy-900 dark:text-white flex items-center gap-2">
-                    <span class="w-6 h-6 rounded-lg bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 flex items-center justify-center font-mono text-xs font-black">4</span>
-                    <span>Alterar Senha de Acesso</span>
-                  </h2>
-                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Preencha apenas se desejar trocar sua senha atual.</p>
-                </div>
-                <span class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-white/5 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-white/10">Opcional</span>
-              </div>
-
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <label for="p-senha-atual" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Senha Atual</label>
-                  <input
-                    id="p-senha-atual"
-                    type="password"
-                    autocomplete="current-password"
-                    placeholder="Deixe em branco para manter"
-                    class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#162235] placeholder:text-slate-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition"
-                  />
-                </div>
-
-                <div>
-                  <label for="p-nova-senha" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Nova Senha (mín. 8 caracteres)</label>
-                  <input
-                    id="p-nova-senha"
-                    type="password"
-                    autocomplete="new-password"
-                    placeholder="Nova senha"
-                    class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#162235] placeholder:text-slate-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition"
-                  />
-                </div>
-
-                <div>
-                  <label for="p-confirmar-senha" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Confirmar Nova Senha</label>
-                  <input
-                    id="p-confirmar-senha"
-                    type="password"
-                    autocomplete="new-password"
-                    placeholder="Repita a nova senha"
-                    class="w-full h-11 rounded-xl border border-slate-300 dark:border-white/15 px-3.5 text-xs sm:text-sm font-semibold text-navy-900 dark:text-white bg-white dark:bg-[#162235] placeholder:text-slate-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition"
-                  />
-                </div>
-              </div>
-            </section>
-
-            <!-- Rodapé de Ações -->
             <div class="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3 pt-4 border-t border-slate-200/80 dark:border-white/10">
               <a
                 href="{default_redirect}"
@@ -5022,13 +4928,274 @@ def get_profile_html(
 
               <button
                 type="submit"
-                id="btn-save-profile"
+                id="btn-save-dados"
                 class="btn-tactile px-7 py-3 rounded-xl bg-[#C59B27] hover:bg-[#DDBB5C] text-[#0F1A2A] text-xs sm:text-sm font-black shadow-md active:scale-98 transition inline-flex items-center justify-center gap-2 cursor-pointer"
               >
                 <svg class="w-4 h-4 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
-                <span id="btn-save-profile-label">Salvar Alterações</span>
+                <span id="btn-save-dados-label">Salvar Dados Principais</span>
+              </button>
+            </div>
+          </form>
+
+          <!-- ABA 2: SOBRE VOCÊ (OPCIONAL) -->
+          <form id="form-sobre-voce" class="perfil-tab-panel hidden space-y-7" data-panel="sobre" novalidate>
+            <!-- Bloco Localização & Trabalho -->
+            <section class="space-y-4">
+              <div class="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-2.5">
+                <div>
+                  <h2 class="text-sm sm:text-base font-extrabold text-navy-900 dark:text-white">
+                    Identificação &amp; Localização
+                  </h2>
+                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Informações demográficas e de modalidade de trabalho para pesquisas internas.</p>
+                </div>
+                <span class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-white/5 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-white/10 shrink-0">Opcional</span>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Gênero</label>
+                  <div class="relative gold-select-wrap" data-gold-select="p-genero">
+                    <input type="hidden" id="p-genero" value="" />
+                    <button type="button" aria-haspopup="listbox" aria-expanded="false" class="gold-select-trigger w-full h-11 rounded-xl px-3.5 text-xs sm:text-sm font-semibold flex items-center justify-between gap-2 cursor-pointer text-left">
+                      <span class="gold-select-label truncate">Prefiro não responder / Em branco</span>
+                      <svg class="gold-select-chevron w-4 h-4 text-slate-500 shrink-0 transition-transform duration-150" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6" /></svg>
+                    </button>
+                    <div role="listbox" class="gold-select-menu hidden absolute left-0 right-0 top-full mt-1.5 z-50 rounded-xl p-1.5 bg-white dark:bg-[#0A121E] border border-slate-200 dark:border-[#C59B27]/35 shadow-2xl max-h-60 overflow-y-auto menu-pop-in">
+                      <button type="button" role="option" data-value="" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">Prefiro não responder / Em branco</button>
+                      <button type="button" role="option" data-value="Masculino" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">Masculino</button>
+                      <button type="button" role="option" data-value="Feminino" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">Feminino</button>
+                      <button type="button" role="option" data-value="Não-binário" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">Não-binário</button>
+                      <button type="button" role="option" data-value="Outro" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">Outro</button>
+                      <button type="button" role="option" data-value="Prefiro não informar" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">Prefiro não informar</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Modelo de Trabalho Atual</label>
+                  <div class="relative gold-select-wrap" data-gold-select="p-modelo-trabalho">
+                    <input type="hidden" id="p-modelo-trabalho" value="" />
+                    <button type="button" aria-haspopup="listbox" aria-expanded="false" class="gold-select-trigger w-full h-11 rounded-xl px-3.5 text-xs sm:text-sm font-semibold flex items-center justify-between gap-2 cursor-pointer text-left">
+                      <span class="gold-select-label truncate">Não informado</span>
+                      <svg class="gold-select-chevron w-4 h-4 text-slate-500 shrink-0 transition-transform duration-150" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6" /></svg>
+                    </button>
+                    <div role="listbox" class="gold-select-menu hidden absolute left-0 right-0 top-full mt-1.5 z-50 rounded-xl p-1.5 bg-white dark:bg-[#0A121E] border border-slate-200 dark:border-[#C59B27]/35 shadow-2xl max-h-60 overflow-y-auto menu-pop-in">
+                      <button type="button" role="option" data-value="" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">Não informado</button>
+                      <button type="button" role="option" data-value="Presencial" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">Presencial</button>
+                      <button type="button" role="option" data-value="Híbrido" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">Híbrido</button>
+                      <button type="button" role="option" data-value="Home Office" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">Remoto / Home Office</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Estado (UF)</label>
+                  <div class="relative gold-select-wrap" data-gold-select="p-uf">
+                    <input type="hidden" id="p-uf" value="" />
+                    <button type="button" aria-haspopup="listbox" aria-expanded="false" class="gold-select-trigger w-full h-11 rounded-xl px-3.5 text-xs sm:text-sm font-semibold flex items-center justify-between gap-2 cursor-pointer text-left">
+                      <span class="gold-select-label truncate">Não informado</span>
+                      <svg class="gold-select-chevron w-4 h-4 text-slate-500 shrink-0 transition-transform duration-150" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6" /></svg>
+                    </button>
+                    <div role="listbox" class="gold-select-menu hidden absolute left-0 right-0 top-full mt-1.5 z-50 rounded-xl p-1.5 bg-white dark:bg-[#0A121E] border border-slate-200 dark:border-[#C59B27]/35 shadow-2xl max-h-60 overflow-y-auto menu-pop-in">
+                      <button type="button" role="option" data-value="" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">Não informado</button>
+                      <button type="button" role="option" data-value="GO" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">GO - Goiás</button>
+                      <button type="button" role="option" data-value="DF" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">DF - Distrito Federal</button>
+                      <button type="button" role="option" data-value="SP" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">SP - São Paulo</button>
+                      <button type="button" role="option" data-value="MG" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">MG - Minas Gerais</button>
+                      <button type="button" role="option" data-value="RJ" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">RJ - Rio de Janeiro</button>
+                      <button type="button" role="option" data-value="PR" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">PR - Paraná</button>
+                      <button type="button" role="option" data-value="SC" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">SC - Santa Catarina</button>
+                      <button type="button" role="option" data-value="RS" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">RS - Rio Grande do Sul</button>
+                      <button type="button" role="option" data-value="BA" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">BA - Bahia</button>
+                      <button type="button" role="option" data-value="MT" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">MT - Mato Grosso</button>
+                      <button type="button" role="option" data-value="MS" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">MS - Mato Grosso do Sul</button>
+                      <button type="button" role="option" data-value="TO" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">TO - Tocantins</button>
+                      <button type="button" role="option" data-value="CE" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">CE - Ceará</button>
+                      <button type="button" role="option" data-value="PE" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">PE - Pernambuco</button>
+                      <button type="button" role="option" data-value="PA" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">PA - Pará</button>
+                      <button type="button" role="option" data-value="AM" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">AM - Amazonas</button>
+                      <button type="button" role="option" data-value="ES" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">ES - Espírito Santo</button>
+                      <button type="button" role="option" data-value="MA" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">MA - Maranhão</button>
+                      <button type="button" role="option" data-value="PB" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">PB - Paraíba</button>
+                      <button type="button" role="option" data-value="RN" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">RN - Rio Grande do Norte</button>
+                      <button type="button" role="option" data-value="AL" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">AL - Alagoas</button>
+                      <button type="button" role="option" data-value="SE" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">SE - Sergipe</button>
+                      <button type="button" role="option" data-value="PI" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">PI - Piauí</button>
+                      <button type="button" role="option" data-value="RO" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">RO - Rondônia</button>
+                      <button type="button" role="option" data-value="AC" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">AC - Acre</button>
+                      <button type="button" role="option" data-value="AP" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">AP - Amapá</button>
+                      <button type="button" role="option" data-value="RR" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">RR - Roraima</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="sm:col-span-1 lg:col-span-2">
+                  <label for="p-cidade" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Cidade onde reside</label>
+                  <input
+                    id="p-cidade"
+                    type="text"
+                    placeholder="Ex: Goiânia"
+                    class="perfil-field w-full h-11 rounded-xl px-3.5 text-xs sm:text-sm font-semibold"
+                  />
+                </div>
+
+                <div>
+                  <label for="p-bairro" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Bairro / Região</label>
+                  <input
+                    id="p-bairro"
+                    type="text"
+                    placeholder="Ex: Setor Bueno"
+                    class="perfil-field w-full h-11 rounded-xl px-3.5 text-xs sm:text-sm font-semibold"
+                  />
+                </div>
+              </div>
+            </section>
+
+            <!-- Bloco Formação & Escolaridade (Sem campo de cursos extras) -->
+            <section class="space-y-4">
+              <div class="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-2.5">
+                <div>
+                  <h2 class="text-sm sm:text-base font-extrabold text-navy-900 dark:text-white">
+                    Formação &amp; Escolaridade
+                  </h2>
+                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Nível de escolaridade e área de formação acadêmica.</p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Nível de Escolaridade</label>
+                  <div class="relative gold-select-wrap" data-gold-select="p-escolaridade">
+                    <input type="hidden" id="p-escolaridade" value="" />
+                    <button type="button" aria-haspopup="listbox" aria-expanded="false" class="gold-select-trigger w-full h-11 rounded-xl px-3.5 text-xs sm:text-sm font-semibold flex items-center justify-between gap-2 cursor-pointer text-left">
+                      <span class="gold-select-label truncate">Não informado</span>
+                      <svg class="gold-select-chevron w-4 h-4 text-slate-500 shrink-0 transition-transform duration-150" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6" /></svg>
+                    </button>
+                    <div role="listbox" class="gold-select-menu hidden absolute left-0 right-0 top-full mt-1.5 z-50 rounded-xl p-1.5 bg-white dark:bg-[#0A121E] border border-slate-200 dark:border-[#C59B27]/35 shadow-2xl max-h-60 overflow-y-auto menu-pop-in">
+                      <button type="button" role="option" data-value="" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">Não informado</button>
+                      <button type="button" role="option" data-value="Ensino Médio" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">Ensino Médio</button>
+                      <button type="button" role="option" data-value="Superior em Andamento" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">Superior em Andamento</button>
+                      <button type="button" role="option" data-value="Superior Completo" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">Superior Completo</button>
+                      <button type="button" role="option" data-value="Pós-graduação / MBA" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">Pós-graduação / MBA</button>
+                      <button type="button" role="option" data-value="Mestrado / Doutorado" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">Mestrado / Doutorado</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Estuda atualmente?</label>
+                  <div class="relative gold-select-wrap" data-gold-select="p-estuda-atualmente">
+                    <input type="hidden" id="p-estuda-atualmente" value="" />
+                    <button type="button" aria-haspopup="listbox" aria-expanded="false" class="gold-select-trigger w-full h-11 rounded-xl px-3.5 text-xs sm:text-sm font-semibold flex items-center justify-between gap-2 cursor-pointer text-left">
+                      <span class="gold-select-label truncate">Não informado</span>
+                      <svg class="gold-select-chevron w-4 h-4 text-slate-500 shrink-0 transition-transform duration-150" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6" /></svg>
+                    </button>
+                    <div role="listbox" class="gold-select-menu hidden absolute left-0 right-0 top-full mt-1.5 z-50 rounded-xl p-1.5 bg-white dark:bg-[#0A121E] border border-slate-200 dark:border-[#C59B27]/35 shadow-2xl max-h-60 overflow-y-auto menu-pop-in">
+                      <button type="button" role="option" data-value="" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">Não informado</button>
+                      <button type="button" role="option" data-value="true" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">Sim, estou estudando</button>
+                      <button type="button" role="option" data-value="false" class="gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2">Não no momento</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="sm:col-span-2">
+                  <label for="p-curso" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Curso / Área de Formação</label>
+                  <input
+                    id="p-curso"
+                    type="text"
+                    placeholder="Ex: Administração, Direito, Ciências Contábeis..."
+                    class="perfil-field w-full h-11 rounded-xl px-3.5 text-xs sm:text-sm font-semibold"
+                  />
+                </div>
+              </div>
+            </section>
+
+            <div class="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3 pt-4 border-t border-slate-200/80 dark:border-white/10">
+              <a
+                href="{default_redirect}"
+                class="btn-tactile px-5 py-3 rounded-xl border border-slate-300 dark:border-white/15 hover:bg-slate-100 dark:hover:bg-white/10 text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 text-center transition"
+              >
+                Voltar sem salvar
+              </a>
+
+              <button
+                type="submit"
+                id="btn-save-sobre"
+                class="btn-tactile px-7 py-3 rounded-xl bg-[#C59B27] hover:bg-[#DDBB5C] text-[#0F1A2A] text-xs sm:text-sm font-black shadow-md active:scale-98 transition inline-flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <svg class="w-4 h-4 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                <span id="btn-save-sobre-label">Salvar Informações</span>
+              </button>
+            </div>
+          </form>
+
+          <!-- ABA 3: SEGURANÇA & SENHA (ISOLADA) -->
+          <form id="form-seguranca-senha" class="perfil-tab-panel hidden space-y-6" data-panel="seguranca" novalidate>
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-3">
+              <div>
+                <h2 class="text-sm sm:text-base font-extrabold text-navy-900 dark:text-white">
+                  Alterar Senha de Acesso
+                </h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Atualize sua senha quando desejar. Essa ação é independente dos seus dados cadastrais.</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label for="p-senha-atual" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Senha Atual <span class="text-rose-500">*</span></label>
+                <input
+                  id="p-senha-atual"
+                  type="password"
+                  autocomplete="current-password"
+                  placeholder="Digite sua senha atual"
+                  class="perfil-field w-full h-11 rounded-xl px-3.5 text-xs sm:text-sm font-semibold"
+                />
+              </div>
+
+              <div>
+                <label for="p-nova-senha" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Nova Senha (mín. 8 caracteres) <span class="text-rose-500">*</span></label>
+                <input
+                  id="p-nova-senha"
+                  type="password"
+                  autocomplete="new-password"
+                  placeholder="Nova senha"
+                  class="perfil-field w-full h-11 rounded-xl px-3.5 text-xs sm:text-sm font-semibold"
+                />
+              </div>
+
+              <div>
+                <label for="p-confirmar-senha" class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">Confirmar Nova Senha <span class="text-rose-500">*</span></label>
+                <input
+                  id="p-confirmar-senha"
+                  type="password"
+                  autocomplete="new-password"
+                  placeholder="Repita a nova senha"
+                  class="perfil-field w-full h-11 rounded-xl px-3.5 text-xs sm:text-sm font-semibold"
+                />
+              </div>
+            </div>
+
+            <div class="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3 pt-4 border-t border-slate-200/80 dark:border-white/10">
+              <a
+                href="{default_redirect}"
+                class="btn-tactile px-5 py-3 rounded-xl border border-slate-300 dark:border-white/15 hover:bg-slate-100 dark:hover:bg-white/10 text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 text-center transition"
+              >
+                Voltar
+              </a>
+
+              <button
+                type="submit"
+                id="btn-save-senha"
+                class="btn-tactile px-7 py-3 rounded-xl bg-[#C59B27] hover:bg-[#DDBB5C] text-[#0F1A2A] text-xs sm:text-sm font-black shadow-md active:scale-98 transition inline-flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <svg class="w-4 h-4 stroke-[2.5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                <span id="btn-save-senha-label">Atualizar Senha</span>
               </button>
             </div>
           </form>
@@ -5100,6 +5267,104 @@ def get_profile_html(
       }}
     }});
 
+    function trocarAbaPerfil(aba) {{
+      document.querySelectorAll('.perfil-tab-panel').forEach((panel) => {{
+        panel.classList.toggle('hidden', panel.getAttribute('data-panel') !== aba);
+      }});
+      document.querySelectorAll('.perfil-tab-btn').forEach((btn) => {{
+        const ativo = btn.getAttribute('data-perfil-tab') === aba;
+        btn.setAttribute('aria-selected', ativo ? 'true' : 'false');
+        btn.className = ativo
+          ? 'perfil-tab-btn btn-tactile flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold bg-[#C59B27] text-[#0F1A2A] shadow-sm whitespace-nowrap cursor-pointer transition-colors'
+          : 'perfil-tab-btn btn-tactile flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-white/10 whitespace-nowrap cursor-pointer transition-colors';
+      }});
+      fecharTodosGoldSelects();
+    }}
+
+    function fecharTodosGoldSelects(excetoWrap) {{
+      document.querySelectorAll('.gold-select-wrap').forEach((wrap) => {{
+        if (excetoWrap && wrap === excetoWrap) return;
+        const menu = wrap.querySelector('.gold-select-menu');
+        const btn = wrap.querySelector('.gold-select-trigger');
+        const chev = wrap.querySelector('.gold-select-chevron');
+        if (menu) menu.classList.add('hidden');
+        if (btn) btn.setAttribute('aria-expanded', 'false');
+        if (chev) chev.classList.remove('rotate-180');
+      }});
+    }}
+
+    function setGoldSelectValue(id, value) {{
+      const input = document.getElementById(id);
+      if (!input) return;
+      const val = value == null ? '' : String(value);
+      input.value = val;
+
+      const wrap = input.closest('.gold-select-wrap');
+      if (!wrap) return;
+      const labelEl = wrap.querySelector('.gold-select-label');
+      const options = wrap.querySelectorAll('.gold-select-opt');
+      let matchedText = '';
+
+      options.forEach((opt) => {{
+        const isSelected = opt.getAttribute('data-value') === val;
+        opt.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+        const oldCheck = opt.querySelector('.gold-opt-check');
+        if (oldCheck) oldCheck.remove();
+
+        if (isSelected) {{
+          matchedText = opt.textContent.trim();
+          opt.className = 'gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-between gap-2 bg-[#C59B27]/15 text-[#876511] dark:text-[#DDBB5C]';
+          const check = document.createElement('span');
+          check.className = 'gold-opt-check text-[#C59B27] dark:text-[#DDBB5C] font-black';
+          check.textContent = '✓';
+          opt.appendChild(check);
+        }} else {{
+          opt.className = 'gold-select-opt w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between gap-2 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/10';
+        }}
+      }});
+
+      if (labelEl) {{
+        labelEl.textContent = matchedText || (options[0] ? options[0].textContent.trim() : '');
+      }}
+    }}
+
+    function initGoldSelects() {{
+      document.querySelectorAll('.gold-select-wrap').forEach((wrap) => {{
+        const trigger = wrap.querySelector('.gold-select-trigger');
+        const menu = wrap.querySelector('.gold-select-menu');
+        const chev = wrap.querySelector('.gold-select-chevron');
+        const hiddenInput = wrap.querySelector('input[type="hidden"]');
+        if (!trigger || !menu || !hiddenInput) return;
+
+        trigger.addEventListener('click', (e) => {{
+          e.stopPropagation();
+          const willOpen = menu.classList.contains('hidden');
+          fecharTodosGoldSelects(wrap);
+          menu.classList.toggle('hidden', !willOpen);
+          trigger.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+          if (chev) chev.classList.toggle('rotate-180', willOpen);
+        }});
+
+        wrap.querySelectorAll('.gold-select-opt').forEach((opt) => {{
+          opt.addEventListener('click', () => {{
+            setGoldSelectValue(hiddenInput.id, opt.getAttribute('data-value') || '');
+            fecharTodosGoldSelects();
+            atualizarProgressoFormulario();
+          }});
+        }});
+      }});
+
+      document.addEventListener('pointerdown', (e) => {{
+        if (!e.target.closest('.gold-select-wrap')) {{
+          fecharTodosGoldSelects();
+        }}
+      }});
+
+      document.addEventListener('keydown', (e) => {{
+        if (e.key === 'Escape') fecharTodosGoldSelects();
+      }});
+    }}
+
     function atualizarProgressoFormulario() {{
       const campos = [
         document.getElementById('p-nome').value.trim(),
@@ -5113,8 +5378,7 @@ def get_profile_html(
         document.getElementById('p-bairro').value.trim(),
         document.getElementById('p-escolaridade').value.trim(),
         document.getElementById('p-estuda-atualmente').value.trim(),
-        document.getElementById('p-curso').value.trim(),
-        document.getElementById('p-certificacoes').value.trim()
+        document.getElementById('p-curso').value.trim()
       ];
       const preenchidos = campos.filter(Boolean).length;
       const pct = Math.round((preenchidos / campos.length) * 100);
@@ -5163,21 +5427,20 @@ def get_profile_html(
       document.getElementById('p-apelido').value = u.apelido || (u.nome ? u.nome.split(' ')[0] : '');
       document.getElementById('p-telefone').value = u.telefone || '';
       document.getElementById('p-data-nascimento').value = u.data_nascimento || '';
-      document.getElementById('p-genero').value = u.genero || '';
-      document.getElementById('p-modelo-trabalho').value = u.modelo_trabalho || '';
-      document.getElementById('p-uf').value = u.uf || '';
+      setGoldSelectValue('p-genero', u.genero || '');
+      setGoldSelectValue('p-modelo-trabalho', u.modelo_trabalho || '');
+      setGoldSelectValue('p-uf', u.uf || '');
       document.getElementById('p-cidade').value = u.cidade || '';
       document.getElementById('p-bairro').value = u.bairro || '';
-      document.getElementById('p-escolaridade').value = u.escolaridade || '';
+      setGoldSelectValue('p-escolaridade', u.escolaridade || '');
       if (u.estuda_atualmente === true) {{
-        document.getElementById('p-estuda-atualmente').value = 'true';
+        setGoldSelectValue('p-estuda-atualmente', 'true');
       }} else if (u.estuda_atualmente === false) {{
-        document.getElementById('p-estuda-atualmente').value = 'false';
+        setGoldSelectValue('p-estuda-atualmente', 'false');
       }} else {{
-        document.getElementById('p-estuda-atualmente').value = '';
+        setGoldSelectValue('p-estuda-atualmente', '');
       }}
       document.getElementById('p-curso').value = u.curso || '';
-      document.getElementById('p-certificacoes').value = u.certificacoes || '';
 
       atualizarProgressoFormulario();
     }}
@@ -5220,13 +5483,39 @@ def get_profile_html(
       banner.scrollIntoView({{ behavior: 'smooth', block: 'nearest' }});
     }}
 
-    document.getElementById('profile-form').addEventListener('input', atualizarProgressoFormulario);
+    async function enviarAtualizacaoPerfil(payload, btn, labelEl, textoOriginal, mensagemSucesso) {{
+      btn.disabled = true;
+      labelEl.textContent = 'Salvando...';
+      try {{
+        const res = await fetch('/api/auth/me/profile', {{
+          method: 'PATCH',
+          headers: {{ 'Content-Type': 'application/json' }},
+          body: JSON.stringify(payload)
+        }});
+        const data = await res.json().catch(() => ({{}}));
+        if (!res.ok) {{
+          throw new Error(data.detail || 'Não foi possível salvar suas alterações.');
+        }}
+        if (data.user) {{
+          popularInterfaceUsuario(data.user);
+        }}
+        exibirBannerFeedback(mensagemSucesso, 'sucesso');
+        return true;
+      }} catch (err) {{
+        exibirBannerFeedback(err.message || 'Erro ao salvar alterações.', 'erro');
+        return false;
+      }} finally {{
+        btn.disabled = false;
+        labelEl.textContent = textoOriginal;
+      }}
+    }}
 
-    document.getElementById('profile-form').addEventListener('submit', async (e) => {{
+    document.getElementById('form-dados-principais').addEventListener('input', atualizarProgressoFormulario);
+    document.getElementById('form-sobre-voce').addEventListener('input', atualizarProgressoFormulario);
+
+    // Submit Aba 1: Dados Principais
+    document.getElementById('form-dados-principais').addEventListener('submit', async (e) => {{
       e.preventDefault();
-      const btn = document.getElementById('btn-save-profile');
-      const label = document.getElementById('btn-save-profile-label');
-
       const nome = document.getElementById('p-nome').value.trim();
       const apelido = document.getElementById('p-apelido').value.trim();
       const telefone = document.getElementById('p-telefone').value.trim();
@@ -5249,79 +5538,74 @@ def get_profile_html(
         return;
       }}
 
-      const senha_atual = document.getElementById('p-senha-atual').value;
-      const nova_senha = document.getElementById('p-nova-senha').value;
-      const confirmar = document.getElementById('p-confirmar-senha').value;
+      await enviarAtualizacaoPerfil(
+        {{ nome, apelido, telefone, data_nascimento }},
+        document.getElementById('btn-save-dados'),
+        document.getElementById('btn-save-dados-label'),
+        'Salvar Dados Principais',
+        'Dados principais atualizados com sucesso!'
+      );
+    }});
 
-      if (nova_senha || confirmar) {{
-        if (!senha_atual) {{
-          exibirBannerFeedback('Para alterar sua senha, digite também sua senha atual.', 'erro');
-          return;
-        }}
-        if (nova_senha.length < 8) {{
-          exibirBannerFeedback('A nova senha deve ter pelo menos 8 caracteres.', 'erro');
-          return;
-        }}
-        if (nova_senha !== confirmar) {{
-          exibirBannerFeedback('A confirmação da nova senha não confere.', 'erro');
-          return;
-        }}
-      }}
-
+    // Submit Aba 2: Sobre Você (Opcional)
+    document.getElementById('form-sobre-voce').addEventListener('submit', async (e) => {{
+      e.preventDefault();
       const estudaVal = document.getElementById('p-estuda-atualmente').value;
       const estuda_atualmente = estudaVal === 'true' ? true : (estudaVal === 'false' ? false : null);
 
-      const payload = {{
-        nome,
-        apelido,
-        telefone,
-        data_nascimento,
-        genero: document.getElementById('p-genero').value,
-        modelo_trabalho: document.getElementById('p-modelo-trabalho').value,
-        uf: document.getElementById('p-uf').value,
-        cidade: document.getElementById('p-cidade').value.trim(),
-        bairro: document.getElementById('p-bairro').value.trim(),
-        escolaridade: document.getElementById('p-escolaridade').value,
-        estuda_atualmente,
-        curso: document.getElementById('p-curso').value.trim(),
-        certificacoes: document.getElementById('p-certificacoes').value.trim()
-      }};
+      await enviarAtualizacaoPerfil(
+        {{
+          genero: document.getElementById('p-genero').value,
+          modelo_trabalho: document.getElementById('p-modelo-trabalho').value,
+          uf: document.getElementById('p-uf').value,
+          cidade: document.getElementById('p-cidade').value.trim(),
+          bairro: document.getElementById('p-bairro').value.trim(),
+          escolaridade: document.getElementById('p-escolaridade').value,
+          estuda_atualmente,
+          curso: document.getElementById('p-curso').value.trim()
+        }},
+        document.getElementById('btn-save-sobre'),
+        document.getElementById('btn-save-sobre-label'),
+        'Salvar Informações',
+        'Informações complementares salvas com sucesso!'
+      );
+    }});
 
-      if (nova_senha) {{
-        payload.senha_atual = senha_atual;
-        payload.nova_senha = nova_senha;
+    // Submit Aba 3: Segurança & Senha (Isolada)
+    document.getElementById('form-seguranca-senha').addEventListener('submit', async (e) => {{
+      e.preventDefault();
+      const senha_atual = document.getElementById('p-senha-atual').value;
+      const nova_senha = document.getElementById('p-nova-senha').value;
+      const confirmar_senha = document.getElementById('p-confirmar-senha').value;
+
+      if (!senha_atual) {{
+        exibirBannerFeedback('Digite sua senha atual para confirmar a alteração.', 'erro');
+        return;
+      }}
+      if (!nova_senha || nova_senha.length < 8) {{
+        exibirBannerFeedback('A nova senha deve ter pelo menos 8 caracteres.', 'erro');
+        return;
+      }}
+      if (nova_senha !== confirmar_senha) {{
+        exibirBannerFeedback('A confirmação da nova senha não confere.', 'erro');
+        return;
       }}
 
-      btn.disabled = true;
-      label.textContent = 'Salvando...';
-
-      try {{
-        const res = await fetch('/api/auth/me/profile', {{
-          method: 'PUT',
-          headers: {{ 'Content-Type': 'application/json' }},
-          body: JSON.stringify(payload)
-        }});
-        const data = await res.json().catch(() => ({{}}));
-        if (!res.ok) {{
-          throw new Error(data.detail || 'Não foi possível salvar suas alterações.');
-        }}
-
-        if (data.user) {{
-          popularInterfaceUsuario(data.user);
-        }}
+      const ok = await enviarAtualizacaoPerfil(
+        {{ senha_atual, nova_senha, confirmar_senha }},
+        document.getElementById('btn-save-senha'),
+        document.getElementById('btn-save-senha-label'),
+        'Atualizar Senha',
+        'Senha atualizada com sucesso!'
+      );
+      if (ok) {{
         document.getElementById('p-senha-atual').value = '';
         document.getElementById('p-nova-senha').value = '';
         document.getElementById('p-confirmar-senha').value = '';
-
-        exibirBannerFeedback('Perfil atualizado com sucesso!', 'sucesso');
-      }} catch (err) {{
-        exibirBannerFeedback(err.message || 'Erro ao salvar perfil.', 'erro');
-      }} finally {{
-        btn.disabled = false;
-        label.textContent = 'Salvar Alterações';
       }}
     }});
 
+    initGoldSelects();
     sincronizarIconesTema();
     carregarPerfil();
   </script>
