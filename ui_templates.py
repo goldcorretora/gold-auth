@@ -4465,18 +4465,6 @@ def get_profile_html(
     hub_url: str = "https://apps.goldcorretora.com.br",
     is_admin_or_ti: bool = False
 ) -> str:
-    admin_menu_link = """
-            <a
-              href="/admin"
-              role="menuitem"
-              class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-200 hover:text-[#DDBB5C] hover:bg-white/10 border border-transparent hover:border-[#C59B27]/30 transition-colors duration-150 cursor-pointer mb-1"
-            >
-              <svg class="w-4 h-4 text-[#DDBB5C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
-              <span>Gestão de Acessos &amp; Equipe</span>
-            </a>""" if is_admin_or_ti else ""
-
     return f"""<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -4638,7 +4626,6 @@ def get_profile_html(
               </svg>
               <span>Editar perfil</span>
             </a>
-            {admin_menu_link}
             <a
               href="/api/auth/logout"
               role="menuitem"
