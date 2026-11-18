@@ -5367,6 +5367,47 @@ def get_profile_html(
       }});
     }}
 
+    let snapshotInicialPerfil = null;
+
+    function obterEstadoFormularioPerfil() {{
+      return {{
+        nome: document.getElementById('p-nome').value.trim(),
+        apelido: document.getElementById('p-apelido').value.trim(),
+        telefone: document.getElementById('p-telefone').value.trim(),
+        data_nascimento: document.getElementById('p-data-nascimento').value.trim(),
+        genero: document.getElementById('p-genero').value,
+        modelo_trabalho: document.getElementById('p-modelo-trabalho').value,
+        uf: document.getElementById('p-uf').value,
+        cidade: document.getElementById('p-cidade').value.trim(),
+        bairro: document.getElementById('p-bairro').value.trim(),
+        escolaridade: document.getElementById('p-escolaridade').value,
+        estuda_atualmente: document.getElementById('p-estuda-atualmente').value,
+        curso: document.getElementById('p-curso').value.trim()
+      }};
+    }}
+
+    function capturarSnapshotPerfil() {{
+      snapshotInicialPerfil = JSON.stringify(obterEstadoFormularioPerfil());
+    }}
+
+    function temAlteracoesNaoSalvas() {{
+      if (snapshotInicialPerfil === null) return false;
+      const temSenhaDigitada = Boolean(
+        document.getElementById('p-senha-atual').value ||
+        document.getElementById('p-nova-senha').value ||
+        document.getElementById('p-confirmar-senha').value
+      );
+      if (temSenhaDigitada) return true;
+      return JSON.stringify(obterEstadoFormularioPerfil()) !== snapshotInicialPerfil;
+    }}
+
+    window.addEventListener('beforeunload', (e) => {{
+      if (temAlteracoesNaoSalvas()) {{
+        e.preventDefault();
+        e.returnValue = '';
+      }}
+    }});
+
     function atualizarProgressoFormulario() {{
       const campos = [
         document.getElementById('p-nome').value.trim(),
@@ -5443,6 +5484,7 @@ def get_profile_html(
       }}
       document.getElementById('p-curso').value = u.curso || '';
 
+      capturarSnapshotPerfil();
       atualizarProgressoFormulario();
     }}
 
