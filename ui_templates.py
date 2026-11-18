@@ -5412,7 +5412,6 @@ def get_profile_html(
         const chips = [];
         if (u.setor) chips.push(`<span class="px-2.5 py-0.5 rounded-lg text-[11px] font-bold bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300">Setor: ${{u.setor}}</span>`);
         if (u.unidade) chips.push(`<span class="px-2.5 py-0.5 rounded-lg text-[11px] font-bold bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300">${{u.unidade}}</span>`);
-        if (typeof u.idade === 'number') chips.push(`<span class="px-2.5 py-0.5 rounded-lg text-[11px] font-bold bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300">${{u.idade}} anos</span>`);
         if (typeof u.tempo_casa_meses === 'number') {{
           const anos = Math.floor(u.tempo_casa_meses / 12);
           const meses = u.tempo_casa_meses % 12;
